@@ -25,13 +25,14 @@ all other elements treated as functions with list arguments
 =cut
 
 use strict;
-use base qw(Data::Stag::Base);
+use base qw(Data::Stag::Base Data::Stag::Writer);
 
 use vars qw($VERSION);
 $VERSION="0.01";
 
 sub init {
     my $self = shift;
+    $self->init_writer(@_);
     $self->stack([]);
     return;
 }
@@ -78,7 +79,7 @@ sub o {
         }
         $self->this_line($self->this_line . $pre.$o);
     }
-    print $pre.$o;
+    $self->addtext( $pre.$o );
 
 }
 
@@ -88,7 +89,7 @@ sub start_event {
     my $stack = $self->stack;
     $self->o("($ev");
     push(@$stack, $ev);
-};
+}
 sub end_event {
     my $self = shift;
     my $ev = shift;
@@ -99,13 +100,13 @@ sub end_event {
     }
     $self->o(")");
     return $ev;
-};
+}
 sub evbody {
     my $self = shift;
     my $body = shift;
     $self->o(lispesc($body));
     return;
-};
+}
 
 sub lispesc {
     my $w = shift;

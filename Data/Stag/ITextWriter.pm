@@ -16,7 +16,7 @@ package Data::Stag::ITextWriter;
 =cut
 
 use strict;
-use base qw(Data::Stag::Base);
+use base qw(Data::Stag::Base Data::Stag::Writer);
 
 use vars qw($VERSION);
 $VERSION="0.01";
@@ -25,17 +25,8 @@ sub init {
     my $self = shift;
     my ($fn) = @_;
     $self->stack([]);
-    $self->fh(\*STDOUT);
-    if ($fn) {
-	$self->fh(FileHandle->new(">$fn") || die($fn));
-    }
+    $self->init_writer(@_);
     return;
-}
-
-sub fh {
-    my $self = shift;
-    $self->{_fh} = shift if @_;
-    return $self->{_fh};
 }
 
 

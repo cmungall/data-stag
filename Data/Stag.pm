@@ -1,4 +1,4 @@
-# $Id: Stag.pm,v 1.6 2002/12/16 16:51:43 cmungall Exp $
+# $Id: Stag.pm,v 1.7 2002/12/20 22:16:17 cmungall Exp $
 # -------------------------------------------------------
 #
 # Copyright (C) 2002 Chris Mungall <cjm@fruitfly.org>
@@ -61,7 +61,7 @@ $VERSION = '0.01';
                   isanode
                   parser
                   parse parsefile
-                  write
+		  generate gen write
                   xml   tree2xml
                   hash tree2hash
                   pairs tree2pairs

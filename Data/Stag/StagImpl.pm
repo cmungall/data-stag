@@ -1,4 +1,4 @@
-# $Id: StagImpl.pm,v 1.6 2002/12/17 05:59:27 cmungall Exp $
+# $Id: StagImpl.pm,v 1.7 2002/12/20 22:16:18 cmungall Exp $
 #
 # Author: Chris Mungall <cjm@fruitfly.org>
 #
@@ -149,9 +149,10 @@ sub parse {
               -str=>$str,
               -fh=>$fh,
              );
-    Nodify($h->tree);
-    @$tree = @{$h->tree || []};
-    return $h->tree;
+    my $htree = $h->can("tree") ? $h->tree : [];
+    Nodify($tree);
+    @$tree = @{$htree || []};
+    return $tree;
 }
 *parseFile = \&parse;
 
@@ -181,7 +182,8 @@ sub from {
 
 sub generate {
     my $tree = shift || [];
-    my ($fn, $fmt, @args) = @_;
+    my ($fn, $fmt, $fh) = 
+      rearrange([qw(file fmt fh)], @_);
     if (!$fmt) {
 	if (!$fn) {
 	    $fmt = "xml";
@@ -205,10 +207,14 @@ sub generate {
     elsif ($fmt eq "sxpr") {
         $writer = "Data::Stag::SxprWriter";
     }
+    elsif (!$fmt) {
+	confess("no format/writer!");
+    }
     else {
+	confess("unrecognised:$fmt");
     }
     load_module($writer);
-    my $w = $writer->new($fn);
+    my $w = $writer->new(-file=>$fn, -fh=>$fh);
     $w->event(@$tree);
     return;
 }
@@ -413,11 +419,11 @@ sub sxpr2tree {
     my @args = ();
     while ($i < length($sxpr)) {
         my $c = substr($sxpr, $i, 1);
-        print STDERR "c;$c i=$i\n";
+#################################        print STDERR "c;$c i=$i\n";
         $i++;
         if ($c eq ')') {
             my $funcnode = shift @args;
-            print STDERR "f = $funcnode->[1]\n";
+#            print STDERR "f = $funcnode->[1]\n";
             map {print xml($_)} @args;
             return [$funcnode->[1] =>[@args]], $i;
         }
@@ -428,7 +434,7 @@ sub sxpr2tree {
             my ($tree, $extra) = sxpr2tree(substr($sxpr, $i), $indent+1);
             push(@args, $tree);
             $i += $extra;
-            printf STDERR "tail: %s\n", substr($sxpr, $i);
+#            printf STDERR "tail: %s\n", substr($sxpr, $i);
         }
         else {
             # look ahead
@@ -1156,7 +1162,7 @@ sub tmatchhash {
     for (my $i=0; $i<@mvals; $i++) {
         $pass = 0 if $mvals[$i] ne $rvals[$i];
     }
-    print "CHECK @mvals eq @rvals [$pass]\n";
+#    print "CHECK @mvals eq @rvals [$pass]\n";
     return $pass;
 }
 *tmh = \&tmatchhash;
@@ -1278,7 +1284,7 @@ sub run {
             }
         }
         else {
-            print "rcall $tree $p\n";
+#            print "rcall $tree $p\n";
             push(@args,
                  evalTree($tree,
                           $p));
