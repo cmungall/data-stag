@@ -1,4 +1,4 @@
-# $Id: StagImpl.pm,v 1.40 2004/02/05 06:14:08 cmungall Exp $
+# $Id: StagImpl.pm,v 1.41 2004/03/05 23:10:11 cmungall Exp $
 #
 # Author: Chris Mungall <cjm@fruitfly.org>
 #
@@ -715,6 +715,32 @@ sub _tree2sax {
     }
     $saxhandler->end_element({Name => $ev});
 }
+
+sub xslt {
+    my $xsltstr = xsltstr(@_);
+    return parse([], 
+                 -str=>$xsltstr,
+                 -format=>'xml');
+}
+
+sub xsltstr {
+    my $tree = shift;
+    my $stag = shift;
+    my $xslt_file = shift;
+    
+    load_module("XML::LibXML");
+    load_module("XML::LibXSLT");
+    my $parser = XML::LibXML->new();
+    my $source = $parser->parse_string($stag->xml);
+    
+    my $xslt = XML::LibXSLT->new();
+    my $styledoc = $parser->parse_file($xslt_file);
+    my $stylesheet = $xslt->parse_stylesheet($styledoc);
+
+    my $results = $stylesheet->transform($source);
+    return $results;
+}
+
 
 sub events {
     my $tree = shift;

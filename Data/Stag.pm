@@ -1,4 +1,4 @@
-# $Id: Stag.pm,v 1.27 2004/02/05 06:14:08 cmungall Exp $
+# $Id: Stag.pm,v 1.28 2004/03/05 23:10:09 cmungall Exp $
 # -------------------------------------------------------
 #
 # Copyright (C) 2004 Chris Mungall <cjm@fruitfly.org>
@@ -1641,6 +1641,27 @@ will try and guess the format from the extension if not specified
 =head2 XML METHODS
 
 
+
+=head3 xslt
+
+       Title: xslt
+
+        Args: xslt_file str
+      Return: Node
+     Example: $new_stag = $stag->xslt('mytransform.xsl');
+
+transforms a stag tree using XSLT
+
+=head3 xsltstr
+
+       Title: xsltstr
+
+        Args: xslt_file str
+      Return: str
+     Example: print $stag->xsltstr('mytransform.xsl');
+
+As above, but returns the string of the resulting transform, rather
+than a stag tree
 
 =head3 sax
 

@@ -1,4 +1,4 @@
-# $Id: BaseHandler.pm,v 1.20 2004/02/05 06:14:08 cmungall Exp $
+# $Id: BaseHandler.pm,v 1.21 2004/03/05 23:10:11 cmungall Exp $
 #
 # This  module is maintained by Chris Mungall <cjm@fruitfly.org>
 
@@ -576,6 +576,11 @@ sub end_event {
     }
 
     $self->tree(Data::Stag::stag_nodify($topnode));
+    if (!@$stack) {
+        if ($self->can("end_stag")) {
+            $self->end_stag($self->tree);
+        }
+    }
 
     return @R;
 }
