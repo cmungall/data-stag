@@ -1,4 +1,4 @@
-# $Id: BaseHandler.pm,v 1.5 2003/01/07 23:45:43 cmungall Exp $
+# $Id: BaseHandler.pm,v 1.6 2003/02/05 15:09:02 cmungall Exp $
 #
 # This  module is maintained by Chris Mungall <cjm@fruitfly.org>
 
@@ -159,6 +159,31 @@ sub node {
     return $self->{node};
 }
 
+sub remove_elts {
+    my $self = shift;
+    $self->{_remove_elts} = [@_] if @_;
+    return @{$self->{_remove_elts} || []};
+}
+*kill_elts = \&remove_elts;
+
+sub flatten_elts {
+    my $self = shift;
+    $self->{_flatten_elts} = [@_] if @_;
+    return @{$self->{_flatten_elts} || []};
+}
+
+sub skip_elts {
+    my $self = shift;
+    $self->{_skip_elts} = [@_] if @_;
+    return @{$self->{_skip_elts} || []};
+}
+*raise_elts = \&skip_elts;
+
+sub rename_elts {
+    my $self = shift;
+    $self->{_rename_elts} = {@_} if @_;
+    return %{$self->{_rename_elts} || {}};
+}
 
 sub lookup {
     my $tree = shift;
@@ -237,9 +262,17 @@ sub b {shift->evbody(@_)}
 sub end_event {
     my $self = shift;
     my $ev = shift;
-    my $m = perlify("e_$ev");
+
     my $node = $self->node;
     my $topnode = pop @$node;
+
+    my %rename = $self->rename_elts;
+    if ($rename{$ev}) {
+        $ev = $rename{$ev};
+        $topnode->[0] = $ev;
+    }
+    
+    my $m = perlify("e_$ev");
     my $check = scalar(@$topnode);
     if ($check < 2) {
         # NULLs are treated the same as
@@ -338,7 +371,12 @@ sub end_event {
         }
         if (@$node) {
             my $el = $node->[$#{$node}];
+#            if ($topnode && !ref($topnode)) {
+#                confess $topnode;
+#            }
+
             if ($topnode && @$topnode) {
+#                confess $el->[1] unless ref($el->[1]);
                 push(@{$el->[1]}, $topnode);
                 #            $el->[1] = $topnode;
 

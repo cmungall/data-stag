@@ -1,4 +1,4 @@
-# $Id: Stag.pm,v 1.10 2003/01/11 00:27:13 cmungall Exp $
+# $Id: Stag.pm,v 1.11 2003/02/05 15:09:01 cmungall Exp $
 # -------------------------------------------------------
 #
 # Copyright (C) 2002 Chris Mungall <cjm@fruitfly.org>
@@ -63,6 +63,7 @@ $VERSION="0.02";
                   parse parsefile
 		  generate gen write
                   makehandler mh
+                  findhandler 
                   xml   tree2xml
                   hash tree2hash
                   pairs tree2pairs

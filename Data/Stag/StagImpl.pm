@@ -1,4 +1,4 @@
-# $Id: StagImpl.pm,v 1.13 2003/01/14 01:05:53 cmungall Exp $
+# $Id: StagImpl.pm,v 1.14 2003/02/05 15:09:05 cmungall Exp $
 #
 # Author: Chris Mungall <cjm@fruitfly.org>
 #
@@ -212,7 +212,7 @@ sub from {
     }
 }
 
-sub generate {
+sub _gethandlerobj {
     my $tree = shift || [];
     my ($fn, $fmt, $fh) = 
       rearrange([qw(file fmt fh)], @_);
@@ -230,7 +230,10 @@ sub generate {
         }
     }
     my $writer;
-    if ($fmt eq "xml") {
+    if (ref($fmt)) {
+        return $fmt;
+    }
+    elsif ($fmt eq "xml") {
         $writer = "Data::Stag::XMLWriter";
     }
     elsif ($fmt eq "itext") {
@@ -247,6 +250,13 @@ sub generate {
     }
     load_module($writer);
     my $w = $writer->new(-file=>$fn, -fh=>$fh);
+    return $w;
+}
+*findhandler = \&_gethandlerobj;
+
+sub generate {
+    my $tree = shift || [];
+    my $w = _gethandlerobj($tree, @_);
     $w->event(@$tree);
     return;
 }
@@ -262,6 +272,23 @@ sub makehandler {
     return $handler;
 }
 *mh = \&makehandler;
+
+sub chainhandlers {
+    my $tree = shift;
+    my $block = shift;
+    my @sh = @_;
+
+    load_module("Data::Stag::ChainHandler");
+    my $handler = Data::Stag::ChainHandler->new;
+    $handler->blocked_event($block);
+    $handler->subhandlers([
+                           map {
+                               ref($_) ? $_ :
+                                 _gethandlerobj($tree, -fmt=>$_)
+                             } @sh
+                          ]);
+    return $handler;
+}
 
 sub hash {
     my $tree = shift;
@@ -649,8 +676,12 @@ sub add {
     my $tree = shift || confess;
     my $node = shift;
     my @v = @_;
+    if (ref($node)) {
+        ($node, @v) = ($node->[0], @{$node->[1]});
+    }
     confess("problem: $tree not arr") unless ref($tree) && ref($tree) eq "ARRAY" || isaNode($tree);
     my ($ev, $subtree) = @$tree;
+
     my @nu_subtree = ();
     my $has_been_set = 0;
     for (my $i=0; $i<@$subtree; $i++) {
@@ -668,7 +699,7 @@ sub add {
     }
     if (!$has_been_set) {
 	map {
-	    addChildTree($tree, [$node=>$_]); 
+	    addkid($tree, [$node=>$_]); 
 	} @v;
     }
     else {
