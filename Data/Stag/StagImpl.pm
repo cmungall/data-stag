@@ -1,4 +1,4 @@
-# $Id: StagImpl.pm,v 1.43 2004/04/16 05:43:46 cmungall Exp $
+# $Id: StagImpl.pm,v 1.44 2004/04/18 20:12:48 cmungall Exp $
 #
 # Author: Chris Mungall <cjm@fruitfly.org>
 #
@@ -1216,7 +1216,7 @@ sub get {
         my ($top_ev, $children) = @$tree;
         @v = ();
 	if (!ref($children)) {
-	    confess("problem with $node/$top_ev => $children");
+	    confess("problem with $node/$top_ev => $children; cannot call get on terminal node");
 	}
         foreach my $child (@$children) {
             confess unless ref $child;
@@ -2075,6 +2075,23 @@ sub merge {
     return $tree;
 }
 *mergeElements = \&merge;
+
+sub makeattrsnodes {
+    my $tree = shift;
+    return if isterminal($tree);
+    my @attrs = get($tree,'@');
+    if (@attrs) {
+	my @nu = ();
+	foreach (@attrs) {
+	    push(@nu, kids($_));
+	}
+	unset($tree, '@');
+	unshift(@{$tree->[1]},@nu);
+    }
+    my @subnodes = subnodes($tree);
+    makeattrsnodes($_) foreach @subnodes;
+    return;
+}
 
 sub duplicate {
     my $tree = shift;

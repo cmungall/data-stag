@@ -86,7 +86,7 @@ while (my $fn = shift @files) {
         $fn = '';
     }
     else {
-        $fh = FileHandle->new($fn) || die $fn;
+        $fh = FileHandle->new($fn) || die "Cannot open file: $fn";
     }
     
     my $p = Data::Stag->parser(-file=>$fn, -format=>$parser);
