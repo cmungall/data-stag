@@ -73,13 +73,16 @@ elsif (@queryl) {
 	join(' && ',
 	     map {
 		 if (/(\w+)\s*(==|<=|>=|<|>|eq|ne|lt|gt|=)\s*(.*)/) {
-		     "\$s->get('$1') $2 $3"
+		     my ($var, $op, $val) = ($1, $2, $3);
+		     $op =~ s/^=$/==/;
+		     "\$s->get('$var') $op $val"
 		 }
 		 else {
 		     die($_);
 		 }
 	     } @queryl).
 	       '}';
+    print "ev:$ev;;;\n"; 
     $sub = eval $ev;
     if ($@) {
 	die $@;
@@ -105,13 +108,12 @@ foreach my $fn (@files) {
 					      my $ok = $sub->($stag);
 					      if ($ok) {
 						  $c++;
-						  return;
+						  return $stag;
 					      }
 					      else {
-						  $stag->data([]);
-						  return [];
+						  $stag->free;
+						  return;
 					      }
-					      return;
 					    });
     if ($count) {
 	$out = 'Data::Stag::null';

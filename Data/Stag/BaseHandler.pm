@@ -1,4 +1,4 @@
-# $Id: BaseHandler.pm,v 1.14 2003/08/12 03:39:39 cmungall Exp $
+# $Id: BaseHandler.pm,v 1.15 2003/08/15 04:42:32 cmungall Exp $
 #
 # This  module is maintained by Chris Mungall <cjm@fruitfly.org>
 
@@ -252,8 +252,9 @@ sub start_event {
     my $el = [$ev];
     push(@$node, $el);
 }
+
 sub S {shift->start_event(@_)}
-sub s {shift->start_event(@_)}
+
 
 sub evbody {
     my $self = shift;
@@ -310,10 +311,9 @@ sub end_event {
     my $stack = $self->elt_stack;
     pop(@$stack);
 
+    my $node = $self->{node};   # array of (0..$indent)
+    my $topnode = pop @$node;   # node we are closing now
     my $path = join('/', @$stack);
-
-    my $node = $self->node;
-    my $topnode = pop @$node;
 
     my %rename = $self->rename_elts;
     if ($rename{$ev}) {
@@ -332,15 +332,18 @@ sub end_event {
         # [if we have empty tags <abcde></abcde>
         #  then no evbody will be called - we have to
         #  fill in the equivalent of a null evbody here]
+#        push(@$topnode, '');
         push(@$topnode, '');
     }
-    elsif ($check < 2) {
-        confess("ASSERTION ERROR: all events must be paired; @$topnode");
-    }
+#    elsif ($check < 2) {
+#        confess("ASSERTION ERROR: all events must be paired; @$topnode");
+#    }
     else {
         # all ok
     }
     my $topnodeval = $topnode->[1];
+
+    my @R = ($topnode);   # return
 
     my $trap_h = $self->trap_h;
     if ($trap_h) {
@@ -353,103 +356,87 @@ sub end_event {
 
 	if ($trap_h->{$trapped_ev}) {
 	    # call anonymous subroutine supplied in hash
-	    my @trees = $trap_h->{$trapped_ev}->($self, Data::Stag::stag_nodify($topnode));
-	    if (@trees) {
-		if (@trees == 1 && !$trees[0]) {
-#		    return;
-		}
-		else {
-		    my $el = $node->[$#{$node}];
-		    foreach my $tree (@trees) {
-			push(@{$el->[1]}, $tree) if $tree && $tree->[0];
-		    }
-		    return;
-		}
-	    }
+	    @R = $trap_h->{$trapped_ev}->($self, Data::Stag::stag_nodify($topnode));
 	}
     }
 
-    if ($self->can("flatten_elts") &&
-        grep {$ev eq $_} $self->flatten_elts) {
+#    if ($self->can("flatten_elts") &&
+#        grep {$ev eq $_} $self->flatten_elts) {
 
-        if (ref($topnodeval)) {
-            my $el = $node->[$#{$node}];
-            my $subevent = $topnodeval->[0]->[0];
-            foreach my $subtree (@$topnodeval) {
-                if ($subtree->[0] ne $subevent) {
-                    use Data::Dumper;
-                    print Dumper $topnodeval;
-                    $self->throw("can't flatten $ev because $subtree->[0] ne $subevent");
-                }
-                push(@{$el->[1]}, [$ev, $subtree->[1]]);
-            }
-        }
-    }
-    elsif ($self->can("raise_elts") &&
-        grep {$ev eq $_} $self->raise_elts) {
+#        if (ref($topnodeval)) {
+#            my $el = $node->[$#{$node}];
+#            my $subevent = $topnodeval->[0]->[0];
+#            foreach my $subtree (@$topnodeval) {
+#                if ($subtree->[0] ne $subevent) {
+#                    use Data::Dumper;
+#                    print Dumper $topnodeval;
+#                    $self->throw("can't flatten $ev because $subtree->[0] ne $subevent");
+#                }
+#                push(@{$el->[1]}, [$ev, $subtree->[1]]);
+#            }
+#        }
+#    }
+#    elsif ($self->can("raise_elts") &&
+#        grep {$ev eq $_} $self->raise_elts) {
 
-        if (ref($topnodeval)) {
-            my $el = $node->[$#{$node}];
-            my $subevent = $topnodeval->[0]->[0];
-            foreach my $subtree (@$topnodeval) {
-                if ($subtree->[0] ne $subevent) {
-                    use Data::Dumper;
-                    print Dumper $topnodeval;
-                    $self->throw("can't flatten $ev because $subtree->[0] ne $subevent");
-                }
-                push(@{$el->[1]}, [$subtree->[0], $subtree->[1]]);
-            }
-###            push(@{$el->[1]}, [$topnodeval->[0]->[0],
-###                               $topnodeval->[0]->[1]]);
-        }
+#        if (ref($topnodeval)) {
+#            my $el = $node->[$#{$node}];
+#            my $subevent = $topnodeval->[0]->[0];
+#            foreach my $subtree (@$topnodeval) {
+#                if ($subtree->[0] ne $subevent) {
+#                    use Data::Dumper;
+#                    print Dumper $topnodeval;
+#                    $self->throw("can't flatten $ev because $subtree->[0] ne $subevent");
+#                }
+#                push(@{$el->[1]}, [$subtree->[0], $subtree->[1]]);
+#            }
+####            push(@{$el->[1]}, [$topnodeval->[0]->[0],
+####                               $topnodeval->[0]->[1]]);
+#        }
 
-    }
-    elsif ($self->can("kill_elts") &&
-           grep {$ev eq $_} $self->kill_elts) {
-        # do nothing
-    }
-    elsif ($self->can("multivalued_elts") &&
-        grep {$ev eq $_} $self->multivalued_elts) {
+#    }
+#    elsif ($self->can("kill_elts") &&
+#           grep {$ev eq $_} $self->kill_elts) {
+#        # do nothing
+#    }
+#    elsif ($self->can("multivalued_elts") &&
+#        grep {$ev eq $_} $self->multivalued_elts) {
 
-        if (ref($topnodeval)) {
-            my $el = $node->[$#{$node}];
+#        if (ref($topnodeval)) {
+#            my $el = $node->[$#{$node}];
 
-            my $new =  [map {[$ev, [$_]]} @{$topnodeval}];
-            push(@{$el->[1]},@$new);
-        }
+#            my $new =  [map {[$ev, [$_]]} @{$topnodeval}];
+#            push(@{$el->[1]},@$new);
+#        }
 
-    }
-    elsif ($self->can($m)) {
+##    }
+###    elsif ($self->can($m)) {
+
+    if ($self->can($m)) {
 #        my $tree = $self->$m($topnodeval);
-        my $tree = $self->$m(Data::Stag::stag_nodify($topnode));
+        @R = $self->$m(Data::Stag::stag_nodify($topnode));
 
     }
     else {
         if ($self->can("catch_end")) {
-            $self->catch_end($ev, Data::Stag::stag_nodify($topnode));
+            @R = $self->catch_end($ev, Data::Stag::stag_nodify($topnode));
         }
         if ($self->catch_end_sub) {
-            $self->catch_end_sub->($self, Data::Stag::stag_nodify($topnode));
+            @R = $self->catch_end_sub->($self, Data::Stag::stag_nodify($topnode));
         }
         if (@$node) {
-            my $el = $node->[$#{$node}];
-            if ($topnode) {
-                if (@$topnode) {
-                    if (!$el->[1]) {
-#                        print STDERR "*** adding el to $el->[0]...\n";
-#                        use Data::Dumper;
-#                        print Dumper $node;
-                        $el->[1] = [];
-                    }
-                    push(@{$el->[1]}, $topnode);
-                }
+            my $el = $node->[$#{$node}]; # next node up
+            if (@R && $R[0]) {
+		if (!$el->[1]) {
+		    $el->[1] = [];
+		}
+		push(@{$el->[1]}, @R);
             }
         }
     }
-#    if (!@$node) {
-        #final event
-        $self->tree(Data::Stag::stag_nodify($topnode));
-#    }
+
+    $self->tree(Data::Stag::stag_nodify($topnode));
+
     return $ev;
 }
 sub E {shift->end_event(@_)}
@@ -580,4 +567,4 @@ sub end_document {
 }
 
 
-1;
+1

@@ -27,7 +27,7 @@ my %h =
        my $species_h = $self->{species_h};
        # cache by primary key:
        $species_h->{$stag->get_tax_id} = $stag;
-       0;
+       $stag;
    },
    gene => sub {
        my ($self, $stag) = @_;
@@ -49,7 +49,7 @@ my %h =
        #  a toy example, OK?]
        printf "CACHING %s\n", $stag->get_symbol;
        $gene_h->{$stag->get_symbol} = $stag;
-       0;
+       $stag;
    },
    pair => sub {
        my ($self, $stag) = @_;
@@ -65,7 +65,7 @@ my %h =
                $stag->add_comment("Dunno what symbol $_ is");
            }
        }
-       0;
+       $stag;
    },
   );
 my $handler =
@@ -75,6 +75,7 @@ $handler->{gene_h} = {};
 
 $stag->parse(-file=>$fn, -handler=>$handler);
 print $stag->xml;
+print $handler->stag->sxpr;
 
 my ($gene_set) = $stag->fn("gene_set");
 my ($species_set) = $stag->fn("species_set");
