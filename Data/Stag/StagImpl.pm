@@ -1,4 +1,4 @@
-# $Id: StagImpl.pm,v 1.5 2002/12/15 22:53:33 cmungall Exp $
+# $Id: StagImpl.pm,v 1.6 2002/12/17 05:59:27 cmungall Exp $
 #
 # Author: Chris Mungall <cjm@fruitfly.org>
 #
@@ -1024,7 +1024,7 @@ sub normalize {
             my $pkval = 
               CORE::join("\t",
                          map {
-                             esctab($grouprec->{$_})
+                             esctab($grouprec->{$_} || '')
                          } @$pkcols);
             my $rec = $parent_rec_h->{child_h}->{$groupname}->{$pkval};
             if (!$rec) {
@@ -1561,6 +1561,10 @@ sub data {
     return $self->[1];
 }
 
+sub isterminal {
+    my $self = shift;
+    return !ref($self->data);
+}
 
 sub AUTOLOAD {
     my $self = shift;
