@@ -1,4 +1,4 @@
-# $Id: StagImpl.pm,v 1.44 2004/04/18 20:12:48 cmungall Exp $
+# $Id: StagImpl.pm,v 1.45 2004/04/20 23:50:22 cmungall Exp $
 #
 # Author: Chris Mungall <cjm@fruitfly.org>
 #
@@ -603,32 +603,8 @@ sub _dlist {
 
 sub xml {
     my $tree = shift;
-    my $indent = shift || 0;
-    confess("problem: $tree not arr") unless ref($tree) && ref($tree) eq "ARRAY" || isastag($tree);
-    my ($ev, $subtree) = @$tree;
-    return "" unless $ev;
-    if (ref($subtree)) {
-        return 
-          sprintf("%s<$ev>\n%s%s</$ev>\n",
-                  tab($indent++),
-                  join("", map { xml($_, $indent) } @$subtree),
-                  tab($indent-1),
-                 );
-    }
-    else {
-	my $txt = xmlesc($subtree);
-	if (length($txt) > 60 ||
-	    $txt =~ /\n/) {
-	    $txt .= "\n" unless $txt =~ /\n$/s;
-	    $txt = "\n$txt" unless $txt =~ /^\n/;
-	    $txt .= tab($indent);
-	}
-        return
-          sprintf("%s<$ev>%s</$ev>\n",
-                  tab($indent),
-		  $txt
-		 );
-    }
+    my $fn = shift;
+    generate($tree, $fn, 'xml', @_);
 }
 *tree2xml = \&xml;
 
