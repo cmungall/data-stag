@@ -1,4 +1,4 @@
-# $Id: ITextParser.pm,v 1.10 2003/12/04 04:26:24 cmungall Exp $
+# $Id: ITextParser.pm,v 1.11 2003/12/11 07:22:44 cmungall Exp $
 #
 # Copyright (C) 2002 Chris Mungall <cjm@fruitfly.org>
 #
@@ -11,7 +11,7 @@ package Data::Stag::ITextParser;
 
 =head1 NAME
 
-  ITextParser.pm     - simple wrapper for 
+  ITextParser.pm     - parses stag IText format into stag events
 
 =head1 SYNOPSIS
 
@@ -28,7 +28,6 @@ use Exporter;
 use Carp;
 use FileHandle;
 use strict;
-use XML::Parser::PerlSAX;
 use base qw(Data::Stag::BaseGenerator Exporter);
 
 use vars qw($VERSION);

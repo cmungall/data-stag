@@ -1,4 +1,4 @@
-# $Id: XMLParser.pm,v 1.8 2003/11/20 00:01:10 cmungall Exp $
+# $Id: XMLParser.pm,v 1.9 2003/12/11 07:22:44 cmungall Exp $
 #
 # Copyright (C) 2002 Chris Mungall <cjm@fruitfly.org>
 #
@@ -11,7 +11,7 @@ package Data::Stag::XMLParser;
 
 =head1 NAME
 
-  XMLParser.pm     - simple wrapper for 
+  XMLParser.pm     - parses XML files into stag events
 
 =head1 SYNOPSIS
 
