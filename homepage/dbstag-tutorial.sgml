@@ -1,0 +1,200 @@
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook V3.1//EN">
+<article>
+
+  <articleinfo>
+
+    <title></title>
+    <author>
+      <firstname>Chris</firstname>
+      <surname>Mungall</surname>
+      <affiliation>
+        <orgname>
+          <ulink url="http://www.fruitfly.org">BDGP</ulink>
+        </orgname>
+        <address>
+	  <email>cjm@fruitfly.org</email>
+        </address>
+      </affiliation>
+    </author>
+
+    <pubdate>2004-04-24</pubdate>
+    
+    <revhistory>
+      <revision>
+        <revnumber>$Id: dbstag-tutorial.sgml,v 1.1 2004/04/27 16:25:01 cmungall Exp $</revnumber>
+        <date>$Date: 2004/04/27 16:25:01 $</date>
+        <authorinitials>cjm</authorinitials>
+      </revision>
+    </revhistory>
+
+
+    <abstract>
+      <para>
+
+      </para>
+    </abstract>
+
+  </articleinfo>
+
+  <sect1 id="intro">
+    <title>Introduction</title> 
+     <para>
+
+
+
+     </para>
+
+  </sect1>
+
+  <sect1 id="setup">
+    <title>Setting up DBStag</title>
+      <para>
+
+       This section describes how you set up your environment to use
+       DBStag. You will need to set up some environment variables
+       telling stag where to find certain configuration
+       directories. You will need to download the appropriate
+       databases if they are not already installed on your system.
+
+     </para>
+
+     <sect2 id="setup_bdgp">
+     <title>Setting up (For use within BDGP)</title>
+     <para>
+       There are two environment variables DBStag needs to know about 
+       - one is the config file specifying which databases are
+       available to BDGP users, the other specifies the location(s) of
+       the actual Stag Templates themselves
+
+     <programlisting>
+setenv DBSTAG_DBIMAP_FILE "/data/bioconf/bioresources.conf"
+setenv DBSTAG_TEMPLATE_DIRS ".:/data/bioconf/templates"
+     </programlisting>
+
+       You may wish to add these to your .aliases file so they are
+       permanently available. You may also wish to change these later
+       on; for ple, if you start writing your own templates you may
+       wish to place your local development template directory first
+       on the path
+     </para>
+
+     <para>
+       
+       Stag requires certain executables and perl libraries - the most
+       p to date version should be installed BDGP-wide, if not speak
+       to me. You may also wish to add the "live templates" to your
+       PATH; there are a lot of executables here (one for every
+       template) which is why they n't go in /usr/local/bin
+
+       <programlisting>
+setenv PATH "${PATH}:/usr/local/bdgp/stagbin"
+       </programlisting>
+       
+        Now you're ready to go!
+     </para>
+     <sect2 id="setup_nonlocal">
+     <title>Setting up (For use outside BDGP)</title>
+     <para>
+       You have a bit more work to do if you want to follow this
+       tutorial for example on your laptop. The steps should be simple
+       d require minimum hacking
+     </para>
+     <sect3 id="setup_perlmod">
+     <title>Perl modules</title>
+     <para>
+       First you need to install two perl modules which can be done
+with the CPAN installer
+       <programlisting>perl -MCPAN -e shell
+	    install Data::Stag
+	    install DBIx::DBStag</programlisting>
+       Depending on which other modules you have installed, you may be
+       asked to install other dependencies (eg DBI)
+     </para>
+     <sect3 id="setup_db">
+     <title>Obtaining the demo database</title>
+     <para>
+       This tutorial uses the GO database as an example - download
+       this from <ulink
+       url="http://www.godatabase.org/dev">http://www.godatabase.org/dev</ulink>.
+       You should follow the instructions and create a MySQL
+       installation of a GO DB (not a termdb - this has only the ontology).
+
+     </para>
+     <para>
+       You should also download a copy of the go-dev distribution
+       which contains the stag templates; alternatively you can get
+       these from <ulink
+       url="http://www.godatabase.org/dev/sql/stag-templates">http://www.godatabase.org/dev/sql/stag-templates</ulink>. You
+       should put these somewhere on your filesystem and set the
+       DBSTAG_TEMPLATE_DIRS to point to them (see BDGP instructions
+above) 
+     </para>
+
+    </sect2>
+  </sect1>
+  <sect1 id="basic">
+    <title>Basic Querying</title>
+    <para>Assuming you're already set up, you can now start querying the
+      GO database using one of the predefined templates. Each
+      template has been turned into an executable, and each template
+      is named according to the <emphasis>schema</emphasis> of the
+      database. The schema for GO is simply called "go". Of course, you can
+      have multiple databases with the same schema. At present, DBStag cannot
+      deal with overlapping or inherited schemas.</para>
+    <para>
+      Thanks to unix TAB-completion we can see the stag template executables
+      available to us by simply typing go-<emphasis>TAB</emphasis>. You should
+      see something like this:
+       <programlisting>
+go-term
+go-child_term                    go-geneproduct-by-term-and-evidence
+go-common_ancestor               go-peptide_motif-by-term
+go-correlations                  go-seq-by-term
+go-correlations-summary          go-term
+go-descendent_term               go-term-by-direct-relationship
+go-geneproduct                   go-term-by-geneproduct-or-synonym
+go-geneproduct-by-direct-term    go-term-with-direct-associations
+go-geneproduct-by-species        go-transitive_correlations
+go-geneproduct-by-term           go-transitive_correlations-summary
+       </programlisting>
+    </para>
+    <para>
+       Depending on what stag SQL templates are available on your system, you
+      may be able to query other databases. For example, at BDGP the databases
+      ag_enscore, hs_enscore etc all have schema <emphasis>enscore</emphasis>
+      (Ensembl core schema). These are the templates available for ensembl
+      (again, accessible by typing enscore-<emphasis>TAB</emphasis>.
+       <programlisting>
+enscore-contigdna  enscore-genemodel-all-laminins  enscore-spliced3utr
+enscore-genemodel  enscore-intron                  enscore-transcriptseq
+       </programlisting>
+      For now, let's focus on the GO database.
+    </para>
+    <sect2 id="making_dbs_easy">
+      <title>Making a simple index database</title>
+      <para>
+      </para>
+    </sect2>
+    </sect1> 
+    <sect1 id="making_dbs">
+      <title>Creating Relational Databases from XML</title>
+      <para>
+      </para>
+      <sect2 id="making_dbs_easy">
+        <title>Making a simple index database</title>
+        <para>
+        </para>
+      </sect2>
+      <sect2 id="making_dbs_relational">
+        <title>Making a normalised relational database</title>
+        <para>
+        </para>
+      </sect2>
+
+  </sect1>
+</article>
+
+
+
+
+
