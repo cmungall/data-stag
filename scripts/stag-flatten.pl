@@ -11,45 +11,29 @@ use Getopt::Long;
 my @cols = ();
 my $sep = "\t";
 my $parser;
+my $nest;
 GetOptions(
            "parser|format|p=s" => \$parser,
 	   "cols|c=s@"=>\@cols,
 	   "help|h"=>sub { system("perldoc $0"); exit },
+           "nest|n"=>\$nest,
 	  );
 
+my $node = shift;
 my $fn = shift @ARGV;
-my $fh;
-if ($fn eq '-') {
-    $fh = \*STDIN;
-}
-else {
-    $fh = FileHandle->new($fn) || die $fn;
-}
 push(@cols, @ARGV);
 @cols = map {split/\,/,$_} @cols;
 
 my $np = scalar @cols;
 my %idx = map {$cols[$_]=>$_} (0..$#cols);
-my @vals = map {undef} @cols;
+my @vals = map {[]} @cols;
 my @level_idx = ();
-
-sub writerel {
-    print join("\t", map {defined($_) ? $_ : 'NULL'} @vals), 
-      "\n";
-}
 
 sub setcol {
     my ($col, $val) = @_;
     my $i = $idx{$col};
     die $col unless defined $i;
-    my $curval = $vals[$i];
-    if (defined $curval) {
-	writerel();
-	for (my $j=$i+1;$j<@vals;$j++) {
-	    $vals[$j] = undef;
-	}
-    }
-    $vals[$i] = $val;
+    push(@{$vals[$i]}, $val);
     return;
 }
 
@@ -62,11 +46,64 @@ foreach my $col (@cols) {
 	  return;
       };
 }
-my $p = Data::Stag->parser(-file=>$fn, -format=>$parser);
+$catch{$node} =
+  sub {
+      my ($self, $stag) = @_;
+      push(@$_, 'NULL') foreach grep {!@$_} @vals; # "left join" - null for non-existent
+      
+      if ($nest) {
+          print 
+            join("\t", map {'{'.join(', ', @$_).'}'} @vals), 
+              "\n";
+      }
+      else {
+          my $c = 1;
+          $c *= scalar(@$_) foreach @vals;
+          if ($c == 1) {
+              # no combinatorial explosion
+              print 
+                join("\t", map {$_->[0]} @vals), 
+                  "\n";
+              
+          }
+          elsif ($c == 0) {
+              print STDERR $stag->xml;
+              die "assertion error @vals";
+          }
+          else {
+              # do cartesian explosion
+              #
+              # we COULD do this recursively but it would be slow
+              my @N = map {0} @vals;
+              my $done = 0;
+              while (!$done) {
+                  for (my $i=0; $i<@N; $i++) {
+                      print "\t" if $i;
+                      print $vals[$i]->[$N[$i]];
+                  }
+                  print "\n";
+                  my $i = $#N;
+                  my $carry_the_one = 1;
+                  while ($i >= 0 && $carry_the_one) {
+                      $N[$i] ++;
+                      if ($N[$i] >= @{$vals[$i]}) {
+                          $N[$i] = 0;
+                          $i--;
+                      }
+                      else {
+                          $carry_the_one = 0;
+                      }
+                  }
+                  $done = 1 if $i<0;
+              }
+          }
+      }
+      @vals = map {[]} @cols;      
+      return;
+  };
+
 my $h = Data::Stag->makehandler(%catch);
-$p->handler($h);
-$p->parse_fh($fh);
-writerel();
+Data::Stag->parse(-file=>$fn, -format=>$parser, -handler=>$h);
 exit 0;
 
 __END__
@@ -77,7 +114,7 @@ stag-flatten.pl - turns stag data into a flat table
 
 =head1 SYNOPSIS
 
-  stag-flatten.pl MyFile.xml dept/name dept/person/name
+  stag-flatten.pl -c name -c person/name dept MyFile.xml
 
 =head1 DESCRIPTION
 
@@ -97,9 +134,14 @@ the above command will return a two column table
   special-operations      james-bond
   special-operations      fred
 
+If there are multiple values for the columns within the node, then the
+cartesian product will be calculated
+
+
+
 =head1 USAGE
 
-  stag-flatten.pl [-p PARSER] [-c COLS] [-c COLS]... <file> [COL][COL]...
+  stag-flatten.pl [-p PARSER] [-c COLS] [-c COLS] NODE <file>
 
 =head1 ARGUMENTS
 
@@ -115,14 +157,11 @@ xml assumed as default
 
 the name of the columns/elements to write out
 
-(alternatively this argument can be written after the filename is
-specified)
+this can be specified either with multiple -c arguments, or with a
+comma-seperated (no spaces) list of column (terminal node) names after
+a single -c
 
 =back
-
-=head1 BUGS
-
-still not working quite right...
 
 =head1 SEE ALSO
 
