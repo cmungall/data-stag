@@ -19,8 +19,8 @@
     
     <revhistory>
       <revision>
-        <revnumber>$Id: dbstag-tutorial.sgml,v 1.2 2004/04/28 01:59:18 cmungall Exp $</revnumber>
-        <date>$Date: 2004/04/28 01:59:18 $</date>
+        <revnumber>$Id: dbstag-tutorial.sgml,v 1.3 2004/04/28 03:16:39 cmungall Exp $</revnumber>
+        <date>$Date: 2004/04/28 03:16:39 $</date>
         <authorinitials>cjm</authorinitials>
       </revision>
     </revhistory>
@@ -601,7 +601,33 @@ WHERE [term.acc => &term_acc&]
     <sect2 id="use-nesting">
       <title>The USE NESTING clause</title>
       <para>
-	
+	SQL in templates, or any SQL issued via DBStag may contain an
+	optional <emphasis>USE NESTING</emphasis> clause. This
+	indicates how the final XML is to be structured - the clause
+	describes a tree of tables and table aliases.
+      </para>
+      <para>
+	The following clause describes the XML that is generated from
+	the <emphasis>go-term</emphasis> template. Note that the
+	indentation and whitespace is irrelevant - it is the brackets
+	that determine the tree structure.
+	<programlisting>
+USE NESTING (set
+              (term
+                (term_dbxref
+                  (dbxref))
+                (term_synonym)
+                (term_definition)))
+	</programlisting>
+	The resulting XML will be rooted at 'set', with 'terms'
+	underneath. Everything is nested under 'term', with the
+	exception of 'dbxref' which is nested under term_dbxref. Note
+	that we could actually eliminate the term_dbxref linking table
+	from the XML and have dbxrefs contained directly be
+	terms. However, we would then lose the field
+	<emphasis>term_dbxref.is_for_definition</emphasis> which is
+	useful for knowing if this dbxref pertains to the term or to
+	its definition (see GO docs for full details).
       </para>
     </sect2>
   </sect1>
