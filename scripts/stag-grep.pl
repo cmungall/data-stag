@@ -8,7 +8,7 @@ use Carp;
 use Data::Stag qw(:all);
 use Getopt::Long;
 
-my $parserf = "";
+my $fmt = "";
 my $out = "";
 my $mapf;
 my $tosql;
@@ -21,7 +21,7 @@ my $ff;
 my @queryl = ();
 GetOptions(
            "help|h"=>\$help,
-           "parser|format|p=s" => \$parserf,
+           "parser|format|p=s" => \$fmt,
            "handler|writer|w=s" => \$out,
 	   "count|c" => \$count,
            "xml"=>\$toxml,
@@ -107,16 +107,22 @@ foreach my $fn (@files) {
 	$out = 'Data::Stag::null';
     }
     
-    my $parser = Data::Stag->parser($fn, $parserf);
     if (!$out) {
-	$out = $parser->fmtstr;
+	$out = 'xml';
     }
     my $ch = Data::Stag->chainhandlers($w, $handler, $out);
 
+    my @pargs = (-file=>$fn, -format=>$fmt, -handler=>$ch);
+    if ($fn eq '-') {
+	if (!$fmt) {
+	    $fmt = 'xml';
+	}
+	@pargs = (-format=>$fmt, -handler=>$ch, -fh=>\*STDIN);
+    }
+
     my $tree = 
-      Data::Stag->parse($fn, 
-			$parser, 
-			$ch);
+      Data::Stag->parse(@pargs);
+
     if ($count) {
 	print "$c\n";
     }

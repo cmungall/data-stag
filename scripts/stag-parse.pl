@@ -108,7 +108,7 @@ L<Data::Stag>
 
 This script is a wrapper for the method
 
-  Data::Stag->parse
+  Data::Stag->parse()
 
 =cut
 

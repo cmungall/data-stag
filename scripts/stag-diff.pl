@@ -175,7 +175,7 @@ __END__
 
 =head1 NAME 
 
-stag-diff.pl
+stag-diff.pl - finds the difference between two stag files
 
 =head1 SYNOPSIS
 
@@ -291,5 +291,9 @@ very large documents
 
 Chris Mungall 
 cjm at fruitfly dot org
+
+=head1 SEE ALSO
+
+L<Data::Stag>
 
 =cut

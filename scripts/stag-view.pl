@@ -14,9 +14,16 @@ use Tk::Label;
 
 my $sep = "\t";
 my $parser;
+my $help;
 GetOptions(
            "parser|format|p=s" => \$parser,
+	   "help|h"=>\$help,
 	  );
+if ($help) {
+    system("perldoc $0");
+    exit 0;
+}
+
 
 my $fn = shift @ARGV;
 my $fh;

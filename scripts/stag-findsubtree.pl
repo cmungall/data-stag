@@ -1,21 +1,6 @@
 #!/usr/local/bin/perl -w
 
 
-=head1 NAME 
-
-stag-findsubtree.pl
-
-=head1 SYNOPSIS
-
-  stag-findsubtree.pl 'person/name' file2.xml
-
-=head1 DESCRIPTION
-
-=head1 ARGUMENTS
-
-=cut
-
-
 use strict;
 
 use Data::Stag qw(:all);
@@ -70,3 +55,52 @@ foreach my $fn (@files) {
     my @subtrees = $tree->find($e);
     print $_->xml foreach  (@subtrees);
 }
+
+__END__
+
+=head1 NAME 
+
+stag-findsubtree.pl - finds nodes in a stag file
+
+=head1 SYNOPSIS
+
+  stag-findsubtree.pl 'person/name' file.xml
+
+=head1 DESCRIPTION
+
+parses in an input file and writes out subnodes
+
+=head1 USAGE
+
+  stag-findsubtree.pl [-p PARSER] [-w WRITER] NODE FILE
+
+=head1 ARGUMENTS
+
+=over
+
+=item -p|parser FORMAT
+
+FORMAT is one of xml, sxpr or itext, or the name of a perl module
+
+xml assumed as default
+
+=item -w|writer FORMAT
+
+FORMAT is one of xml, sxpr or itext, or the name of a perl module
+
+=item NODE
+
+the name of the node/element 
+
+=back
+
+=hed1 LIMITATIONS
+
+not event based
+
+=head1 SEE ALSO
+
+L<Data::Stag>
+
+=cut
+

@@ -1,18 +1,6 @@
 #!/usr/local/bin/perl -w
 
-=head1 NAME 
-
-stag-query.pl
-
-=head1 SYNOPSIS
-
-  stag-query.pl 'avg' 'person/age' file2.xml
-
-=head1 DESCRIPTION
-
-=head1 ARGUMENTS
-
-=cut
+# POD docs at end
 
 
 use strict;
@@ -101,3 +89,27 @@ foreach my $fn (@files) {
     $func->(@matches);
     print "$agg\n";
 }
+exit 0;
+
+__END__
+
+=head1 NAME 
+
+stag-query.pl - aggregare queries
+
+=head1 SYNOPSIS
+
+  stag-query.pl avg person/age file.xml
+
+  stag-query.pl sum person/salary file.xml
+
+  stag-query.pl 'sub { $agg .= ", ".shift }' person/name file.xml
+
+=head1 DESCRIPTION
+
+Performs aggregate queries
+
+=head1 ARGUMENTS
+
+=cut
+
