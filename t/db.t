@@ -20,7 +20,7 @@ my $dirstruct =
   Data::Stag->normalize(-top=>"director-set",
                         -rows=>\@data,
                         -cols=>$hdr,
-                        -path=>"'(director(film(actor(character 1))))");
+                        -path=>"(director(film(actor(character 1))))");
 print $dirstruct->xml;
 my $ss = <<EOM
 (schema

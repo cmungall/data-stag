@@ -1,4 +1,4 @@
-# $Id: Stag.pm,v 1.5 2002/12/10 03:30:02 cmungall Exp $
+# $Id: Stag.pm,v 1.6 2002/12/16 16:51:43 cmungall Exp $
 # -------------------------------------------------------
 #
 # Copyright (C) 2002 Chris Mungall <cjm@fruitfly.org>
@@ -371,6 +371,8 @@ The above can be simplified like this:
   Data::Stag->new->parse(-file=>$xmlfile, -handler=>$h);
 
 see L<Data::Stag::Base> for writing handlers
+
+See the Stag website at L<http://stag.sourceforge.net> for more examples.
 
 =head2 STRUCTURED TAGS TREE DATA STRUCTURE
 
@@ -1325,8 +1327,12 @@ none known so far, possibly quite a few undocumented features!
 
 Not a bug, but the underlying default datastructure of nested arrays
 is more heavyweight than it needs to be. More lightweight
-implementations are possible. Given time I would like to write the
-underlying guts in C.
+implementations are possible. Some time I will write a C
+implementation.
+
+=head1 WEBSITE
+
+L<http://stag.sourceforge.net>
 
 =head1 WEBSITE
 
