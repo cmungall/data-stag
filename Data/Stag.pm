@@ -1,4 +1,4 @@
-# $Id: Stag.pm,v 1.13 2003/02/27 02:40:02 cmungall Exp $
+# $Id: Stag.pm,v 1.14 2003/03/20 09:12:40 cmungall Exp $
 # -------------------------------------------------------
 #
 # Copyright (C) 2002 Chris Mungall <cjm@fruitfly.org>
@@ -47,6 +47,7 @@ $VERSION="0.02";
                   k kids children
                   ak addkid addchild
                   subnodes
+                  isterminal
                   j nj njoin
                   paste
                   qm qmatch

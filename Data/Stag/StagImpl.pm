@@ -1,4 +1,4 @@
-# $Id: StagImpl.pm,v 1.17 2003/03/06 07:09:38 cmungall Exp $
+# $Id: StagImpl.pm,v 1.18 2003/03/20 09:12:41 cmungall Exp $
 #
 # Author: Chris Mungall <cjm@fruitfly.org>
 #
@@ -367,21 +367,26 @@ sub _dlist {
     my $del = shift || '/';
     my $root = shift;
     my $nextid = shift;
-    my $stem = $root . $tree->element . "[$nextid]";
-    $root = $stem . $del;
     my @kids = $tree->kids;
-    my $id = 1;
-    my @dlist =
-      map {
-          if (!isanode($_)) {
-              s/$del/\\$del/g;
-              ($root . $_)
-          }
-          else {
+    if (isterminal($tree)) {
+        my $data = $tree->data;
+        $data =~ s/$del/\\$del/g;
+        #        my $stem = $root . $tree->element . "[$nextid]";
+        #        $root = $stem . $del;
+        #        return ($root, $root . $del . $data);
+
+        return ($root . $tree->element . ': ' . $data . "[$nextid]");
+    }
+    else {
+        my $id = 1;
+        my $stem = $root . $tree->element . "[$nextid]";
+        $root = $stem . $del;
+        my @dlist =
+          map {
               _dlist($_, $del, $root, $id++);
-          }
-      } @kids;
-    return ($stem, @dlist);
+          } @kids;
+        return ($stem, @dlist);
+    }
 #    return (@dlist);
 }
 
@@ -1847,6 +1852,149 @@ sub isterminal {
     return !ref($self->data);
 }
 
+sub _min {
+    my $x = shift;
+    my $y = shift;
+    return $x if !defined($y);
+    return $y if !defined($x);
+    $x < $y ? $x : $y;
+}
+sub _max {
+    my $x = shift || 0;
+    my $y = shift || 0;
+    $x > $y ? $x : $y;
+}
+
+# automatically deduces schema
+sub autoschema {
+    my $tree = shift;
+    my $schema = _autoschema($tree);
+    return genschema($tree, undef, $tree->element, $schema);
+}
+
+sub genschema {
+    my $tree = shift;
+    my $parent = shift;
+    my $root = shift;
+    my $schema = shift;
+
+    my $data = $schema->{data};
+    my $childh = $schema->{childh};
+
+    my $card = "";
+    if ($parent) {
+        my $link = "$parent $root";
+        my $min = $schema->{mincard}->{$link};
+        my $max = $schema->{maxcard}->{$link};
+        die if !$max;
+        if ($min == 0) {
+            if ($max == 1) {
+                $card = '?';
+            }
+            else {
+                $card = '*';
+            }
+        }
+        else {
+            # $min >= 1
+            if ($max == 1) {
+                $card = '';
+            }
+            else {
+                $card = '+';
+            }
+        }
+    }
+    my $ss = Data::Stag->new($root.$card=>[]);
+    if ($data->{$root}) {
+        $ss->data($data->{$root});
+    }
+    else {
+        my $c = $childh->{$root};
+        my @sn =
+          map {
+              genschema($tree, $root, $_, $schema);
+          } @$c;
+        $ss->data([@sn]);
+    }
+    return $ss;
+}
+
+# automatically deduces schema
+sub _autoschema {
+    my $tree = shift;
+    my $schema = shift || {data=>{}, 
+                           childh=>{},
+                           mincard=>{},
+                           maxcard=>{},
+                          };
+    my $data = $schema->{data};
+    my $childh = $schema->{childh};
+    my $mincard = $schema->{mincard};
+    my $maxcard = $schema->{maxcard};
+
+    my $elt = $tree->element;
+    my @sn = $tree->subnodes;
+    # CARD:   default(blank) : 1
+    #                      + : 1 or more
+    #                      * : 0 or more
+    #                      ? : 0 or one
+    my %lcard = ();  # local cardinality
+    foreach (@sn) {
+        my $se = element($_);
+        push(@{$childh->{$elt}}, $se)
+          unless $childh->{$elt} &&
+            grep { $_ eq $se } @{$childh->{$elt}};
+        $lcard{$se} = 0 unless $lcard{$se};
+        $lcard{$se}++;
+    }
+#    foreach (keys %lcard) {
+    foreach (@{$childh->{$elt}}) {
+        my $link = "$elt $_";
+#        print "$link :: $lcard{$_}\n";
+        $mincard->{$link} =
+          _min($lcard{$_} || 0,
+               $mincard->{$link});
+        $maxcard->{$link} =
+          _max($lcard{$_},
+               $maxcard->{$link});
+    }
+    foreach (grep {isterminal($_)} @sn) {
+        my $elt = element($_);
+#        push(@{$data->{$elt}}, $_->data);
+        my $in = $_->data;
+        my $d = $data->{$elt} || 'int';
+        if (!$in) {
+        }
+        elsif ($in =~ /^\d+$/ &&
+            ($d eq 'int')) {
+            $d = 'int';
+        }
+        elsif ($in =~ /^\d+\.\d+$/ &&
+            ($d eq 'int' || $d eq 'double')) {
+            $d = 'double';
+        }
+        else {
+            my $lin = length($in) || 0;
+            if ($d =~ /varchar\((\d+)\)/) {
+                if ($lin > $1) {
+                    $d = "varchar($lin)";
+                }
+                else {
+                }
+            }
+            else {
+                $d = "varchar($lin)";
+            }
+        }
+        $data->{$elt} = $d;
+    }
+    foreach (grep {!isterminal($_)} @sn) {
+        _autoschema($_, $schema);
+    }
+    return $schema;
+}
+
 sub AUTOLOAD {
     my $self = shift;
     my @args = @_;
@@ -1864,7 +2012,7 @@ sub AUTOLOAD {
             return $self->$1($2, @args);
         }
     }
-    confess("no such method:$name)");
+    confess("no such method:$name");
 }
 
 # --MISC--

@@ -40,7 +40,7 @@ my $tree = $top->Scrolled( 'Tree',
                            -separator       => '/',
                            -exportselection => 1,
                            -scrollbars      => 'oe',
-                           -height => 20,
+                           -height => 40,
                            -width  => -1);
 # Pack the tree.
 #
