@@ -1,4 +1,4 @@
-# $Id: StagImpl.pm,v 1.30 2003/07/23 04:46:57 cmungall Exp $
+# $Id: StagImpl.pm,v 1.31 2003/07/27 02:45:11 cmungall Exp $
 #
 # Author: Chris Mungall <cjm@fruitfly.org>
 #
@@ -345,6 +345,9 @@ sub chainhandlers {
                                        $_;
                                    }
                                }
+			       elsif (!$_) {
+				   ()
+			       }
                                else {
                                    # assume it is string specifying format
                                    _gethandlerobj($tree, -fmt=>$_)

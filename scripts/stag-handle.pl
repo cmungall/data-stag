@@ -10,9 +10,11 @@ use FileHandle;
 my $exec;
 my $codefile;
 my $parser = '';
-my $writer = 'sxpr';
+my $writer = '';
+my %trap = ();
 GetOptions("codefile|c=s"=>\$codefile,
-	   "exec|e=s"=>\$exec,
+	   "sub|s=s"=>\$exec,
+	   "trap|t=s%"=>\%trap,
            "parser|format|p=s" => \$parser,
 	   "writer|w=s"=>\$writer,
 	  );
@@ -33,9 +35,28 @@ else {
 
 my $p = Data::Stag->parser(-file=>$fn, -format=>$parser);
 
-my $catch = $exec ? eval $exec : do "$codefile";
+my $catch = {};
+no strict;
+if ($exec) {
+    $catch = eval $exec;
+    if ($@) {
+	die $@;
+    }
+}
+if ($codefile) {
+    $catch = do "$codefile";
+    if ($@) {
+	die $@;
+    }
+}
+if (%trap) {
+    use Data::Dumper;
+    die Dumper \%trap;
+    %$catch = (%$catch, %trap);
+}
+use strict;
 my $meth = $exec ?  $exec : $codefile;
-if (!$catch) {
+if (!%$catch) {
     die "$meth did not return handler";
 }
 if (!ref($catch) || ref($catch) ne "HASH") {
@@ -65,6 +86,32 @@ __END__
 will take a Stag compatible format (xml, sxpr or itext), turn the data
 into an event stream passing it through my-handler.pl
 
+=over ARGUMENTS
+
+=item -help|h
+
+shows this document
+
+=item -writer|w WRITER
+
+writer for final transformed tree; can be xml, sxpr or itext
+
+=item -codefile|c FILE
+
+a file containing a perlhashref containing event handlers - see below
+
+=item -sub|s PERL
+
+a perl hashref containing handlers 
+
+=item -trap|t ELEMENT=SUB
+
+=back
+
+
+
+=head1 EXAMPLES
+
   unix> cat my-handler.pl
   {
     person => sub {
@@ -78,5 +125,6 @@ into an event stream passing it through my-handler.pl
 	$address->free;
     },
   }
+
 
 =cut
