@@ -1,4 +1,4 @@
-# $Id: BaseHandler.pm,v 1.26 2004/07/21 18:36:49 cmungall Exp $
+# $Id: BaseHandler.pm,v 1.27 2004/09/08 21:27:12 cmungall Exp $
 #
 # This  module is maintained by Chris Mungall <cjm@fruitfly.org>
 
@@ -145,6 +145,28 @@ returns the tree that was built from all uncaught events
 
 returns the tree that was built from all uncaught events
 
+=head1 CAUGHT EVENTS
+
+A L<Data::Stag::BaseGenerator> class will generate events by calling the following methods on this class:
+
+=over
+
+=item start_event NODENAME
+
+=item evbody DATA
+
+=item end_event NODENAME {optional}
+
+=item event NODENAME DATA
+
+=back
+
+These events can be nested/hierarchical
+
+If uncaught, these events are stacked into a stag tree, which can be
+written as xml or one of the other stag formats
+
+
 =head1 PROTECTED METHODS - 
 
 =head3 s_*
@@ -169,13 +191,17 @@ node; * matches the node name
 
 override this class providing the name of the node you wish to intercept
 
-=head3 start_event
+=head3 CONSUMES
 
-=head3 end_event
+define this in your handler class to make explicit the list of node
+names that your parser consumes; this is then used if your handler is
+placed in a chain
 
-=head3 evbody
-
-=head3 event
+  package MyHandler;
+  use base qw(Data::Stag::BaseHandler);
+  sub CONSUMES {qw(person city)}
+  sub e_person {....}
+  sub e_city   {....}
 
 =head3 depth
 

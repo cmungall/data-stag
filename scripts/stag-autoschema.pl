@@ -96,6 +96,8 @@ stag-autoschema.pl - writes the implicit stag-schema for a stag file
 
   stag-autoschema.pl -w sxpr sample-data.xml
 
+  stag-autoschema.pl -dtd sample-data.xml
+
 =head1 DESCRIPTION
 
 Takes a stag compatible file (xml, sxpr, itext), or a file in any

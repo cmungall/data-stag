@@ -1,4 +1,4 @@
-# $Id: StagImpl.pm,v 1.51 2004/08/17 20:46:07 cmungall Exp $
+# $Id: StagImpl.pm,v 1.52 2004/09/08 21:27:12 cmungall Exp $
 #
 # Author: Chris Mungall <cjm@fruitfly.org>
 #
@@ -334,6 +334,9 @@ sub _gethandlerobj {
     }
     elsif ($fmt =~ /sxpr/i) {
         $writer = "Data::Stag::SxprWriter";
+    }
+    elsif ($fmt =~ /dtd/i) {
+        $writer = "Data::Stag::DTDWriter";
     }
     elsif ($fmt =~ /simple/i) {
         $writer = "Data::Stag::Simple";
@@ -2294,8 +2297,7 @@ sub autoschema {
     $nu->iterate(sub{
 		     my $node = shift;
 		     if ($node->name =~ /(\S+)\.(\S+)/) {
-			 $node->name($2);
-		     }
+			 $node->name($2);		     }
 		 });
     return $nu;
 }
@@ -2303,13 +2305,15 @@ sub autoschema {
 sub dtd {
     my $tree = shift;
     my ($name, $subtree) = @$tree;
+    my $done_h = shift || {};
     $name =~ s/[\+\?\*]$//;
+    return '' if $done_h->{$name};
     my $is_nt = ref($subtree);
     my $s;
     if ($is_nt) {
-        my $s2 = join('', map {dtd($_)} @$subtree);
+        my $s2 = join('', map {dtd($_,$done_h)} @$subtree);
         my @subnames = map {$_->[0]} @$subtree;
-        my $S = "(".join('|',@subnames).")";
+        my $S = join('|',@subnames);
         if (@subnames < 2) {
             $S = "@subnames";
             if (!@subnames) {
@@ -2317,11 +2321,12 @@ sub dtd {
             }
         }
 
-        $s = "<!-- $name: (node) -->\n<!ELEMENT $name $S>\n$s2";
+        $s = "\n<!-- $name: (node) -->\n<!ELEMENT $name ($S)+>\n$s2";
     }
     else {
-        $s = "<!-- $name: ($subtree) -->\n<!ELEMENT $name PCDATA>\n";
+        $s = "\n<!-- $name: ($subtree) -->\n<!ELEMENT $name (#PCDATA)>\n";
     }
+    $done_h->{$name} = 1;
     $s;
 }
 
@@ -2330,6 +2335,15 @@ sub genschema {
     my $parent = shift;
     my $root = shift;
     my $schema = shift;
+    my $path = shift || [];
+
+    my $cycle = 0;
+    if (grep {$_ eq $root} @$path) {
+        $cycle = 1;
+        warn "cycle detected: @$path $root";
+        return (Data::Stag->new($root=>[]));
+    }
+    push(@$path, $root);
 
     my $data = $schema->{data};
     my $childh = $schema->{childh};
@@ -2366,7 +2380,7 @@ sub genschema {
         my $c = $childh->{$root};
         my @sn =
           map {
-              genschema($tree, $root, $_, $schema);
+              genschema($tree, $root, $_, $schema, $path);
           } @$c;
         $ss->data([@sn]);
     }

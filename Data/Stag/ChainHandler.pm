@@ -98,7 +98,7 @@ sub evbody {
     return;
 }
 
-sub event {
+sub zzevent {
     my $self = shift;
     my $ev = shift;
     my @args = @_;
@@ -106,7 +106,7 @@ sub event {
 
     my $sh = $self->subhandlers;
 
-    my $is_blocked = grep {$self->is_blocked($_)} @$stack;
+    my $is_blocked = grep {$self->is_blocked($_)} (@$stack, $ev);
     if ($is_blocked) {
         $sh->[0]->event($ev, @args);
     }
@@ -141,7 +141,7 @@ sub end_event {
             #$handler->event(@$tree) if $tree->[0];
 	    if (@R) {
 		$handler->event(@$_) foreach @R;
-		$_->free foreach @R;
+		@$_ = () foreach @R;
 	    }
         }
 #        use Data::Dumper;

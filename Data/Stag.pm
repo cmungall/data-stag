@@ -1,4 +1,4 @@
-# $Id: Stag.pm,v 1.32 2004/07/21 18:36:46 cmungall Exp $
+# $Id: Stag.pm,v 1.33 2004/09/08 21:27:12 cmungall Exp $
 # -------------------------------------------------------
 #
 # Copyright (C) 2004 Chris Mungall <cjm@fruitfly.org>
@@ -1019,7 +1019,10 @@ another handler - for example, and xml handler
   $chainh = Data::Stag->chainhandler(['a', 'b'], $processor, 'xml');
   $stag = Data::Stag->parse(-str=>"(...)", -handler=>$chainh)
 
-chains together two handlers (see also the script B<stag-handle.pl>)
+If the inner handler has a method CONSUMES(), this method will
+determine the blocked events if none are specified.
+
+see also the script B<stag-handle.pl>
 
 
 =head2  RECURSIVE SEARCHING
