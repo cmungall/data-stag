@@ -1,4 +1,4 @@
-# $Id: StagImpl.pm,v 1.25 2003/06/04 02:54:15 cmungall Exp $
+# $Id: StagImpl.pm,v 1.26 2003/06/06 07:39:58 cmungall Exp $
 #
 # Author: Chris Mungall <cjm@fruitfly.org>
 #
@@ -1112,6 +1112,17 @@ sub sgetdata {
 }
 *sgd = \&sgetdata;
 
+sub replace {
+    my $tree = shift;
+    my $oldkey = shift;
+    my $newkey = shift;
+    my @v = get($tree, $oldkey);
+    set($tree, $newkey, @v);
+    unset($tree, $oldkey);
+    return;
+}
+*r = \&replace;
+
 sub sfindval {
     my $tree = shift;
     my @v = findval($tree, @_);
@@ -1929,9 +1940,17 @@ sub ntnodes {
     my @subnodes = $self->subnodes;
     return grep {!$_->isterminal} @subnodes;
 }
-
 *nonterminalnodes = \&ntnodes;
 *nonterminals = \&ntnodes;
+
+# terminal nodes
+sub tnodes {
+    my $self = shift;
+    my @subnodes = $self->subnodes;
+    return grep {$_->isterminal} @subnodes;
+}
+*terminalnodes = \&tnodes;
+*terminals = \&tnodes;
 
 sub element {
     my $self = shift;
