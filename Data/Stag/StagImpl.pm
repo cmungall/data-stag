@@ -1,4 +1,4 @@
-# $Id: StagImpl.pm,v 1.50 2004/07/21 18:36:49 cmungall Exp $
+# $Id: StagImpl.pm,v 1.51 2004/08/17 20:46:07 cmungall Exp $
 #
 # Author: Chris Mungall <cjm@fruitfly.org>
 #
@@ -569,7 +569,6 @@ sub _pairs {
     if (ref($subtree)) {
         my @pairs = map { _pairs($_) } @$subtree;
         return $ev=>[@pairs];
-#        return [map { hash($_) } @$subtree];
     }
     else {
         return $ev=>$subtree;
