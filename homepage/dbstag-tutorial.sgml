@@ -1,15 +1,13 @@
 <!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook V3.1//EN">
 <article>
-
   <articleinfo>
-
     <title></title>
     <author>
       <firstname>Chris</firstname>
       <surname>Mungall</surname>
       <affiliation>
         <orgname>
-          <ulink url="http://www.fruitfly.org">BDGP</ulink>
+	  <ulink url="http://www.fruitfly.org">BDGP</ulink>
         </orgname>
         <address>
 	  <email>cjm@fruitfly.org</email>
@@ -21,8 +19,8 @@
     
     <revhistory>
       <revision>
-        <revnumber>$Id: dbstag-tutorial.sgml,v 1.1 2004/04/27 16:25:01 cmungall Exp $</revnumber>
-        <date>$Date: 2004/04/27 16:25:01 $</date>
+        <revnumber>$Id: dbstag-tutorial.sgml,v 1.2 2004/04/28 01:59:18 cmungall Exp $</revnumber>
+        <date>$Date: 2004/04/28 01:59:18 $</date>
         <authorinitials>cjm</authorinitials>
       </revision>
     </revhistory>
@@ -38,102 +36,100 @@
 
   <sect1 id="intro">
     <title>Introduction</title> 
-     <para>
-
-
-
-     </para>
-
+    <para>
+    </para>
   </sect1>
 
   <sect1 id="setup">
     <title>Setting up DBStag</title>
+    <para>
+      This section describes how you set up your environment to use
+      DBStag. You will need to set up some environment variables
+      telling stag where to find certain configuration
+      directories. You will need to download the appropriate
+      databases if they are not already installed on your system.
+    </para>
+
+    <sect2 id="setup_bdgp">
+      <title>Setting up (For use within BDGP)</title>
       <para>
+	There are two environment variables DBStag needs to know
+	about - one is the config file specifying which databases are
+	available to BDGP users, the other specifies the location(s)
+	of the actual Stag Templates themselves
 
-       This section describes how you set up your environment to use
-       DBStag. You will need to set up some environment variables
-       telling stag where to find certain configuration
-       directories. You will need to download the appropriate
-       databases if they are not already installed on your system.
-
-     </para>
-
-     <sect2 id="setup_bdgp">
-     <title>Setting up (For use within BDGP)</title>
-     <para>
-       There are two environment variables DBStag needs to know about 
-       - one is the config file specifying which databases are
-       available to BDGP users, the other specifies the location(s) of
-       the actual Stag Templates themselves
-
-     <programlisting>
+	<programlisting>
 setenv DBSTAG_DBIMAP_FILE "/data/bioconf/bioresources.conf"
 setenv DBSTAG_TEMPLATE_DIRS ".:/data/bioconf/templates"
-     </programlisting>
+	</programlisting>
 
-       You may wish to add these to your .aliases file so they are
-       permanently available. You may also wish to change these later
-       on; for ple, if you start writing your own templates you may
-       wish to place your local development template directory first
-       on the path
-     </para>
+	You may wish to add these to your .aliases file so they are
+	permanently available. You may also wish to change these
+	later on; for ple, if you start writing your own templates
+	you may wish to place your local development template
+	directory first on the path
+      </para>
 
-     <para>
-       
-       Stag requires certain executables and perl libraries - the most
-       p to date version should be installed BDGP-wide, if not speak
-       to me. You may also wish to add the "live templates" to your
-       PATH; there are a lot of executables here (one for every
-       template) which is why they n't go in /usr/local/bin
-
-       <programlisting>
+      <para>
+	Stag requires certain executables and perl libraries - the
+	most p to date version should be installed BDGP-wide, if not
+	speak to me. You may also wish to add the "live templates" to
+	your PATH; there are a lot of executables here (one for every
+	template) which is why they n't go in /usr/local/bin
+	<programlisting>
 setenv PATH "${PATH}:/usr/local/bdgp/stagbin"
-       </programlisting>
-       
-        Now you're ready to go!
-     </para>
-     <sect2 id="setup_nonlocal">
-     <title>Setting up (For use outside BDGP)</title>
-     <para>
-       You have a bit more work to do if you want to follow this
-       tutorial for example on your laptop. The steps should be simple
-       d require minimum hacking
-     </para>
-     <sect3 id="setup_perlmod">
-     <title>Perl modules</title>
-     <para>
-       First you need to install two perl modules which can be done
-with the CPAN installer
-       <programlisting>perl -MCPAN -e shell
-	    install Data::Stag
-	    install DBIx::DBStag</programlisting>
-       Depending on which other modules you have installed, you may be
-       asked to install other dependencies (eg DBI)
-     </para>
-     <sect3 id="setup_db">
-     <title>Obtaining the demo database</title>
-     <para>
-       This tutorial uses the GO database as an example - download
-       this from <ulink
-       url="http://www.godatabase.org/dev">http://www.godatabase.org/dev</ulink>.
-       You should follow the instructions and create a MySQL
-       installation of a GO DB (not a termdb - this has only the ontology).
+	</programlisting>
+	
+	Now you're ready to go!
+      </para>
+    </sect2>
+    <sect2 id="setup_nonlocal">
+      <title>Setting up (For use outside BDGP)</title>
+      <para>
+	You have a bit more work to do if you want to follow this
+	tutorial for example on your laptop. The steps should be
+	simple d require minimum hacking
+      </para>
+      <sect3 id="setup_perlmod">
+	<title>Perl modules</title>
+	<para>
+          First you need to install two perl modules which can be
+	  done with the CPAN installer
 
-     </para>
-     <para>
-       You should also download a copy of the go-dev distribution
-       which contains the stag templates; alternatively you can get
-       these from <ulink
-       url="http://www.godatabase.org/dev/sql/stag-templates">http://www.godatabase.org/dev/sql/stag-templates</ulink>. You
-       should put these somewhere on your filesystem and set the
-       DBSTAG_TEMPLATE_DIRS to point to them (see BDGP instructions
-above) 
-     </para>
+	  <programlisting>
+perl -MCPAN -e shell
+install Data::Stag
+install DBIx::DBStag
+	  </programlisting>
 
+	  Depending on which other modules you have installed, you
+	  may be asked to install other dependencies (eg DBI)
+	</para>
+      </sect3>
+      <sect3 id="setup_db">
+	<title>Obtaining the demo database</title>
+	<para>
+	  This tutorial uses the GO database as an example - download
+	  this from <ulink
+	    url="http://www.godatabase.org/dev">http://www.godatabase.org/dev</ulink>.
+	  You should follow the instructions and create a MySQL
+	  installation of a GO DB (not a termdb - this has only the
+	  ontology).
+	</para>
+	<para>
+	  You should also download a copy of the go-dev distribution
+	  which contains the stag templates; alternatively you can
+	  get these from <ulink
+	    url="http://www.godatabase.org/dev/sql/stag-templates">http://www.godatabase.org/dev/sql/stag-templates</ulink>. You
+	  should put these somewhere on your filesystem and set the
+	  DBSTAG_TEMPLATE_DIRS to point to them (see BDGP
+	  instructions above)
+	</para>
+      </sect3>
     </sect2>
   </sect1>
   <sect1 id="basic">
-    <title>Basic Querying</title>
+    <title>Basic Querying - GO Database</title>
     <para>Assuming you're already set up, you can now start querying the
       GO database using one of the predefined templates. Each
       template has been turned into an executable, and each template
@@ -145,8 +141,7 @@ above)
       Thanks to unix TAB-completion we can see the stag template executables
       available to us by simply typing go-<emphasis>TAB</emphasis>. You should
       see something like this:
-       <programlisting>
-go-term
+      <programlisting>
 go-child_term                    go-geneproduct-by-term-and-evidence
 go-common_ancestor               go-peptide_motif-by-term
 go-correlations                  go-seq-by-term
@@ -156,41 +151,485 @@ go-geneproduct                   go-term-by-geneproduct-or-synonym
 go-geneproduct-by-direct-term    go-term-with-direct-associations
 go-geneproduct-by-species        go-transitive_correlations
 go-geneproduct-by-term           go-transitive_correlations-summary
-       </programlisting>
+      </programlisting>
     </para>
     <para>
-       Depending on what stag SQL templates are available on your system, you
+      Depending on what stag SQL templates are available on your system, you
       may be able to query other databases. For example, at BDGP the databases
       ag_enscore, hs_enscore etc all have schema <emphasis>enscore</emphasis>
       (Ensembl core schema). These are the templates available for ensembl
       (again, accessible by typing enscore-<emphasis>TAB</emphasis>.
-       <programlisting>
+      <programlisting>
 enscore-contigdna  enscore-genemodel-all-laminins  enscore-spliced3utr
 enscore-genemodel  enscore-intron                  enscore-transcriptseq
-       </programlisting>
+      </programlisting>
       For now, let's focus on the GO database.
+    </para>
+    <sect2 id="go-term">
+      <title>The <emphasis>go-term</emphasis> template</title>
+      <para>
+        A stag SQL template should give some rough indication of what
+        data is fetched by the name. The <emphasis>go-term</emphasis>
+        template fetches ontology <emphasis>terms</emphasis> from a
+        database with the GO schema.
+      </para>
+      <para>
+        A stag template is also capable of describing itself - just
+        pass it the <emphasis>-h</emphasis> command line option:
+
+	<programlisting>
+go-term -h
+DESC:
+  Fetches a metadata about a GO term - synonyms, comments, definition,
+  dbxref links to analogous terms in other ontologies.
+
+  Does NOT fetch graph/relationship data
+PARAMETERS:
+  term_acc
+  term_name
+  term_type
+  term_is_obsolete
+  term_id
+  term_definition
+QUERY RESULT STRUCTURE (NESTING):
+'(set
+  (term
+    (term_dbxref
+      (dbxref ""))
+    (term_synonym "")
+    (term_definition "")))
+	</programlisting>
+	
+	The autodescription is split into 3 parts
+	<itemizedlist>
+	  <listitem><para>Brief textual description of template</para></listitem>
+	  <listitem><para>Parameters/Query Constraints</para></listitem>
+	  <listitem><para>Tree structure describing how to turn the
+	      results of the query into XML</para></listitem>
+	</itemizedlist>
+	Let's try a query. We will fetch the GO term with accession no
+	<emphasis role="bold">GO:0005658</emphasis> using the
+	following command line:
+	<programlisting>
+go-term -d go term_acc=GO:0005658
+	</programlisting>
+	Note that because <emphasis>term_acc</emphasis> is the first
+	parameter listed above, it is also the default parameter. This
+	means we can also issue the following query:
+	<programlisting>
+go-term -d go GO:0005658
+	</programlisting>
+	And get the same results.
+      </para>
+
+      <para>
+	You always need to specify the <emphasis>-d</emphasis>
+	switch. This gives either the short logical name of the db
+	(see the DBSTAG_DBIMAP_FILE) or a full DBI locator. More on
+	this later.
+      </para>
+
+      <para>
+	If you execute the above command (you may wish to pipe to a
+	file) you will get the following XML data back:
+	<programlisting>
+<![CDATA[
+<?xml version="1.0" encoding="UTF-8"?>
+<set>
+  <term>
+    <id>15663</id>
+    <name>alpha DNA polymerase:primase complex</name>
+    <term_type>cellular_component</term_type>
+    <acc>GO:0005658</acc>
+    <is_obsolete>0</is_obsolete>
+    <is_root>0</is_root>
+    <term_dbxref>
+      <term_id>15663</term_id>
+      <dbxref_id>25029</dbxref_id>
+      <is_for_definition>0</is_for_definition>
+      <dbxref>
+        <id>25029</id>
+        <xref_key>Primosome</xref_key>
+        <xref_dbname>SP_KW</xref_dbname>
+      </dbxref>
+    </term_dbxref>
+    <term_dbxref>
+      <term_id>15663</term_id>
+      <dbxref_id>25545</dbxref_id>
+      <is_for_definition>0</is_for_definition>
+      <dbxref>
+        <id>25545</id>
+        <xref_key>TIGR00335 DNA primase, eukaryotic-type, small subunit, putative</xref_key>
+        <xref_dbname>TIGR_TIGRFAMS</xref_dbname>
+      </dbxref>
+    </term_dbxref>
+    <term_dbxref>
+      <term_id>15663</term_id>
+      <dbxref_id>25720</dbxref_id>
+      <is_for_definition>0</is_for_definition>
+      <dbxref>
+        <id>25720</id>
+        <xref_key>TIGR00595 primosomal protein N'</xref_key>
+        <xref_dbname>TIGR_TIGRFAMS</xref_dbname>
+      </dbxref>
+    </term_dbxref>
+    <term_synonym>
+      <term_id>15663</term_id>
+      <term_synonym>primosome</term_synonym>
+    </term_synonym>
+  </term>
+</set>
+]]>
+	</programlisting>
+      </para>
+      
+    </sect2>
+    <sect2 id="go-term-xml">
+      <title>go-term XML</title>
+      <para>
+	Now you may be thinking - hold on, what is an SQL query doing
+	giving back XML? Well, this is part of the magic that is DBStag.
+      </para>
+      <para>
+	If you look at the XML we got back, you will see that the root
+	of the document is the <emphasis>set</emphasis> element, under
+	which we have a <emphasis>term</emphasis> element. These can
+	contain <emphasis>term_synonym</emphasis> elements,
+	<emphasis>term_dbxref</emphasis> elements and
+	<emphasis>term_definition</emphasis> elements (although this
+	particular example term does not yet have a definition).
+      </para>
+      <para>
+	Where is the DTD for this XML? There isn't one. The XML
+	elements are derived <emphasis>dynamically</emphasis> from the
+	SQL query and the tables and columns in the database. Note
+	that the nesting of the XML elements above corresponds to the
+	tree structure we saw in the autodescription above.
+      </para>
+      <para>
+	At the moment there is no option to generate a DTD for a
+	particular template as a side effect, although this would be
+	nice thing to have one day.
+      </para>
+      <para>
+	Now the XML we got back may not correspond to a particular DTD
+	standard. However, one of the nice things about XML is that it
+	is easy to manipulate and transform. Later on we will also see
+	how to get perl <emphasis>objects</emphasis> from the database.
+      </para>
+    </sect2>
+    <sect2 id="go-term-rows">
+      <title>Returning rows from queries</title>
+      <para>
+	XML is nice and is particularly well suited to nested
+	hierarchical data. However, some data is better presented and
+	manipulated in tabular form. You can always use the
+	<emphasis>-rows</emphasis> option to get the data back in
+	tabular format. This bypasses the DBStag XML generation
+	procedure and just gives you back the actual SQL query results
+      </para>
+      <para>
+	For example:
+	<programlisting>
+go-term -rows -d go term_GO:0005658
+	</programlisting>
+	This generates the following tab-delimited row data:
+	<programlisting>
+15663   alpha DNA polymerase:primase complex    cellular_component      GO:0005658      0       0       15663      25029   0       25029   Primosome       \NULL   SP_KW   \NULL   15663   primosome       \NULL   \NULL      \NULL   \NULL   \NULL   \NULL
+15663   alpha DNA polymerase:primase complex    cellular_component      GO:0005658      0       0       15663      25545   0       25545   TIGR00335 DNA primase, eukaryotic-type, small subunit, putative \NULL   TIGR_TIGRFAMS      \NULL   15663   primosome       \NULL   \NULL   \NULL   \NULL   \NULL   \NULL
+15663   alpha DNA polymerase:primase complex    cellular_component      GO:0005658      0       0       15663      25720   0       25720   TIGR00595 primosomal protein N' \NULL   TIGR_TIGRFAMS   \NULL   15663   primosome  \NULL   \NULL   \NULL   \NULL   \NULL   \NULL
+	</programlisting>
+	This is the actual SQL query results. Because this is the
+	results of a multi-table join there are repeating column
+	values (for example the <emphasis>term.name</emphasis> appears
+	3 times). These repeating column values are collapsed when
+	DBStag decomposes this into XML.
+      </para>
+    </sect2>
+    <sect2 id="go-term-constraints">
+      <title>Multiple Query Constraints</title>
+      <para>
+	You can pass in multiple query constraints - these will be
+	ANDed together. Recall from the autodescription (obtained with
+	the <emphasis>-h</emphasis> switch) that the constraints are:
+      </para>
+      <para>
+	<itemizedlist>
+	  <listitem><para>term_acc</para></listitem>
+	  <listitem><para>term_name</para></listitem>
+	  <listitem><para>term_type</para></listitem>
+	  <listitem><para>term_is_obsolete</para></listitem>
+	  <listitem><para>term_id</para></listitem>
+	  <listitem><para>term_definition</para></listitem>
+	</itemizedlist>
+      </para>
+      <para>
+	We can combine these like this:
+	<programlisting>
+go-term -d go term_type=biological_process term_is_obsolete=0
+	</programlisting>
+	This fetches all biological process terms that are not
+	obsolete. This query may take a little longer, and the
+	resulting XML will be quite lengthy so you may wish to
+	redirect this to a file.
+      </para>
+      <para>
+	You can also leave out all the query constraints in order to
+	fetch everything:
+	<programlisting>
+go-term -d go
+	</programlisting>
+      </para>
+      <para>
+	You can also use wildcards for pattern matching. SQL uses
+	<emphasis>%</emphasis> as a wildcard
+	<programlisting>
+go-term -d go term_name=photoreceptor%
+	</programlisting>
+      </para>
+    </sect2>
+    <sect2 id="go-term-complex">
+      <title>Complex Queries</title>
+      <para>
+	At the moment there is no facility for combining constraints
+	other than ANDing them together. For example, you can't say
+	<emphasis>fetch all terms that are of type molecular_function
+	  OR are obsolete</emphasis>. This may come in a future
+	version of DBStag. However, it is possible to override the
+	<emphasis>WHERE</emphasis> altogether:
+	<programlisting>
+go-term -d go -where "(term_type='molecular_function' OR is_obsolete=1)"
+	</programlisting>
+	  Not a particularly useful query, but it illustrates how to
+	  give arbitrary boolean combinations of constraints using SQL
+      </para>
+    </sect2>
+    <sect2 id="other-go-templates">
+      <title>Other GO SQL Templates</title>
+      <para>
+	As we saw earlier, there are plenty of other templates
+	available for a GO database. Some deal specifically with the
+	graph structure of the ontology (for example,
+	<emphasis>go-child_term</emphasis>). Others deal with gene
+	products (e.g. <emphasis>go-geneproduct</emphasis>). Some deal
+	with the placement/annotation of gene products in the context
+	of the GO graph of terms
+	(e.g. <emphasis>go-term-by-geneproduct-or-synonym</emphasis>). Others
+	are more complex - for example,
+	<emphasis>go-transitive-correlations</emphasis> deals with
+	terms that are correlated via common gene products.
+      </para>
+      <para>
+	Try experimenting with some of these; as an exercise see if
+	you can answer the following questions:
+	<itemizedlist>
+	  <listitem>
+	    <para>
+	      What are the biological process annotations for the
+	      drosophila gene <emphasis>dpp</emphasis>?
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      What are the direct children of the GO term
+	      <emphasis>transmembrane receptor activity</emphasis>?
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      What are the direct parents of the GO term
+	      <emphasis>DNA Helicase</emphasis>?
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      What are the ancestors (i.e. parents and parents of
+	      parents) of the GO term <emphasis>DNA
+	      Helicase</emphasis>?
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      What gene products are annotated to BOTH
+	      <emphasis>immune response</emphasis> and <emphasis>GTP
+	      Binding</emphasis>?
+	    </para>
+	  </listitem>
+	</itemizedlist>
+      </para>
+    </sect2>
+    <sect2 id="selectall-xml">
+      <title>The <emphasis>selectall_xml</emphasis> script</title>
+      <para>
+	A stag template executable is really just a redirection
+	command which calls the selectall_xml.pl script.
+	<programlisting>
+cat `which go-term`
+	</programlisting>
+	We can see that this is just an alias for:
+	<programlisting>
+#!/bin/sh
+selectall_xml.pl -t go-term $@
+	</programlisting>
+	This script can be used with any template by using the
+	<emphasis>-t</emphasis> switch, or the following shorthand:
+	<programlisting>
+selectall_xml.pl -d go /go-term GO:0008045
+	</programlisting>
+	This script will also list ALL templates allowed for a
+	particular database like this:
+	<programlisting>
+selectall_xml.pl -d go -h
+	</programlisting>
+	This lists all GO templates, and shows the description of each
+	one
+      </para>
+    </sect2>
+  </sect1>
+  <sect1 id="arbitrary_queries">
+    <title>Querying without Templates</title>
+    <para>
+      You can use the selectall_xml command to launch an arbitrary SQL
+      query, not using templates at all. The main reason for doing
+      this would be to get hierarchical XML data from your SQL query
+      results.
+      <programlisting>
+selectall_xml.pl -d go\
+ "SELECT * FROM term INNER JOIN term_synonym ON	(term.id=term_synonym.term_id) WHERE is_obsolete = 0"	
+      </programlisting>
+      This will generate XML with <emphasis>term_synonym</emphasis>
+      nested under <emphasis>term</emphasis> (we will see how to
+      influence the nesting in the nest section).
+    </para>
+    <para>
+      If your query is to long to fit on the command line you can put
+      it in a file and use the <emphasis>-f</emphasis> option.
+      <programlisting>
+selectall_xml.pl -d go -f my-query.sql
+      </programlisting>
+    </para>
+  </sect1> 
+  <sect1 id="template_anatomy">
+    <title>Anatomy of a DBStag SQL Template</title>
+    <para>
+      At this point you should be armed to go into any database for
+      which some predefined templates exist and ask questions. However
+      it may be interesting to peek under the hood into the internals
+      of a template. This is useful for when you start to write your
+      own templates. It is also a good way of learning about SQL in
+      general and how to construct SQL queries against your favourite
+      database.
+    </para>
+    <para>
+      A stag SQL template is nothing more than a specially formatted
+      file with a <emphasis>.stg</emphasis> suffix. You can look at
+      the actual files themselves in the $DBSTAG_TEMPLATE_DIRS
+      directories (remember, we set this environment variable earlier)
+      or you can run the template executable with the
+      <emphasis>-h</emphasis> and <emphasis>-v</emphasis> (verbose)
+      options; the latter gives you coloured syntax highlighting.
+    </para>
+    <para>
+      We can examine the <emphasis>go-term</emphasis> template:
+      <programlisting>
+go-term -h -v
+      </programlisting>
+      Which gives us this:
+      <programlisting>
+<![CDATA[
+SELECT *
+FROM term
+  LEFT OUTER JOIN term_dbxref     ON (term.id = term_dbxref.term_id)
+  LEFT OUTER JOIN dbxref          ON (term_dbxref.dbxref_id = dbxref.id)
+  LEFT OUTER JOIN term_synonym    ON (term.id = term_synonym.term_id)
+  LEFT OUTER JOIN term_definition ON (term.id = term_definition.term_id)
+WHERE [term.acc => &term_acc&]
+    [term.name => &term_name&]
+    [term.term_type => &term_type&]
+    [term.is_obsolete => &term_is_obsolete&]
+    [term.id => &term_id&]
+    [term_definition.term_definition => &term_definition&]
+ORDER BY term.name
+USE NESTING (set(term(term_dbxref(dbxref))(term_synonym)(term_definition)))
+// -- METADATA --
+schema: go
+desc: Fetches a metadata about a GO term - synonyms, comments, definition,
+  dbxref links to analogous terms in other ontologies.
+
+  Does not fetch graph/relationship data
+example_input: term_acc => SELECT DISTINCT term.acc FROM term INNER JOIN term2term ON (term.id = term2term.term1_id) ORDER BY term.acc DESC
+example_input: term_name => SELECT DISTINCT term.name FROM term INNER JOIN term2term ON (term.id = term2term.term1_id) WHERE name like '%binding%' ORDER BY term.name DESC
+]]>
+      </programlisting>
+      The template is in two parts - SQL and metadata (i.e. data about
+      the template itself). 
+    </para>
+    <para>
+      The SQL portion of the query resembles normal SQL, with two
+      diifferences - a SQL template is
+      <emphasis>parameterized</emphasis>, and DBStag allows an
+      extension for building XML from query results - the
+      <emphasis>USE NESTING</emphasis> clause.
+    </para>
+    <sect2 id="template-parameters">
+      <title>Template Parameters</title>
+      <para>
+	Any part of an SQL query can be parametrized - but this is
+	typically in the WHERE clause
+	<programlisting>
+<![CDATA[
+WHERE [term.acc => &term_acc&]
+]]>
+	</programlisting>
+	The parameter is surrounded by &amp; symbols; in this
+	case the parameter name is term_acc. We saw how to use this in
+	the previous section. Note the use of the DBStag specific
+	=&gt; operator. This actually gets translated to a '='
+	(equality) operator, UNLESS a wildcard is used, in which case
+	it gets translated into the SQL <emphasis>LIKE</emphasis>
+	operator.
+      </para>
+      <para>
+	If the parameter in the boolean expression between the square
+	braces is not specified as a constraint by the user, then
+	everything between the braces is omitted. If the parameter is
+	specified, then it is replaced by the value the user
+	specifies. In either case, the square braces disappear - they
+	are purely a template construct.
+      </para>
+    </sect2>
+    <sect2 id="use-nesting">
+      <title>The USE NESTING clause</title>
+      <para>
+	
+      </para>
+    </sect2>
+  </sect1>
+
+  <sect1 id="objects">
+    <title>Fetching Stag <emphasis>auto</emphasis> objects</title>
+    <para>
+      The basic Stag library can be used for querying and manipulating
+      XML. In fact, using Stag an XML structure is equivalent to a set
+      of nested objects. Just as there is no DTD for the XML, there is
+      no Object Model other than the implicit one.
+    </para>
+  </sect1>
+
+  <sect1 id="making_dbs">
+    <title>Creating Relational Databases from XML</title>
+    <para>
     </para>
     <sect2 id="making_dbs_easy">
       <title>Making a simple index database</title>
       <para>
       </para>
     </sect2>
-    </sect1> 
-    <sect1 id="making_dbs">
-      <title>Creating Relational Databases from XML</title>
+    <sect2 id="making_dbs_relational">
+      <title>Making a normalised relational database</title>
       <para>
       </para>
-      <sect2 id="making_dbs_easy">
-        <title>Making a simple index database</title>
-        <para>
-        </para>
-      </sect2>
-      <sect2 id="making_dbs_relational">
-        <title>Making a normalised relational database</title>
-        <para>
-        </para>
-      </sect2>
-
+    </sect2>
   </sect1>
 </article>
 
