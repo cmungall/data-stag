@@ -5,3 +5,11 @@ Version 0.01
 
 2002-12-07	- Initial Release
 
+Version 0.02
+============
+
+2002-12-20	- Added Data::Stag::Writer and tidied up writer classes
+		- added stag-splitter.pl script
+		- fixed Makefile.PL
+
+

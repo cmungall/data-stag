@@ -54,9 +54,10 @@ if ($help) {
 my @files = @ARGV;
 foreach my $fn (@files) {
 
-    my $tree = Data::Stag->parse($fn, 
-				 $parser, 
-				 $handler);
+    my $tree = 
+      Data::Stag->parse($fn, 
+			$parser, 
+			$handler);
 
     if ($toxml) {
         print $tree->xml;

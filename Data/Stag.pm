@@ -1,4 +1,4 @@
-# $Id: Stag.pm,v 1.7 2002/12/20 22:16:17 cmungall Exp $
+# $Id: Stag.pm,v 1.8 2002/12/20 22:30:06 cmungall Exp $
 # -------------------------------------------------------
 #
 # Copyright (C) 2002 Chris Mungall <cjm@fruitfly.org>
@@ -22,7 +22,7 @@ use Data::Stag::Base;
 use XML::Parser::PerlSAX;
 
 use vars qw($VERSION);
-$VERSION = '0.01';
+$VERSION="0.02";
 
 @AUTOMETHODS = qw(
                   new
