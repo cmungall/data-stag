@@ -21,12 +21,15 @@ if ($dir) {
     `mkdir $dir` unless -d $dir;
     $h->dir($dir);
 }
+if (!@ARGV) {
+    die "no files passed!";
+}
 foreach my $xmlfile (@ARGV) {
     $p->parse($xmlfile);
 }
 
 package Splitter;
-use base qw(Data::Stag::Base);
+use base qw(Data::Stag::BaseHandler);
 use Data::Stag qw(:all);
 
 sub dir {
@@ -50,7 +53,7 @@ sub name_by_element {
 sub i {
     my $self = shift;
     $self->{_i} = shift if @_;
-    return $self->{_i};
+    return $self->{_i} || 0;
 }
 
 sub end_event {
@@ -61,15 +64,15 @@ sub end_event {
 	my $name_elt = $self->name_by_element;
 	my $name;
 	if ($name_elt) {
-	    $name = findSubTreeVal($topnode, $name_elt);
+	    $name = stag_findnode($topnode, $name_elt);
 	}
 	if (!$name) {
 	    $self->i($self->i()+1);
-	    $name = $ev."_".$i;
+	    $name = $ev."_".$self->i;
 	}
 	my $dir = $self->dir || '.';
 	my $fh = FileHandle->new(">$dir/$name.xml") || die;
-	my $xml = tree2xml($topnode);
+	my $xml = stag_xml($topnode);
 	print $fh $xml;
 	$fh->close;
     }

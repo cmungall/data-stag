@@ -10,6 +10,5 @@ my $h = Data::Stag::Base->new;
 $p->handler($h);
 foreach my $f (@ARGV) {
     $p->parse($f);
-    print tree2xml($h->tree);
+    print $h->tree->xml;
 }
-

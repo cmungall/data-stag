@@ -1,4 +1,4 @@
-# $Id: BaseHandler.pm,v 1.2 2002/12/06 23:57:21 cmungall Exp $
+# $Id: BaseHandler.pm,v 1.3 2002/12/20 20:34:33 cmungall Exp $
 #
 # This  module is maintained by Chris Mungall <cjm@fruitfly.org>
 
@@ -11,8 +11,6 @@
   package MyPersonHandler;
   use base qw(Data::Stag::BaseHandler);
 
-use vars qw($VERSION);
-$VERSION="0.01";
 
   # handler that prints person nodes as they are parsed
   sub e_person {
@@ -90,6 +88,9 @@ use vars qw(@ISA @EXPORT_OK);
 use base qw(Exporter);
 use Carp;
 use Data::Stag;
+
+use vars qw($VERSION);
+$VERSION="0.01";
 
 
 =head2 tree

@@ -93,7 +93,7 @@ returns all nodes found.
 /findval fv
 
 +args element str
-+returns ANY
++returns ANY[] or ANY
 -@names = narr_findval($struct, 'name');
 -@names = $struct->findval('name');
 
@@ -104,7 +104,7 @@ scalars or nodes.
 /sfindval sfv
 
 +args element str
-+returns ANY[] or ANY
++returns ANY
 -$name = narr_sfindval($struct, 'name');
 -$name = $struct->sfindval('name');
 
