@@ -1,4 +1,4 @@
-# $Id: BaseHandler.pm,v 1.21 2004/03/05 23:10:11 cmungall Exp $
+# $Id: BaseHandler.pm,v 1.22 2004/04/16 00:31:48 cmungall Exp $
 #
 # This  module is maintained by Chris Mungall <cjm@fruitfly.org>
 
@@ -647,19 +647,24 @@ sub start_element {
     # for any preceeding pcdata
     my $str = $self->{__str};
     if (defined $str) {
+	# mixed attribute text - use element '.'
         $str =~ s/^\s*//;
         $str =~ s/\s*$//;
 	if ($str) {
-	    my $parent = $self->{sax_stack}->[-2];
-	    $self->event("$parent-text", $str) if $str;
+	    $self->event(".", $str) if $str;
 	}
 	$self->{__str} = undef;
     }
 
     $self->start_event($name);
-    foreach my $k (keys %$atts) {
-        $self->event("$name-$k", $atts->{$k});
-	$self->{is_nonterminal_stack}->[-1] = 1;
+    if ($atts && %$atts) {
+	# treat atts same way as SXML
+	$self->start_event('@');
+	foreach my $k (keys %$atts) {
+	    $self->event("$k", $atts->{$k});
+	    $self->{is_nonterminal_stack}->[-1] = 1;
+	}
+	$self->end_event('@');
     }
 #    $self->{Handler}->start_element($element);
     
@@ -691,7 +696,7 @@ sub end_element {
         $str =~ s/\s*$//;
 	if ($str || $str eq '0') {
 	    if ($is_nt) {
-		$self->event($parent . "-text" =>
+		$self->event('.' =>
 			     $str);
 			     
 	    }

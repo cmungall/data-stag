@@ -1,4 +1,4 @@
-# $Id: StagImpl.pm,v 1.41 2004/03/05 23:10:11 cmungall Exp $
+# $Id: StagImpl.pm,v 1.42 2004/04/16 00:31:48 cmungall Exp $
 #
 # Author: Chris Mungall <cjm@fruitfly.org>
 #
@@ -2386,7 +2386,7 @@ sub _autoschema {
 		if ($lin > 10) {
 		    # too big for an int
 		    # TODO: largeint?
-		    $d = "VARCHAR($lin)";
+		    $d = _mkvarchar($lin);
 		}
 	    }
         }
@@ -2400,13 +2400,15 @@ sub _autoschema {
             my $lin = length($in) || 0;
             if ($d =~ /VARCHAR\((\d+)\)/) {
                 if ($lin > $1) {
-                    $d = "VARCHAR($lin)";
+		    $d = _mkvarchar($lin);
                 }
                 else {
                 }
             }
+            elsif ($d =~ /TEXT/) {
+            }
             else {
-                $d = "VARCHAR($lin)";
+                $d = _mkvarchar($lin);
             }
         }
         $data->{$elt} = $d;
@@ -2415,6 +2417,16 @@ sub _autoschema {
         _autoschema($_, $schema);
     }
     return $schema;
+}
+
+sub _mkvarchar {
+    my $size = shift || 1;
+    # round up to log2
+    my $s2 = 2**(int(log($size) / log(2))+2) -1;
+    if ($s2 > 255) {
+        return 'TEXT';
+    }
+    return "VARCHAR($s2)";
 }
 
 sub AUTOLOAD {

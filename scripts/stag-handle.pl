@@ -33,37 +33,27 @@ if (!$codefile && !$exec && !$module) {
     die "you must supply -c or -m or -s, or provide codefile" 
       unless $codefile;
 }
-my $fn = shift @ARGV;
-my $fh;
-if (!$fn || $fn eq '-') {
-    $fh = \*STDIN;
-    $fn = '';
-}
-else {
-    $fh = FileHandle->new($fn) || die $fn;
-}
-
-my $p = Data::Stag->parser(-file=>$fn, -format=>$parser);
+my @files = @ARGV;
 
 my $catch = {};
 no strict;
 if ($exec) {
     $catch = eval $exec;
     if ($@) {
-	die $@;
+        die $@;
     }
 }
 if ($codefile) {
     $catch = do "$codefile";
     if ($@) {
-	print STDERR "\n\nstag-handle error:\n";
-	print STDERR "There was an error with the codefile \"$codefile\":\n\n";
-	die $@;
+        print STDERR "\n\nstag-handle error:\n";
+        print STDERR "There was an error with the codefile \"$codefile\":\n\n";
+        die $@;
     }
 }
 if (%trap) {
-#    
-#    die Dumper \%trap;
+    #    
+    #    die Dumper \%trap;
     %$catch = (%$catch, %trap);
 }
 use strict;
@@ -71,14 +61,13 @@ my @events;
 my $inner_handler;
 if ($module) {
     $inner_handler = Data::Stag->makehandler($module);
-}
-else {
+} else {
     my $meth = $exec ?  $exec : $codefile;
     if (!%$catch) {
-	die "method \"$meth\" did not return handler";
+        die "method \"$meth\" did not return handler";
     }
     if (!ref($catch) || ref($catch) ne "HASH") {
-	die("$meth must return hashref");
+        die("$meth must return hashref");
     }
     $inner_handler = Data::Stag->makehandler(%$catch);
     @events = keys %$catch;
@@ -87,12 +76,26 @@ if (@units) {
     @events = @units;
 }
 my $h = Data::Stag->chainhandlers([@events],
-				 $inner_handler,
-				 $writer);
-$p->handler($h);
-$p->parse_fh($fh);
-if ($datafmt) {
-    print $inner_handler->stag->$datafmt();
+                                  $inner_handler,
+                                  $writer);
+
+while (my $fn = shift @files) {
+    my $fh;
+    if (!$fn || $fn eq '-') {
+        $fh = \*STDIN;
+        $fn = '';
+    }
+    else {
+        $fh = FileHandle->new($fn) || die $fn;
+    }
+    
+    my $p = Data::Stag->parser(-file=>$fn, -format=>$parser);
+
+    $p->handler($h);
+    $p->parse_fh($fh);
+    if ($datafmt) {
+        print $inner_handler->stag->$datafmt();
+    }
 }
 
 __END__
@@ -116,6 +119,22 @@ into an event stream passing it through my-handler.pl
 =item -help|h
 
 shows this document
+
+=item -module|m PERLMODULE
+
+A module that is used to transform the input events
+the module should inherit from L<Data::Stag::BaseHandler>
+
+=item -unit|u NODE_NAME
+
+(you should always use this option if you specify -m)
+
+this is the unit that gets passed to the handler/transformer. this
+will get set automatically if you use the the -c, -s or -t options
+
+multiple units can be set
+
+  -u foo -u bar -u boz
 
 =item -writer|w WRITER
 

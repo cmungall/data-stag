@@ -27,8 +27,10 @@ my $set = Data::Stag->parse($fn);
 %$obj = ();
 $hdb->unique_key("symbol");
 $hdb->record_type("gene");
-$set->sax($hdb);
 
+print "HASHING\n";
+$set->sax($hdb);
+print "HASHED\n";
 my $gene = $obj->{'HGNC'}->[0];
 my $itext = $gene->itext;
 print $itext, "\n";

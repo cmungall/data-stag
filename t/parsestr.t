@@ -6,7 +6,7 @@ BEGIN {
     # as a fallback
     eval { require Test; };
     use Test;    
-    plan tests => 4;
+    plan tests => 6;
 }
 use Data::Stag;
 use strict;
@@ -34,6 +34,10 @@ my $p = Data::Stag->from('xmlstr', $mixed);
 print $p->sxpr;
 my $para = $p->get('paragraph');
 ok ($para->kids == 4);
+my @text = $para->get('.');
+ok("@text" eq "example of content");
+my $id = $para->find_id;
+ok($id == 1);
 my $mixed2 = <<EOM;
 <yo>
  <paragraph id="1">
@@ -47,5 +51,5 @@ $p = Data::Stag->from('xmlstr', $mixed2);
 #my $p = Data::Stag->parse(-str=>$mixed,
 #			  -format=>'xml');
 print $p->sxpr;
-ok($p->get('paragraph/paragraph-id') == 1);
-ok($p->get('paragraph/paragraph-text') eq 'TEXT');
+ok($p->get('paragraph/@/id') == 1);
+ok($p->get('paragraph/.') eq 'TEXT');

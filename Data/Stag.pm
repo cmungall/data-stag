@@ -1,4 +1,4 @@
-# $Id: Stag.pm,v 1.28 2004/03/05 23:10:09 cmungall Exp $
+# $Id: Stag.pm,v 1.29 2004/04/16 00:31:48 cmungall Exp $
 # -------------------------------------------------------
 #
 # Copyright (C) 2004 Chris Mungall <cjm@fruitfly.org>
@@ -73,6 +73,8 @@ $VERSION="0.05";
                   getformathandler 
 		  chainhandlers
                   xml  
+                  sxpr
+                  itext
                   hash tree2hash
                   pairs tree2pairs
                   sax tree2sax
@@ -285,44 +287,76 @@ Although this module can be used as a general XML tool, it is intended
 primarily as a tool for manipulating hierarchical data using nested
 tag/value pairs.
 
-By using a simpler subset of XML equivalent to a basic data tree
-structure, we can write simpler, cleaner code. This simplicity comes
-at a price - this module is not very suitable for XML with attributes
-or mixed content.
+This module is more suited to dealing with data-oriented documents
+than text-oriented documents.
 
-All attributes are turned into elements. This means that it will not
-round-trip a piece of xml with attributes in it. For some applications
-this is acceptable, for others it is not.
+By using a simpler subset of XML equivalent to a basic data tree
+structure, we can write simpler, cleaner code.
+
+This module is ideally suited to element-only XML (that is, XML
+without attributes or mixed elements).
+
+If you are using attributes or mixed elements, it is useful to know
+what is going on under the hood.
+
+All attributes are turned into elements; they are nested inside an
+element with name B<'@'>.
+
+For example, the following piece of XML
+
+  <foo id="x">
+    <bar>ugh</bar>
+  </foo>
+
+Gets represented internally as
+
+  <foo>
+    <@>
+      <id>x</id>
+    </@>
+    <bar>ugh</bar>
+  </foo>
+
+Of course, this is not valid XML. However, it is just an internal
+representation - when exporting back to XML it will look like normal
+XML with attributes again.
 
 Mixed content cannot be represented in a simple tree format, so this
 is also expanded.
 
 The following piece of XML
 
-  <paragraph id="1">
+  <paragraph id="1" color="green">
     example of <bold>mixed</bold>content
   </paragraph>
 
 gets parsed as if it were actually:
 
   <paragraph>
-    <paragraph-id>1</paragraph-id>
-    <paragraph-text>example of</paragraph-text>
+    <@>
+      <id>1</id>
+      <color>green</color>
+    </@>
+    <.>example of</.>
     <bold>mixed</bold>
-    <paragraph-text>content</paragraph-text>
+    <.>content</.>
   </paragraph>
 
-This module is more suited to dealing with data-oriented documents
-than text-oriented documents.
+When using stag with attribute or mixed attribute xml, you can treat
+B<'@'> and B<'.'> as normal elements
 
-It can also be used as part of a SAX-style event generation / handling
-framework - see L<Data::Stag::BaseHandler>
+=head3 SAX
+
+This module can also be used as part of a SAX-style event generation /
+handling framework - see L<Data::Stag::BaseHandler>
+
+=head3 PERL REPRESENTATION
 
 Because nested arrays are native to perl, we can specify an XML
 datastructure directly in perl without going through multiple object
 calls.
 
-For example, instead of the lengthy
+For example, instead of using L<XML::Writer> for the lengthy
 
   $obj->startTag("record");
   $obj->startTag("field1");
@@ -715,6 +749,17 @@ For example, the following are equivalent.
 
 This is really just syntactic sugar. The autoloaded methods are not
 checked against any schema, although this may be added in future.
+
+=head1 INDEXING STAG TREES
+
+A stag tree can be indexed as a hash for direct retrieval; see
+L<Data::Stag::HashDB>
+
+This index can be made persistent as a DB file; see
+L<Data::Stag::StagDB>
+
+If you wish to use Stag in conjunction with a relational database, you
+should install L<DBIx::DBStag>
 
 =head1 STAG METHODS
 
