@@ -1,4 +1,4 @@
-# $Id: StagImpl.pm,v 1.48 2004/06/16 03:06:55 cmungall Exp $
+# $Id: StagImpl.pm,v 1.49 2004/07/02 17:06:02 cmungall Exp $
 #
 # Author: Chris Mungall <cjm@fruitfly.org>
 #
@@ -432,7 +432,6 @@ sub chainhandlers {
 
     load_module("Data::Stag::ChainHandler");
     my $handler = Data::Stag::ChainHandler->new;
-    $handler->blocked_event($block);
     $handler->subhandlers([
                            map {
                                if (ref($_)) {
@@ -454,6 +453,14 @@ sub chainhandlers {
                                }
                              } @sh
                           ]);
+    $handler->blocked_event($block);
+
+    # if no explicit blocked events set, then introspect
+    # the subhandlers to see if they declare what they emit
+    if (ref($block) && !@$block) {
+        my @emits = map {$_->CONSUMES} @{$handler->subhandlers};
+        $handler->blocked_event(\@emits);
+    }
     return $handler;
 }
 

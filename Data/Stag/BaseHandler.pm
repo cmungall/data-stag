@@ -1,4 +1,4 @@
-# $Id: BaseHandler.pm,v 1.24 2004/06/10 18:30:53 cmungall Exp $
+# $Id: BaseHandler.pm,v 1.25 2004/07/02 17:06:02 cmungall Exp $
 #
 # This  module is maintained by Chris Mungall <cjm@fruitfly.org>
 
@@ -245,6 +245,8 @@ use Data::Stag;
 use vars qw($VERSION);
 $VERSION="0.05";
 
+sub EMITS    { () }
+sub CONSUMES { () }
 
 sub tree {
     my $self = shift;
