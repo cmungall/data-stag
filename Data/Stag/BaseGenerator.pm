@@ -1,4 +1,4 @@
-# $Id: BaseGenerator.pm,v 1.5 2003/02/27 02:40:02 cmungall Exp $
+# $Id: BaseGenerator.pm,v 1.6 2003/03/29 23:33:58 cmungall Exp $
 #
 # Copyright (C) 2002 Chris Mungall <cjm@fruitfly.org>
 #
@@ -224,7 +224,8 @@ sub parse {
         confess("no filehandle");
     }
     $self->parse_fh($fh);
-    $fh->close;
+    # problem with IO::String closing in perl5.6.1
+    $fh->close unless $str;
     return;
 }
 

@@ -1,4 +1,4 @@
-# $Id: StagImpl.pm,v 1.18 2003/03/20 09:12:41 cmungall Exp $
+# $Id: StagImpl.pm,v 1.19 2003/03/29 23:33:58 cmungall Exp $
 #
 # Author: Chris Mungall <cjm@fruitfly.org>
 #
@@ -187,6 +187,18 @@ sub parse {
     return $tree;
 }
 *parseFile = \&parse;
+
+sub parsestr {
+    my $tree = shift;
+    my ($str, $fmt, $h) = 
+      rearrange([qw(str format handler)], @_);
+    return 
+      $tree->parse(-str=>$str,
+		   -format=>$fmt,
+		   -handler=>$h);
+		 
+}
+*parseStr = \&parsestr;
 
 sub from {
     my $class = shift;
@@ -663,6 +675,30 @@ sub findnode {
 *findSubTree = \&findnode;
 *fst = \&findnode;
 
+sub remove {
+    my $tree = shift;
+    my ($node, @path) = splitpath(shift);
+
+    my $replace = shift;
+    confess("problem: $tree not arr") unless ref($tree) && ref($tree) eq "ARRAY" || isaNode($tree);
+
+    if (@path) {
+        $_->remove(\@path) foreach findnode($tree, $node);        
+	return;
+    }
+
+    my ($ev, $subtree) = @$tree;
+    return unless ref $subtree;
+    my @subnodes = @$subtree;
+    @subnodes =
+      grep {
+	  $_->[0] ne $node;
+      } @subnodes;
+    @$subtree = @subnodes;
+    remove($_, $node) foreach @subnodes;
+    return;
+}
+
 sub set {
     my $tree = shift || confess;
     my ($node, @path) = splitpath(shift);
@@ -1116,6 +1152,7 @@ sub iterate {
 # takes a denormalized flat table of rows/columns
 # and turns it back into its original tree structure;
 # useful for querying databases
+# DEPRECATED
 sub normalize {
     my $tree = shift || [];
     my ($schema,
@@ -1806,7 +1843,7 @@ sub kids {
     if (!ref($kids)) {
         return $kids;
     }
-    return map {Node(@$_)} @$kids;
+    return map {Nodify($_)} @$kids;
 }
 *k = \&kids;
 *children = \&kids;
@@ -1866,6 +1903,7 @@ sub _max {
 }
 
 # automatically deduces schema
+# FORMAT MAY CHANGE!!!!!
 sub autoschema {
     my $tree = shift;
     my $schema = _autoschema($tree);
@@ -1969,10 +2007,16 @@ sub _autoschema {
         elsif ($in =~ /^\d+$/ &&
             ($d eq 'int')) {
             $d = 'int';
+	    my $lin = length($in);
+	    if ($lin > 10) {
+		# too big for an int
+		# TODO: largeint?
+		$d = "varchar($lin)";
+	    }
         }
         elsif ($in =~ /^\d+\.\d+$/ &&
-            ($d eq 'int' || $d eq 'double')) {
-            $d = 'double';
+            ($d eq 'int' || $d eq 'float')) {
+            $d = 'float';
         }
         else {
             my $lin = length($in) || 0;

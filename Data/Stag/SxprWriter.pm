@@ -99,6 +99,9 @@ sub end_event {
         warn("uh oh; $ev ne $popped");
     }
     $self->o(")");
+    if (!@$stack) {
+	$self->o("\n");
+    }
     return $ev;
 }
 sub evbody {

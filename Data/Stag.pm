@@ -1,4 +1,4 @@
-# $Id: Stag.pm,v 1.14 2003/03/20 09:12:40 cmungall Exp $
+# $Id: Stag.pm,v 1.15 2003/03/29 23:33:56 cmungall Exp $
 # -------------------------------------------------------
 #
 # Copyright (C) 2002 Chris Mungall <cjm@fruitfly.org>
@@ -56,6 +56,7 @@ $VERSION="0.02";
                   tmn tmatchnode
                   cm cmatch
                   w where
+		  iterate
                   run
                   collapse
                   merge
@@ -63,6 +64,7 @@ $VERSION="0.02";
                   isanode
                   parser
                   parse parsefile
+		  parsestr
 		  generate gen write
                   makehandler mh
                   findhandler 
@@ -779,7 +781,7 @@ similar to B<new>
 
        Title: parse
 
-        Args: file str, [format str], [handler obj]
+        Args: [file str], [format str], [handler obj], [fh FileHandle]
      Returns: Data::Stag node
      Example: $node = stag_parse($fn);
      Example: $node = Data::Stag->parse(-file=>$fn, -handler=>$myhandler);
@@ -791,6 +793,16 @@ The format can also be the name of a parsing module, or an actual
 parser object
 
 
+=head3 parsestr 
+
+       Title: parsestr
+
+        Args: [str str], [format str], [handler obj]
+     Returns: Data::Stag node
+     Example: $node = stag_parsestr('(a (b (c "1")))');
+     Example: $node = Data::Stag->parsestr(-str=>$fn, -handler=>$myhandler);
+
+Similar to parse(), except the first argument is a string
 
 =head3 from 
 
@@ -1199,7 +1211,7 @@ returns the non-terminal data value(s) of the current node;
      Synonym: j
      Synonym: nj
 
-        Args: element str
+        Args: element str, key str, data Node
       Return: undef
 
 does a relational style natural join - see previous example in this doc
@@ -1292,6 +1304,23 @@ satisfy the coderef (must return a boolean)
                                 sub {shift->get_type =~ /(dog|cat)/})});
 
 
+
+
+
+=head3 iterate (i)
+
+       Title: iterate
+     Synonym: i
+
+        Args: CODE
+      Return: Node[]
+     Example: $data->iterate(sub {
+				 my $stag = shift;
+				 my $parent = shift;
+				 if ($stag->element eq 'pet') {
+				     $parent->set_pet_name($stag->get_name);
+				 }
+			     });
 
 
 

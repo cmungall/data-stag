@@ -27,7 +27,7 @@ use Data::Stag qw(:all);
 use Getopt::Long;
 
 my $parser = "";
-my $handler = "";
+my $handler = "xml";
 my $mapf;
 my $tosql;
 my $toxml;

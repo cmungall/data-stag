@@ -1,4 +1,4 @@
-# $Id: SxprParser.pm,v 1.6 2003/03/06 07:09:38 cmungall Exp $
+# $Id: SxprParser.pm,v 1.7 2003/03/29 23:33:58 cmungall Exp $
 #
 # Copyright (C) 2002 Chris Mungall <cjm@fruitfly.org>
 #
@@ -11,7 +11,7 @@ package Data::Stag::SxprParser;
 
 =head1 NAME
 
-  ITextParser.pm     - simple wrapper for 
+  SxprParser.pm     - simple wrapper for lisp style S-expression
 
 =head1 SYNOPSIS
 
