@@ -94,7 +94,7 @@ the name of the node/element
 
 =back
 
-=hed1 LIMITATIONS
+=head1 LIMITATIONS
 
 not event based
 

@@ -19,7 +19,7 @@ use strict;
 use base qw(Data::Stag::Base);
 
 use vars qw($VERSION);
-$VERSION="0.04";
+$VERSION="0.05";
 
 
 sub start_event { shift;print "OPEN :$_[0]\n"} 
