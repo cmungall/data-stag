@@ -1,4 +1,4 @@
-# $Id: BaseHandler.pm,v 1.15 2003/08/15 04:42:32 cmungall Exp $
+# $Id: BaseHandler.pm,v 1.16 2003/11/20 00:01:10 cmungall Exp $
 #
 # This  module is maintained by Chris Mungall <cjm@fruitfly.org>
 
@@ -18,7 +18,7 @@
       my $node = shift;
       printf "Person name:%s address:%s\n",
         $node->sget('name'), $node->sget('address');
-      return [];  # delete person node
+      $node->free;
   }
   
   package MyPersonHandler;
@@ -32,7 +32,7 @@
           $node->set('unit', 'cm');
           $node->set('quantity', $node->get('quantity') * 2.5);
       }
-      return;   # returnig null leaves it unchanged
+      return;
   }
   
 
@@ -222,6 +222,7 @@ sub init {
 sub perlify {
     my $word = shift;
     $word =~ s/\-/_/g;
+    $word =~ s/\:/_/g;
     return $word;
 }
 

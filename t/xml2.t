@@ -6,7 +6,7 @@ BEGIN {
     # as a fallback
     eval { require Test; };
     use Test;    
-    plan tests => 3;
+    plan tests => 4;
 }
 use Data::Stag qw(:all);
 use Data::Stag::Arr2HTML;
@@ -180,3 +180,10 @@ map {
     print stag_xml($_);
 } @p;
 ok(@p == 1);
+
+my $struct;
+$struct = Data::Stag->parse(-str=>"(a)");
+print $struct->sxpr;
+$struct = Data::Stag->parse(-str=>"<foo><bar>1</bar></foo>");
+print $struct->sxpr;
+ok(1);
