@@ -9,6 +9,7 @@ Data/Stag/Base.pm
 Data/Stag/BaseGenerator.pm
 Data/Stag/BaseHandler.pm
 Data/Stag/ChainHandler.pm
+Data/Stag/DTDWriter.pm
 Data/Stag/GraphHandler.pm
 Data/Stag/HashDB.pm
 Data/Stag/ITextParser.pm
