@@ -1,4 +1,4 @@
-# $Id: BaseHandler.pm,v 1.9 2003/05/22 01:42:30 cmungall Exp $
+# $Id: BaseHandler.pm,v 1.10 2003/05/27 06:49:31 cmungall Exp $
 #
 # This  module is maintained by Chris Mungall <cjm@fruitfly.org>
 
@@ -90,7 +90,7 @@ use Carp;
 use Data::Stag;
 
 use vars qw($VERSION);
-$VERSION="0.02";
+$VERSION="0.03";
 
 
 =head2 tree
@@ -231,14 +231,18 @@ sub start_event {
     my $node = $self->{node};
     my $m = perlify("s_$ev");
 
-    my $stack = $self->elt_stack;
-    push(@$stack, $ev);
-
+    if ($self->can("catch_start")) {
+        $self->catch_start($ev);
+    }
     if ($self->can($m)) {
-        $self->$m;
+        $self->$m($ev);
     }
     else {
     }
+
+    my $stack = $self->elt_stack;
+    push(@$stack, $ev);
+
     my $el = [$ev];
     push(@$node, $el);
 }

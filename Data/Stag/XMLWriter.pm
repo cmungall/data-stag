@@ -20,7 +20,7 @@ use base qw(Data::Stag::Base);
 use Data::Stag::Util qw(rearrange);
 
 use vars qw($VERSION);
-$VERSION="0.02";
+$VERSION="0.03";
 
 use XML::Handler::XMLWriter;
 

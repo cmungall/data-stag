@@ -1,4 +1,4 @@
-# $Id: ITextParser.pm,v 1.6 2003/04/29 22:28:59 cmungall Exp $
+# $Id: ITextParser.pm,v 1.7 2003/05/27 06:49:31 cmungall Exp $
 #
 # Copyright (C) 2002 Chris Mungall <cjm@fruitfly.org>
 #
@@ -32,7 +32,7 @@ use XML::Parser::PerlSAX;
 use base qw(Data::Stag::BaseGenerator Exporter);
 
 use vars qw($VERSION);
-$VERSION="0.02";
+$VERSION="0.03";
 
 sub parse_fh {
     my $self = shift;

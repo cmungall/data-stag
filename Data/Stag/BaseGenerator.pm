@@ -1,4 +1,4 @@
-# $Id: BaseGenerator.pm,v 1.7 2003/05/22 01:42:30 cmungall Exp $
+# $Id: BaseGenerator.pm,v 1.8 2003/05/27 06:49:31 cmungall Exp $
 #
 # Copyright (C) 2002 Chris Mungall <cjm@fruitfly.org>
 #
@@ -252,7 +252,7 @@ sub end_event {
 
     my $out = $self->pop_stack();
     if ($ev ne $out) {
-        confess("MISMATCH: $ev ne $out");
+        confess("MISMATCH: '$ev' ne '$out'");
     }
     $self->last_evcall_type('end_event');
     $self->check_handler_messages;

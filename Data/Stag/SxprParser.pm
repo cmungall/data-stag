@@ -1,4 +1,4 @@
-# $Id: SxprParser.pm,v 1.7 2003/03/29 23:33:58 cmungall Exp $
+# $Id: SxprParser.pm,v 1.8 2003/05/27 06:49:31 cmungall Exp $
 #
 # Copyright (C) 2002 Chris Mungall <cjm@fruitfly.org>
 #
@@ -34,7 +34,7 @@ use Data::Stag qw(:all);
 use base qw(Data::Stag::BaseGenerator Exporter);
 
 use vars qw($VERSION);
-$VERSION="0.02";
+$VERSION="0.03";
 
 sub parse_fh {
     my $self = shift;
