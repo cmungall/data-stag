@@ -17,13 +17,14 @@ my %catch =
     person => sub {
 	my ($self, $person) = @_;
 	$person->set_fullname($person->get_firstname . ' ' .
-			   $person->get_lastname);
+			      $person->get_lastname);
+	0;
     },
     address => sub {
 	my ($self, $address) = @_;
 	# remove addresses altogether from processed file
 	$address->free;
-	return;
+	0;
     },
   );
 

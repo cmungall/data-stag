@@ -1,4 +1,4 @@
-# $Id: BaseHandler.pm,v 1.12 2003/07/16 21:40:04 cmungall Exp $
+# $Id: BaseHandler.pm,v 1.13 2003/08/03 08:39:39 cmungall Exp $
 #
 # This  module is maintained by Chris Mungall <cjm@fruitfly.org>
 
@@ -280,6 +280,24 @@ sub evbody {
 sub B {shift->evbody(@_)}
 sub b {shift->evbody(@_)}
 
+sub up {
+    my $self = shift;
+    my $dist = shift || 1;
+    my $node = $self->node->[-$dist];
+    return Data::Stag::stag_nodify($node);
+}
+
+sub up_to {
+    my $self = shift;
+    my $n = shift || confess "must specify node name";
+    my $nodes = $self->node || [];
+    my ($node) = grep {$_->[0] eq $n} @$nodes;
+    confess " no such node name as $n; valid names are:".
+      join(", ", map {$_->[0]} @$nodes)
+	unless $node;
+    return Data::Stag::stag_nodify($node);
+}
+
 # end_event is called at the end of any event;
 # equivalent to the event fired at the closing of any
 # xml </tag> in a SAX parser
@@ -325,7 +343,18 @@ sub end_event {
     my $trap_h = $self->trap_h;
     if ($trap_h && $trap_h->{$ev}) {
         # call anonymous subroutine supplied in hash
-        $trap_h->{$ev}->($self, Data::Stag::stag_nodify($topnode));
+        my @trees = $trap_h->{$ev}->($self, Data::Stag::stag_nodify($topnode));
+	if (@trees) {
+	    if (@trees == 1 && !$trees[0]) {
+	    }
+	    else {
+		my $el = $node->[$#{$node}];
+		foreach my $tree (@trees) {
+		    push(@{$el->[1]}, $tree) if $tree && $tree->[0];
+		}
+		return;
+	    }
+	}
     }
 
     if ($self->can("flatten_elts") &&

@@ -33,8 +33,17 @@ my %h =
        my ($self, $stag) = @_;
        my $species_h = $self->{species_h};
        my $gene_h = $self->{gene_h};
+       my $tax_id = $stag->get_tax_id;
        # add new node based on foreign key key:
-       $stag->setnode_species($species_h->{$stag->get_tax_id});
+       my $species = $species_h->{$tax_id};
+       # check
+       my $db = $self->up_to('db');
+       my @sp2 = $db->qmatch('species', (tax_id=>$tax_id));
+       if (@sp2 != 1) {
+	   print $db->xml;
+	   die "no species matching $tax_id";
+       }
+       $stag->setnode_species($species);
        # cache by primary key:
        # [gene symbols do not guarantee uniqueness, but this is
        #  a toy example, OK?]

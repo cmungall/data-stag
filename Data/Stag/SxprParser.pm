@@ -1,4 +1,4 @@
-# $Id: SxprParser.pm,v 1.9 2003/05/28 23:52:10 cmungall Exp $
+# $Id: SxprParser.pm,v 1.10 2003/08/03 08:39:39 cmungall Exp $
 #
 # Copyright (C) 2002 Chris Mungall <cjm@fruitfly.org>
 #
@@ -49,7 +49,7 @@ sub parse_fh {
 
     my $parsing_has_started;
 
-    my $OPEN = '^\s*\((\w+)\s*';
+    my $OPEN = '^\s*\(([\w\-\*\?\+\@]+)\s*';
     my $CLOSE = '(.*)(.)\){1}';
     my $txt;
     my $in;

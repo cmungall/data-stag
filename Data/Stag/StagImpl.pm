@@ -1,4 +1,4 @@
-# $Id: StagImpl.pm,v 1.31 2003/07/27 02:45:11 cmungall Exp $
+# $Id: StagImpl.pm,v 1.32 2003/08/03 08:39:39 cmungall Exp $
 #
 # Author: Chris Mungall <cjm@fruitfly.org>
 #
@@ -272,16 +272,16 @@ sub _gethandlerobj {
     if (ref($fmt)) {
         return $fmt;
     }
-    elsif ($fmt eq "xml") {
+    elsif ($fmt =~ /xml/i) {
         $writer = "Data::Stag::XMLWriter";
     }
-    elsif ($fmt eq "itext") {
+    elsif ($fmt =~ /itext/i) {
         $writer = "Data::Stag::ITextWriter";
     }
-    elsif ($fmt eq "sxpr") {
+    elsif ($fmt =~ /sxpr/i) {
         $writer = "Data::Stag::SxprWriter";
     }
-    elsif ($fmt eq "simple") {
+    elsif ($fmt =~ /simple/i) {
         $writer = "Data::Stag::Simple";
     }
     elsif ($fmt =~ /::/) {
@@ -356,6 +356,47 @@ sub chainhandlers {
                           ]);
     return $handler;
 }
+
+sub transform {
+    my $tree = shift;
+    my @T = @_;
+    my %trap_h = 
+      map {
+	  my ($from, $to) = @$_;
+	  $from=> sub {
+	      my $self = shift;
+	      my $stag = shift;
+	      my $data = $stag->data;
+	      my @path = splitpath($to);
+	      my $node = [];
+	      my $p = $node;
+	      while (@path) {
+		  my $elt = shift @path;
+		  $p->[0] = $elt;
+		  if (@path) {
+		      my $newpath = [];
+		      $p->[1] = [$newpath];
+		      $p = $newpath;
+		  }
+		  else {
+		      $p->[1] = $data;
+		  }
+	      }
+	      @$stag = @$node;
+#	      print STDERR "Transforming $from => $to\n";
+#	      return $node;
+	      return 0;
+	  }
+      } @T;
+    load_module("Data::Stag::BaseHandler");
+    my $handler = Data::Stag::BaseHandler->new;
+    $handler->trap_h(\%trap_h);
+    $tree->events($handler);
+    my $nu = $handler->stag;
+    @$tree = @$nu;
+    return;
+}
+*t = \&transform;
 
 sub hash {
     my $tree = shift;
@@ -1854,8 +1895,16 @@ sub merge {
 
 sub duplicate {
     my $tree = shift;
-    my $xml = xml($tree);
-    return xmlstr2tree($xml);
+    load_module('Data::Dumper');
+    use Data::Dumper;
+    my $nu;
+    my $d = Data::Dumper->new( [$tree], [qw($nu)] );
+    my $dump = $d->Dump;
+    eval $dump;
+    if ($@) {
+	confess $@;
+    }
+    return stagify($nu);
 }
 *d = \&duplicate;
 *clone = \&duplicate;

@@ -95,7 +95,7 @@ foreach my $fn (@files) {
         print $s->xml;
     }
     else {
-        $s->generate(-fmt=>$handler);
+        print $s->generate(-fmt=>$handler);
     }
 }
 

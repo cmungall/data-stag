@@ -16,7 +16,7 @@ my $sep = "\t";
 my $parser;
 GetOptions("element|e=s"=>\$e,
            "parser|format|p=s" => \$parser,
-	   "prints|p=s@"=>\@prints,
+	   "prints=s@"=>\@prints,
 	  );
 
 my $fn = shift @ARGV;
@@ -70,7 +70,7 @@ foreach ( @list ) {
     # Add the item (in $_) with $text as the label.
     #
     
-    print "ADD $_ $text\n";
+#    print "ADD $_ $text\n";
     $text =~ s/\[\d+\]$//;
     $tree->add( $_, -text => $text );
     

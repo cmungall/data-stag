@@ -13,7 +13,7 @@ use strict;
 
 my $h = Data::Stag->makehandler(
                                 a => sub { my ($self,$stag) = @_;
-                                           $stag->set_foo("bar");});
+                                           $stag->set_foo("bar");0});
 my $stag = Data::Stag->parse(-str=>'(data(a (foo "x")(fee "y")))',
                              -handler=>$h);
 print $stag->xml;

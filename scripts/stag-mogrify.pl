@@ -143,7 +143,9 @@ foreach my $fn (@files) {
 	    print $tree->xml;
 	}
 	else {
-	    $tree->generate(-fmt=>$handler);
+	    my $W = Data::Stag->getformathandler($handler);
+	    $W->fh(\*STDOUT);
+	    $tree->sax($W);
 	}
     }
 }
