@@ -1,0 +1,120 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>/home/cjm/stag/scripts/stag-handle.pl</title>
+<link rev="made" href="mailto:feedback@suse.de" />
+</head>
+
+<body style="background-color: white">
+
+<p><a name="__index__"></a></p>
+<!-- INDEX BEGIN -->
+
+<ul>
+
+	<li><a href="#name">NAME</a></li>
+	<li><a href="#synopsis">SYNOPSIS</a></li>
+	<li><a href="#description">DESCRIPTION</a></li>
+	<li><a href="#examples">EXAMPLES</a></li>
+</ul>
+<!-- INDEX END -->
+
+<hr />
+<p>
+</p>
+<h1><a name="name">NAME</a></h1>
+<p>stag-handle.pl - streams a stag file through a handler into a writer</p>
+<p>
+</p>
+<hr />
+<h1><a name="synopsis">SYNOPSIS</a></h1>
+<pre>
+  stag-handle.pl -w itext -c my-handler.pl myfile.xml &gt; processed.itext
+  stag-handle.pl -w itext -p My::Parser -m My::Handler myfile.xml &gt; processed.itext</pre>
+<p>
+</p>
+<hr />
+<h1><a name="description">DESCRIPTION</a></h1>
+<p>will take a Stag compatible format (xml, sxpr or itext), turn the data
+into an event stream passing it through my-handler.pl</p>
+<dl>
+<dt><strong><a name="item_%2dhelp%7ch">-help|h</a></strong><br />
+</dt>
+<dd>
+shows this document
+</dd>
+<p></p>
+<dt><strong><a name="item_%2dmodule%7cm_perlmodule">-module|m PERLMODULE</a></strong><br />
+</dt>
+<dd>
+A module that is used to transform the input events
+the module should inherit from <a href="/Data/Stag/BaseHandler.html">the Data::Stag::BaseHandler manpage</a>
+</dd>
+<p></p>
+<dt><strong><a name="item_%2dunit%7cu_node_name">-unit|u NODE_NAME</a></strong><br />
+</dt>
+<dd>
+(you should always use this option if you specify -m)
+</dd>
+<dd>
+<p>this is the unit that gets passed to the handler/transformer. this
+will get set automatically if you use the the -c, -s or -t options</p>
+</dd>
+<dd>
+<p>multiple units can be set</p>
+</dd>
+<dd>
+<pre>
+  -u foo -u bar -u boz</pre>
+</dd>
+<p></p>
+<dt><strong><a name="item_%2dwriter%7cw_writer">-writer|w WRITER</a></strong><br />
+</dt>
+<dd>
+writer for final transformed tree; can be xml, sxpr or itext
+</dd>
+<p></p>
+<dt><strong><a name="item_%2dmodule%7cm_module">-module|m MODULE</a></strong><br />
+</dt>
+<dd>
+perl modules for handling events
+</dd>
+<p></p>
+<dt><strong><a name="item_%2dcodefile%7cc_file">-codefile|c FILE</a></strong><br />
+</dt>
+<dd>
+a file containing a perlhashref containing event handlers - see below
+</dd>
+<p></p>
+<dt><strong><a name="item_%2dsub%7cs_perl">-sub|s PERL</a></strong><br />
+</dt>
+<dd>
+a perl hashref containing handlers
+</dd>
+<p></p>
+<dt><strong><a name="item_%2dtrap%7ct_element%3dsub">-trap|t ELEMENT=SUB</a></strong><br />
+</dt>
+</dl>
+<p>
+</p>
+<hr />
+<h1><a name="examples">EXAMPLES</a></h1>
+<pre>
+  unix&gt; cat my-handler.pl
+  {
+    person =&gt; sub {
+        my ($self, $person) = @_;
+        $person-&gt;set_fullname($person-&gt;get_firstname . ' ' .
+                           $person-&gt;get_lastname);
+        $person;
+    },
+    address =&gt; sub {
+        my ($self, $address) = @_;
+        # remove addresses altogether from processed file
+        return;
+    },
+  }</pre>
+
+</body>
+
+</html>

@@ -1,0 +1,83 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>/home/cjm/stag/scripts/stag-join.pl</title>
+<link rev="made" href="mailto:feedback@suse.de" />
+</head>
+
+<body style="background-color: white">
+
+<p><a name="__index__"></a></p>
+<!-- INDEX BEGIN -->
+
+<ul>
+
+	<li><a href="#name">NAME</a></li>
+	<li><a href="#synopsis">SYNOPSIS</a></li>
+	<li><a href="#description">DESCRIPTION</a></li>
+	<li><a href="#arguments">ARGUMENTS</a></li>
+	<li><a href="#limitations">LIMITATIONS</a></li>
+	<li><a href="#see_also">SEE ALSO</a></li>
+</ul>
+<!-- INDEX END -->
+
+<hr />
+<p>
+</p>
+<h1><a name="name">NAME</a></h1>
+<p>stag-join.pl - joins two stag files together based around common key</p>
+<p>
+</p>
+<hr />
+<h1><a name="synopsis">SYNOPSIS</a></h1>
+<pre>
+  stag-join.pl  -w xml country/city_id=capital/capital_id countries.xml capitals.xml</pre>
+<pre>
+  stag-join.pl  -w itext gene/tax_id=species/tax_id genedb.itext speciesdb.itext</pre>
+<p>
+</p>
+<hr />
+<h1><a name="description">DESCRIPTION</a></h1>
+<p>Performs a relational-style INNER JOIN between two stag trees; this
+effectively merges two files together, based on some kind of ID in the
+file</p>
+<p>
+</p>
+<hr />
+<h1><a name="arguments">ARGUMENTS</a></h1>
+<dl>
+<dt><strong><a name="item_%2dp%7cparser_format">-p|parser FORMAT</a></strong><br />
+</dt>
+<dd>
+FORMAT is one of xml, sxpr or itext, or the name of a perl module
+</dd>
+<dd>
+<p>xml assumed as default</p>
+</dd>
+<p></p>
+<dt><strong><a name="item_%2dw%7cwriter_format">-w|writer FORMAT</a></strong><br />
+</dt>
+<dd>
+FORMAT is one of xml, sxpr or itext, or the name of a perl module
+</dd>
+<p></p></dl>
+<p>
+</p>
+<hr />
+<h1><a name="limitations">LIMITATIONS</a></h1>
+<p>currently not event based, so may not be memory efficicent. could be
+easily rewritten to be event based</p>
+<p>
+</p>
+<hr />
+<h1><a name="see_also">SEE ALSO</a></h1>
+<p><a href="/Data/Stag.html">the Data::Stag manpage</a></p>
+<p>This script is a wrapper for the method</p>
+<pre>
+  Data::Stag-&gt;ijoin()
+ 
+=cut</pre>
+
+</body>
+
+</html>

@@ -1,0 +1,88 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>/home/cjm/DBIx-DBStag/scripts/stag-autoddl.pl</title>
+<link rev="made" href="mailto:feedback@suse.de" />
+</head>
+
+<body style="background-color: white">
+
+<p><a name="__index__"></a></p>
+<!-- INDEX BEGIN -->
+
+<ul>
+
+	<li><a href="#name">NAME</a></li>
+	<li><a href="#synopsis">SYNOPSIS</a></li>
+	<li><a href="#description">DESCRIPTION</a></li>
+</ul>
+<!-- INDEX END -->
+
+<hr />
+<p>
+</p>
+<h1><a name="name">NAME</a></h1>
+<p>stag-autoddl.pl</p>
+<p>
+</p>
+<hr />
+<h1><a name="synopsis">SYNOPSIS</a></h1>
+<pre>
+  stag-autoddl.pl -parser XMLAutoddl -handler ITextWriter file1.txt file2.txt</pre>
+<pre>
+  stag-autoddl.pl -parser MyMod::MyParser -handler MyMod::MyWriter file.txt</pre>
+<p>
+</p>
+<hr />
+<h1><a name="description">DESCRIPTION</a></h1>
+<p>script wrapper for the Data::Stag modules</p>
+<dl>
+<dt><strong><a name="item_%2dhelp%7ch">-help|h</a></strong><br />
+</dt>
+<dd>
+shows this document
+</dd>
+<p></p>
+<dt><strong><a name="item_%2dp%7cparser_format">-p|parser FORMAT</a></strong><br />
+</dt>
+<dd>
+FORMAT is one of xml, sxpr or itext, or the name of a perl module
+</dd>
+<dd>
+<p>xml assumed as default</p>
+</dd>
+<p></p>
+<dt><strong><a name="item_%2dw%7cwriter_format">-w|writer FORMAT</a></strong><br />
+</dt>
+<dd>
+FORMAT is one of xml, sxpr or itext, or the name of a perl module
+</dd>
+<dd>
+<p>This is only used if transforms are required on the data to turn it
+into relational form; the transformed xml (or other stag format) is
+stored in the file specified by -t</p>
+</dd>
+<p></p>
+<dt><strong><a name="item_%2dlink%7cl_node_name">-link|l NODE_NAME</a></strong><br />
+</dt>
+<dd>
+this node name will be used as a linking table
+</dd>
+<dd>
+<p>multiple linking nodes can be set:</p>
+</dd>
+<dd>
+<pre>
+ -l foo2bar -l x2y -l bim2bum</pre>
+</dd>
+<p></p>
+<dt><strong><a name="item_%2dt_transformed_file_name">-t TRANSFORMED_FILE_NAME</a></strong><br />
+</dt>
+<dd>
+the transformed input file is written here
+</dd>
+<p></p></dl>
+
+</body>
+
+</html>

@@ -1,0 +1,97 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>/home/cjm/stag/scripts/stag-flatten.pl</title>
+<link rev="made" href="mailto:feedback@suse.de" />
+</head>
+
+<body style="background-color: white">
+
+<p><a name="__index__"></a></p>
+<!-- INDEX BEGIN -->
+
+<ul>
+
+	<li><a href="#name">NAME</a></li>
+	<li><a href="#synopsis">SYNOPSIS</a></li>
+	<li><a href="#description">DESCRIPTION</a></li>
+	<li><a href="#usage">USAGE</a></li>
+	<li><a href="#arguments">ARGUMENTS</a></li>
+	<li><a href="#bugs">BUGS</a></li>
+	<li><a href="#see_also">SEE ALSO</a></li>
+</ul>
+<!-- INDEX END -->
+
+<hr />
+<p>
+</p>
+<h1><a name="name">NAME</a></h1>
+<p>stag-flatten.pl - turns stag data into a flat table</p>
+<p>
+</p>
+<hr />
+<h1><a name="synopsis">SYNOPSIS</a></h1>
+<pre>
+  stag-flatten.pl MyFile.xml dept/name dept/person/name</pre>
+<p>
+</p>
+<hr />
+<h1><a name="description">DESCRIPTION</a></h1>
+<p>reads in a file in a stag format, and 'flattens' it to a tab-delimited
+table format. given this data:</p>
+<pre>
+  (company
+   (dept
+    (name &quot;special-operations&quot;)
+    (person
+     (name &quot;james-bond&quot;))
+    (person
+     (name &quot;fred&quot;))))</pre>
+<p>the above command will return a two column table</p>
+<pre>
+  special-operations      james-bond
+  special-operations      fred</pre>
+<p>
+</p>
+<hr />
+<h1><a name="usage">USAGE</a></h1>
+<pre>
+  stag-flatten.pl [-p PARSER] [-c COLS] [-c COLS]... &lt;file&gt; [COL][COL]...</pre>
+<p>
+</p>
+<hr />
+<h1><a name="arguments">ARGUMENTS</a></h1>
+<dl>
+<dt><strong><a name="item_%2dp%7cparser_format">-p|parser FORMAT</a></strong><br />
+</dt>
+<dd>
+FORMAT is one of xml, sxpr or itext
+</dd>
+<dd>
+<p>xml assumed as default</p>
+</dd>
+<p></p>
+<dt><strong><a name="item_%2dc%7ccolumn_col1%2ccol2%2ccol3%2c%2e%2e">-c|column COL1,COL2,COL3,..</a></strong><br />
+</dt>
+<dd>
+the name of the columns/elements to write out
+</dd>
+<dd>
+<p>(alternatively this argument can be written after the filename is
+specified)</p>
+</dd>
+<p></p></dl>
+<p>
+</p>
+<hr />
+<h1><a name="bugs">BUGS</a></h1>
+<p>still not working quite right...</p>
+<p>
+</p>
+<hr />
+<h1><a name="see_also">SEE ALSO</a></h1>
+<p><a href="/Data/Stag.html">the Data::Stag manpage</a></p>
+
+</body>
+
+</html>

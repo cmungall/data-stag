@@ -1,0 +1,176 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>/home/cjm/stag/scripts/stag-diff.pl</title>
+<link rev="made" href="mailto:feedback@suse.de" />
+</head>
+
+<body style="background-color: white">
+
+<p><a name="__index__"></a></p>
+<!-- INDEX BEGIN -->
+
+<ul>
+
+	<li><a href="#name">NAME</a></li>
+	<li><a href="#synopsis">SYNOPSIS</a></li>
+	<li><a href="#description">DESCRIPTION</a></li>
+	<ul>
+
+		<li><a href="#output">OUTPUT</a></li>
+		<li><a href="#algorithm">ALGORITHM</a></li>
+		<li><a href="#author">AUTHOR</a></li>
+	</ul>
+
+	<li><a href="#see_also">SEE ALSO</a></li>
+</ul>
+<!-- INDEX END -->
+
+<hr />
+<p>
+</p>
+<h1><a name="name">NAME</a></h1>
+<p>stag-diff.pl - finds the difference between two stag files</p>
+<p>
+</p>
+<hr />
+<h1><a name="synopsis">SYNOPSIS</a></h1>
+<pre>
+  stag-diff.pl -ignore foo-id -ignore bar-id file1.xml file2.xml</pre>
+<p>
+</p>
+<hr />
+<h1><a name="description">DESCRIPTION</a></h1>
+<p>Compares two data trees and reports whether they match. If they do not
+match, the mismatch is reported.</p>
+<dl>
+<dt><strong><a name="item_%2dhelp%7ch">-help|h</a></strong><br />
+</dt>
+<dd>
+shows this document
+</dd>
+<p></p>
+<dt><strong><a name="item_%2dignore%7ci_element">-ignore|i ELEMENT</a></strong><br />
+</dt>
+<dd>
+these nodes are ignored for the purposes of comparison. Note that
+attributes are treated as elements, prefixed by the containing element
+id. For example, if you have
+</dd>
+<dd>
+<pre>
+  &lt;foo ID=&quot;wibble&quot;&gt;</pre>
+</dd>
+<dd>
+<p>And you wish to ignore the ID attribute, then you would use the switch</p>
+</dd>
+<dd>
+<pre>
+  -ignore foo-ID</pre>
+</dd>
+<dd>
+<p>You can specify multiple elements to ignore like this</p>
+</dd>
+<dd>
+<pre>
+  -i foo -i bar -i baz</pre>
+</dd>
+<dd>
+<p>You can also specify paths</p>
+</dd>
+<dd>
+<pre>
+  -i foo/bar/bar-id</pre>
+</dd>
+<p></p>
+<dt><strong><a name="item_%2dparser%7cp_format">-parser|p FORMAT</a></strong><br />
+</dt>
+<dd>
+which parser to use. The default is XML. This can also be autodetected
+by the file suffix. Other alternatives are <strong>sxpr</strong> and <strong>itext</strong>. See
+<a href="/Data/Stag.html">the Data::Stag manpage</a> for details.
+</dd>
+<p></p>
+<dt><strong><a name="item_%2dreport%7cr_element">-report|r ELEMENT</a></strong><br />
+</dt>
+<dd>
+report mismatches as they occur on each element of type ELEMENT
+</dd>
+<dd>
+<p>multiple elements can be specified</p>
+</dd>
+<p></p>
+<dt><strong><a name="item_%2dverbose%7cv">-verbose|v</a></strong><br />
+</dt>
+<dd>
+used in conjunction with the <strong>-report</strong> switch
+</dd>
+<dd>
+<p>shows the tree of the mismatching element</p>
+</dd>
+<p></p></dl>
+<p>
+</p>
+<h2><a name="output">OUTPUT</a></h2>
+<p>If a mismatch is reported, a report is generated displaying the
+subpart of the tree that could not be matched. This will look like
+this:</p>
+<p>REASON:
+no_matching_node: annotation
+  no_matching_node: feature_set
+    no_matching_node: feature_span
+      no_matching_node: evidence
+        no_matching_node: evidence-id
+          data_mismatch(:15077290 ne :15077291): evidence-id AND evidence-id</p>
+<p>Due to the nature of tree matching, it can be difficult to specify
+exactly how trees do not match. To investigate this, you may need to
+use the <strong>-r</strong> and <strong>-v</strong> options. For the above output, I would
+recommend using</p>
+<pre>
+  stag-diff.pl -r feature_span -v</pre>
+<p>
+</p>
+<h2><a name="algorithm">ALGORITHM</a></h2>
+<p>Both trees are recursively traversed... see the actual code for how this works</p>
+<p>The order of elements is not important; eg
+</p>
+<pre>
+
+  &lt;foo&gt;
+    &lt;bar&gt;
+      &lt;baz&gt;1&lt;/baz&gt;
+    &lt;/bar&gt;
+    &lt;bar&gt;
+      &lt;baz&gt;2&lt;/baz&gt;
+    &lt;/bar&gt;
+  &lt;/foo&gt;</pre>
+<p>matches</p>
+<pre>
+  &lt;foo&gt;
+    &lt;bar&gt;
+      &lt;baz&gt;2&lt;/baz&gt;
+    &lt;/bar&gt;
+    &lt;bar&gt;
+      &lt;baz&gt;1&lt;/baz&gt;
+    &lt;/bar&gt;
+  &lt;/foo&gt;</pre>
+<p>The recursive nature of this algorithm means that certain tree
+comparisons will explode wrt time and memory. I think this will only
+happen with very deep trees where nodes high up in the tree can only
+be differentiated by nodes low down in the tree.</p>
+<p>Both trees are loaded into memory to begin with, so it may thrash with
+very large documents</p>
+<p>
+</p>
+<h2><a name="author">AUTHOR</a></h2>
+<p>Chris Mungall 
+cjm at fruitfly dot org</p>
+<p>
+</p>
+<hr />
+<h1><a name="see_also">SEE ALSO</a></h1>
+<p><a href="/Data/Stag.html">the Data::Stag manpage</a></p>
+
+</body>
+
+</html>
