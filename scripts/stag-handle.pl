@@ -104,6 +104,7 @@ stag-handle.pl - streams a stag file through a handler into a writer
 =head1 SYNOPSIS
 
   stag-handle.pl -w itext -c my-handler.pl myfile.xml > processed.itext
+  stag-handle.pl -w itext -p My::Parser -m My::Handler myfile.xml > processed.itext
 
 =head1 DESCRIPTION
 
@@ -119,6 +120,10 @@ shows this document
 =item -writer|w WRITER
 
 writer for final transformed tree; can be xml, sxpr or itext
+
+=item -module|m MODULE
+
+perl modules for handling events
 
 =item -codefile|c FILE
 
