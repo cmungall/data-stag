@@ -87,6 +87,9 @@ sub start_event {
     elsif ($self->in_attr) {
 	$self->o(" $ev=");
     }
+    elsif ($ev eq '') {
+        # ignore null nodes
+    }
     else {
 	$self->ensure_closed;
 	$self->o("\n". $self->indent_txt . "<$ev");
@@ -100,6 +103,7 @@ sub end_event {
     my $ev = shift;
     my $stack = $self->stack;
     my $popped = pop(@$stack);
+    return '' unless $popped;
     if ($ev && $popped ne $ev) {
         warn("uh oh; $ev ne $popped");
     }

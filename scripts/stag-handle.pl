@@ -12,6 +12,8 @@ use FileHandle;
 my $exec;
 my $codefile;
 my $parser = '';
+my $errhandler = "";
+my $errf;
 my $writer = '';
 my %trap = ();
 my $datafmt;
@@ -21,6 +23,8 @@ GetOptions("codefile|c=s"=>\$codefile,
 	   "sub|s=s"=>\$exec,
 	   "trap|t=s%"=>\%trap,
            "parser|format|p=s" => \$parser,
+           "errhandler=s" => \$errhandler,
+           "errf|e=s" => \$errf,
 	   "writer|w=s"=>\$writer,
 	   "data|d=s"=>\$datafmt,
 	   "module|m=s"=>\$module,
@@ -35,6 +39,13 @@ if (!$codefile && !$exec && !$module) {
 }
 my @files = @ARGV;
 
+$errhandler =  Data::Stag->getformathandler($errhandler || 'xml');
+if ($errf) {
+    $errhandler->file($errf);
+}
+else {
+    $errhandler->fh(\*STDERR);
+}
 my $catch = {};
 no strict;
 if ($exec) {
@@ -75,6 +86,7 @@ if ($module) {
 if (@units) {
     @events = @units;
 }
+$inner_handler->errhandler($errhandler);
 my $h = Data::Stag->chainhandlers([@events],
                                   $inner_handler,
                                   $writer);
@@ -89,7 +101,8 @@ while (my $fn = shift @files) {
         $fh = FileHandle->new($fn) || die "Cannot open file: $fn";
     }
     
-    my $p = Data::Stag->parser(-file=>$fn, -format=>$parser);
+    my $p = Data::Stag->parser(-file=>$fn, -format=>$parser, 
+                               -errhandler=>$errhandler);
 
     $p->handler($h);
     $p->parse_fh($fh);

@@ -19,8 +19,8 @@
     
     <revhistory>
       <revision>
-        <revnumber>$Id: dbstag-tutorial.sgml,v 1.4 2004/04/28 06:02:14 cmungall Exp $</revnumber>
-        <date>$Date: 2004/04/28 06:02:14 $</date>
+        <revnumber>$Id: dbstag-tutorial.sgml,v 1.5 2004/04/30 17:12:07 cmungall Exp $</revnumber>
+        <date>$Date: 2004/04/30 17:12:07 $</date>
         <authorinitials>cjm</authorinitials>
       </revision>
     </revhistory>
@@ -398,7 +398,8 @@ go-term -d go term_name=photoreceptor%
 	version of DBStag. However, it is possible to override the
 	<emphasis>WHERE</emphasis> altogether:
 	<programlisting>
-go-term -d go -where "(term_type='molecular_function' OR is_obsolete=1)"
+go-term -d go -where\
+"(term_type='molecular_function' OR is_obsolete=1)"
 	</programlisting>
 	  Not a particularly useful query, but it illustrates how to
 	  give arbitrary boolean combinations of constraints using SQL
@@ -495,7 +496,10 @@ selectall_xml.pl -d go -h
       results.
       <programlisting>
 selectall_xml.pl -d go\
- "SELECT * FROM term INNER JOIN term_synonym ON	(term.id=term_synonym.term_id) WHERE is_obsolete = 0"	
+ "SELECT *\
+  FROM term\
+  INNER JOIN term_synonym ON (term.id=term_synonym.term_id)\
+  WHERE is_obsolete = 0"	
       </programlisting>
       This will generate XML with <emphasis>term_synonym</emphasis>
       nested under <emphasis>term</emphasis> (we will see how to

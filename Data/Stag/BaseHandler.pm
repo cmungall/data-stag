@@ -1,4 +1,4 @@
-# $Id: BaseHandler.pm,v 1.22 2004/04/16 00:31:48 cmungall Exp $
+# $Id: BaseHandler.pm,v 1.23 2004/04/30 17:12:04 cmungall Exp $
 #
 # This  module is maintained by Chris Mungall <cjm@fruitfly.org>
 
@@ -291,16 +291,17 @@ sub errhandler {
 sub err_event {
     my $self = shift;
     if (!$self->errhandler) {
-#	$self->errhandler(Data::Stag->getformathandler('xml'));
-#	$self->errhandler->fh(\*STDERR);
+	$self->errhandler(Data::Stag->getformathandler('xml'));
+	$self->errhandler->fh(\*STDERR);
 	
-	my $estag = Data::Stag->new(@_);
-	eval {
-	    confess;
-	};
-	$estag->set_stacktrace($@);
-	print STDERR $estag->xml;
-	exit 1;
+#	my $estag = Data::Stag->new(@_);
+#	eval {
+#	    confess;
+#	};
+#	$estag->set_stacktrace($@);
+#	print STDERR $estag->xml;
+#        print STDERR "NO ERRHANDLER SET\n";
+#	exit 1;
     }
     if (!$self->errhandler->depth) {
 	$self->errhandler->start_event("error_eventset");
@@ -666,22 +667,16 @@ sub start_element {
 	}
 	$self->end_event('@');
     }
-#    $self->{Handler}->start_element($element);
-    
+    return $element;
 }
 
 sub characters {
     my ($self, $characters) = @_;
     my $char = $characters->{Data};
-    my $str = $self->{__str};
     if (defined $char) {
-        $str = "" if !defined $str;
-        $str .= $char;
+        $self->{__str} = "" unless defined $self->{__str};
+        $self->{__str} .= $char;
     }
-#    printf STDERR "[%d]", length($self->{__str});
-#    printf STDERR ".";
-    $self->{__str} = $str;
-#    $self->{Handler}->characters($characters);
     return;
 }
 

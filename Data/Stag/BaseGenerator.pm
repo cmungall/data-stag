@@ -1,4 +1,4 @@
-# $Id: BaseGenerator.pm,v 1.12 2004/02/02 20:31:11 cmungall Exp $
+# $Id: BaseGenerator.pm,v 1.13 2004/04/30 17:12:04 cmungall Exp $
 #
 # Copyright (C) 2002 Chris Mungall <cjm@fruitfly.org>
 #
@@ -354,6 +354,9 @@ sub handler {
 	    }
         }
         $self->{handler} = $h;
+        if (!$h->errhandler && $self->errhandler) {
+            $h->errhandler($self->errhandler);
+        }
     }
 #    return $self->{handler} || Data::Stag::null->new();
     return $self->{handler};

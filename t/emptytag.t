@@ -65,6 +65,8 @@ ok($ok);
 my $x = Data::Stag->from('sxprstr', '(a (c (d 4)(b 1)))');
 print $x->xml;
 my ($b) = $x->findnode_b;
+print $b->xml;
 $b->free;
+print $x->xml;
 $x = Data::Stag->from('xmlstr',  $x->xml);
 ok(1);
