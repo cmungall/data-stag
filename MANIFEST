@@ -29,6 +29,7 @@ Data/Stag/XMLWriter.pm
 Data/Stag/XSLHandler.pm
 Data/Stag/XSLTHandler.pm
 Data/Stag/null.pm
+c-ext/README.c-ext
 c-ext/staglib.c
 c-ext/staglib.h
 dev/create-manifest.sh
