@@ -70,3 +70,6 @@ $b->free;
 print $x->xml;
 $x = Data::Stag->from('xmlstr',  $x->xml);
 ok(1);
+
+$x = Data::Stag->from('xmlstr', '<set><gene></gene></set>');
+print $x->xml;

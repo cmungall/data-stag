@@ -51,3 +51,13 @@ Version 0.05
 ============
 
 2004-02-04      - Incremented version (v4 CPAN release messed up)    
+
+Version 0.06
+============
+
+                - Changed how attributes and mixed content is dealt with
+                  Conforms to SXML
+                  Attributes placed under '@' node
+                  PCDATA placed under '.' when attributes or mixed content
+
+                - stag-flatten.pl now works

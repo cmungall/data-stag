@@ -6,7 +6,7 @@ BEGIN {
     # as a fallback
     eval { require Test; };
     use Test;    
-    plan tests => 5;
+    plan tests => 9;
 }
 use Data::Stag;
 use FileHandle;
@@ -47,7 +47,7 @@ ok ($sp[1]->get_foo == 5);    # sp 0 and 1 should be the same node
 
 my %geneh = ();
 $handler =
-  Data::Stag->makehandler(-NOTREE=>1,
+  Data::Stag->makehandler(-NOTREE=>1,        
 			  gene=>sub {
 			      my ($self, $gene) = @_;
 			      $geneh{$gene->sget_symbol} = $gene;
@@ -55,8 +55,30 @@ $handler =
 			  },
 			 );
 
+$stag = Data::Stag->new(test=>[]);
 my $result_tree =
   $stag->parse(-file=>$fn, -handler=>$handler);
 print $result_tree->sxpr;
-ok(keys %geneh == 2);
+print $stag->sxpr;
+ok(!$result_tree->name);
+ok(!$result_tree->kids);
 ok($result_tree->isnull);
+ok($stag->isnull);
+ok(keys %geneh == 2);
+
+
+$handler =
+  Data::Stag->makehandler(
+			  gene=>sub {
+			      my ($self, $gene) = @_;
+                              my $sym = $gene->sget_symbol;
+			      $geneh{$sym} = $gene if $sym;
+			      return;
+			  },
+			 );
+%geneh = ();
+# check handler doesn't barf for null nodes
+$result_tree =
+  $stag->parse(-str=>"<set><gene></gene></set>", -handler=>$handler);
+print $result_tree->sxpr;
+ok(!%geneh);

@@ -1,4 +1,4 @@
-# $Id: BaseHandler.pm,v 1.23 2004/04/30 17:12:04 cmungall Exp $
+# $Id: BaseHandler.pm,v 1.24 2004/06/10 18:30:53 cmungall Exp $
 #
 # This  module is maintained by Chris Mungall <cjm@fruitfly.org>
 
@@ -528,6 +528,8 @@ sub end_event {
 
     my @R = ($topnode);   # return
 
+    # check for trapped events; trap_h is a hash keyed by node name
+    # the value is a subroutine to be called at the end of that node
     my $trap_h = $self->trap_h;
     if ($trap_h) {
 	my $trapped_ev = $ev;

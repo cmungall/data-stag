@@ -19,8 +19,8 @@
     
     <revhistory>
       <revision>
-        <revnumber>$Id: dbstag-tutorial.sgml,v 1.7 2004/05/14 07:37:00 cmungall Exp $</revnumber>
-        <date>$Date: 2004/05/14 07:37:00 $</date>
+        <revnumber>$Id: dbstag-tutorial.sgml,v 1.8 2004/06/10 18:30:53 cmungall Exp $</revnumber>
+        <date>$Date: 2004/06/10 18:30:53 $</date>
         <authorinitials>cjm</authorinitials>
       </revision>
     </revhistory>
@@ -46,8 +46,8 @@
       This section describes how you set up your environment to use
       DBStag. You will need to set up some environment variables
       telling stag where to find certain configuration
-      directories. You will need to download the appropriate
-      databases if they are not already installed on your system.
+      directories. You will need to download the appropriate databases
+      if they are not already installed on your system.
     </para>
 
     <sect2 id="setup_bdgp">
@@ -1261,17 +1261,130 @@ more merlin.xml
   <sect1 id="making_dbs">
     <title>Creating Relational Databases from XML</title>
     <para>
+      This section deals with creating an entirely new database schema
+      based on some XML data. This step only needs to be done once per
+      schema. It requires some relational database and XML
+      knowledge. If you only care about storing XML data in an
+      existing schema (and the mapping/transformation between the XML
+      and schema has already been defined) you may wish to skip to the
+      next section.
+    </para>
+    <para>
+      The example data which follows uses kerosene XML, a BDGP format
+      for the results of comparative intron data. The motivation here
+      is to get custom relational databases up, running and
+      <emphasis>usable</emphasis> with a very fast turnaround. These
+      databases are tuned for answering some specific research
+      questions; they are not necessarily designed to have long
+      lifetimes, or to conform to some standard by which it would be
+      possible to hook up a variety of middleware and applications
+      such as Apollo. If this is the goal, then a standard generic
+      extensible database such as Chado should be used. The goal here
+      is "quick and dirty" bioinformatics databases.
+    </para>
+    <para>
+      Before dealing with transformation of XML and generating a
+      normalised schema (see "Making a normalised relational
+      database") we will look at a quick indexing solution.
     </para>
     <sect2 id="making_dbs_easy">
       <title>Making a simple index database</title>
       <para>
+        This section deals with making a simple denormalised index
+        database; this treats entire XML elements as undecomposable
+        chunks that can be accessed via some ID field.
       </para>
+      <sect3 id="stag_ir">
+        <title>The <emphasis>stag-ir</emphasis> script</title>
+        <para>
+<programlisting>
+stag-ir.pl -h
+</programlisting>
+        </para>
+      </sect3>
     </sect2>
     <sect2 id="making_dbs_relational">
       <title>Making a normalised relational database</title>
       <para>
+        This section deals with creating a de-novo relational database
+        from some kind of consistent XML format. There does not need
+        to be an explicit DTD or XML Schema for the XML.
       </para>
+      <para>
+        This is a two-step process - first you have to transform the
+        XML into XML that is relational-friendly (this includes
+        getting rid of attributes, making sure that the use of all
+        element names is consistent, and that elements are nested in
+        such a way as they correspond to the foreign keys in the
+        resulting schema). This step requires some knowledge of XML
+        and SQL. The second step is automatically deriving a schema
+        from the transformed XML.
+      </para>
+      <sect3 id="xml_transformation">
+        <title>XML Transformation</title>
+        <para>
+          You can do your XML transformation using any paradigm you
+          like - for example, you can use XSLT or you can write a perl
+          script that uses one of the many XML libraries. The
+          following example uses perl modules that utilise the stag
+          transformation paradigm. This is similar to SAX. For full
+          details see
+<programlisting>
+man Data::Stag
+man Data::Stag::BaseHandler
+</programlisting>
+          We will look at one particular example - transforming
+          kerosene XML (currently an internal BDGP analysis output
+          format for comparative intron data) to an XML format
+          (ksimple) that will mirror the resulting SQL Schema.
+        </para>
+      </sect3>
+      <sect3 id="k1_to_ksimple">
+        <title>Example transformation: k1_to_ksimple</title>
+        <para>
+          Presuming you have already obtained the
+          <emphasis>cabal</emphasis> package (see above), have a look
+          at <emphasis
+          role="bold">Bio::Transformer::k1_to_ksimple</emphasis>.
+
+        </para>
+        <para>
+         This is a transformer stag module - it takes in XML/stag
+         events and spits out XML/stag events. It can be used from the
+         command line like this:
+<programlisting>
+stag-handle.pl -w xml -m Bio::Transformer::kerosene1_to_ksimple\
+    -u gene dyak.kerosene1.xml | more
+</programlisting>
+          This is both the format of the XML we will use to
+          autogenerate the SQL schema, and also the format of the XML
+          we will use to load the database
+        </para>
+      </sect3>
+      <sect3 id="schema_generation">
+        <title>Auto-deriving SQL Schemas from XML</title>
+        <para>
+<programlisting>
+stag-handle.pl -w xml -m Bio::Transformer::kerosene1_to_ksimple\
+    -u gene dyak.kerosene1.xml > sample.xml
+stag-autoddl.pl -l query_transcript -l sbjct_transcript\
+                -l query_intron -l sbjct_intron\
+                 sample.xml > k-autoschema.sql
+</programlisting>
+        </para>
+      </sect3>
     </sect2>
+  </sect1>
+  <sect1 id="storing_data">
+    <title>Storing XML data in a Relational Database</title>
+    <para>
+      This section assumes you have a transformation defined for your
+      XML to map it to the SQL schema; if not, see the next section
+      for hints on how to build a whole SQL schema very quickly for
+      XML data
+    </para>
+    <para>
+</para>
   </sect1>
 </article>
 

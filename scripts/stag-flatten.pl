@@ -12,12 +12,24 @@ my @cols = ();
 my $sep = "\t";
 my $parser;
 my $nest;
+my $errhandler;
+my $errf;
 GetOptions(
            "parser|format|p=s" => \$parser,
+           "errhandler=s" => \$errhandler,
+           "errf|e=s" => \$errf,
 	   "cols|c=s@"=>\@cols,
 	   "help|h"=>sub { system("perldoc $0"); exit },
            "nest|n"=>\$nest,
 	  );
+
+$errhandler =  Data::Stag->getformathandler($errhandler || 'xml');
+if ($errf) {
+    $errhandler->file($errf);
+}
+else {
+    $errhandler->fh(\*STDERR);
+}
 
 my $node = shift;
 my $fn = shift @ARGV;
@@ -103,7 +115,7 @@ $catch{$node} =
   };
 
 my $h = Data::Stag->makehandler(%catch);
-Data::Stag->parse(-file=>$fn, -format=>$parser, -handler=>$h);
+Data::Stag->parse(-file=>$fn, -format=>$parser, -handler=>$h, -errhandler=>$errhandler);
 exit 0;
 
 __END__
@@ -160,6 +172,12 @@ the name of the columns/elements to write out
 this can be specified either with multiple -c arguments, or with a
 comma-seperated (no spaces) list of column (terminal node) names after
 a single -c
+
+=item -n|nest
+
+if set, then the output will be a compress repeating values into the
+same row; each cell in the table will be enclosed by {}, and will
+contain a comma-delimited set of values
 
 =back
 

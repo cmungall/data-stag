@@ -53,6 +53,10 @@ if ($exec) {
     if ($@) {
         die $@;
     }
+    if (ref($catch) ne 'HASH') {
+        print STDERR "exec \"$exec\" is not a hash";
+        exit 1;
+    }
 }
 if ($codefile) {
     $catch = do "$codefile";
@@ -60,6 +64,10 @@ if ($codefile) {
         print STDERR "\n\nstag-handle error:\n";
         print STDERR "There was an error with the codefile \"$codefile\":\n\n";
         die $@;
+    }
+    if (ref($catch) ne 'HASH') {
+        print STDERR "codefile \"$codefile\" does not return a hash";
+        exit 1;
     }
 }
 if (%trap) {

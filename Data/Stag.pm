@@ -1,4 +1,4 @@
-# $Id: Stag.pm,v 1.30 2004/04/26 16:02:22 cmungall Exp $
+# $Id: Stag.pm,v 1.31 2004/06/10 18:30:52 cmungall Exp $
 # -------------------------------------------------------
 #
 # Copyright (C) 2004 Chris Mungall <cjm@fruitfly.org>
@@ -934,6 +934,7 @@ The former gets converted into the latter for the internal representation
      Returns: L<Data::Stag::BaseHandler>
      Example: $h = Data::Stag->makehandler(%subs);
      Example: $h = Data::Stag->makehandler("My::FooHandler");
+     Example: $h = Data::Stag->makehandler('xml');
 
 This creates a Stag event handler. The argument is a hash of
 subroutines keyed by element/node name. After each node is fired by

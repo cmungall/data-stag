@@ -1,4 +1,4 @@
-# $Id: StagImpl.pm,v 1.46 2004/04/26 16:02:23 cmungall Exp $
+# $Id: StagImpl.pm,v 1.47 2004/06/10 18:30:53 cmungall Exp $
 #
 # Author: Chris Mungall <cjm@fruitfly.org>
 #
@@ -1058,6 +1058,7 @@ sub unset {
     }
 
     my ($ev, $subtree) = @$tree;
+    return unless ref $subtree;
     my @nu_tree = ();
     foreach my $st (@$subtree) {
         my ($ev, $subtree) = @$st;
@@ -1190,7 +1191,10 @@ sub get {
     my ($node, @path) = splitpath(shift);
     my $replace = shift;
     confess("problem: $tree not arr") unless ref($tree) && ref($tree) eq "ARRAY" || isastag($tree);
-
+    if (!ref($tree->[1])) {
+        # terminal node - always returns undef
+        return;
+    }
     my @v = ();
     if (@path) {
         @v = map { $_->get(\@path, $replace) } getnode($tree, $node)
@@ -1253,6 +1257,9 @@ sub getnode {
     else {
 
         my ($top_ev, $children) = @$tree;
+        if (!ref($children)) {
+            confess("problem: $top_ev => \"$children\" not a tree");
+        }
         foreach my $child (@$children) {
             my ($ev, $subtree) = @$child;
             if (test_eq($ev, $node)) {
