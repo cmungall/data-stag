@@ -1,4 +1,4 @@
-# $Id: SxprParser.pm,v 1.5 2002/12/20 22:30:06 cmungall Exp $
+# $Id: SxprParser.pm,v 1.6 2003/03/06 07:09:38 cmungall Exp $
 #
 # Copyright (C) 2002 Chris Mungall <cjm@fruitfly.org>
 #
@@ -24,11 +24,12 @@ package Data::Stag::SxprParser;
 
 =cut
 
+# TODO - rewrite using Text::Balanced
+
 use Exporter;
 use Carp;
 use FileHandle;
 use strict;
-use XML::Parser::PerlSAX;
 use Data::Stag qw(:all);
 use base qw(Data::Stag::BaseGenerator Exporter);
 
@@ -49,7 +50,7 @@ sub parse_fh {
     my $txt;
     my $in;
     while (<$fh>) {
-        chomp;
+#        chomp;
         s/\;\;.*//;
         while ($_) {
 

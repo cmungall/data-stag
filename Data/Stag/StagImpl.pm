@@ -1,4 +1,4 @@
-# $Id: StagImpl.pm,v 1.16 2003/02/27 02:40:03 cmungall Exp $
+# $Id: StagImpl.pm,v 1.17 2003/03/06 07:09:38 cmungall Exp $
 #
 # Author: Chris Mungall <cjm@fruitfly.org>
 #
@@ -354,6 +354,35 @@ sub _pairs {
 sub tab {
     my $t=shift;
     return "  " x $t;
+}
+
+sub dlist {
+    my $tree = shift;
+    my $del = shift || '/';
+    _dlist($tree, $del, $del, 1);
+}
+
+sub _dlist {
+    my $tree = shift;
+    my $del = shift || '/';
+    my $root = shift;
+    my $nextid = shift;
+    my $stem = $root . $tree->element . "[$nextid]";
+    $root = $stem . $del;
+    my @kids = $tree->kids;
+    my $id = 1;
+    my @dlist =
+      map {
+          if (!isanode($_)) {
+              s/$del/\\$del/g;
+              ($root . $_)
+          }
+          else {
+              _dlist($_, $del, $root, $id++);
+          }
+      } @kids;
+    return ($stem, @dlist);
+#    return (@dlist);
 }
 
 sub xml {
