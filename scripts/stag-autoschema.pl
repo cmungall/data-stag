@@ -1,23 +1,6 @@
 #!/usr/local/bin/perl -w
 
-=head1 NAME 
-
-stag-autoschema.pl
-
-=head1 SYNOPSIS
-
-  stag-autoschema.pl -parser XMLAutoschema -handler ITextWriter file1.txt file2.txt
-
-  stag-autoschema.pl -parser MyMod::MyParser -handler MyMod::MyWriter file.txt
-
-=head1 DESCRIPTION
-
-script wrapper for the Data::Stag modules
-
-=head1 ARGUMENTS
-
-=cut
-
+# POD docs at bottom of file
 
 
 use strict;
@@ -27,7 +10,7 @@ use Data::Stag qw(:all);
 use Getopt::Long;
 
 my $parser = "";
-my $handler = "xml";
+my $handler = "sxpr";
 my $mapf;
 my $tosql;
 my $toxml;
@@ -91,11 +74,91 @@ foreach my $fn (@files) {
 #				     @hdr,
 #				    ]);
 #    $top->set_nesting($s->data);
-    if ($toxml) {
-        print $s->xml;
-    }
-    else {
-        print $s->generate(-fmt=>$handler);
-    }
+    print $s->generate(-fmt=>$handler);
 }
+
+__END__
+
+=head1 NAME 
+
+stag-autoschema.pl - writes the implicit stag-schema for a stag file
+
+=head1 SYNOPSIS
+
+  stag-autoschema.pl -w sxpr sample-data.xml
+
+=head1 DESCRIPTION
+
+Takes a stag compatible file (xml, sxpr, itext), or a file in any
+format plus a parser, and writes out the implicit underlying stag-schema
+
+stag-schema should look relatively self-explanatory.
+
+Here is an example stag-schema, shown in sxpr syntax:
+
+  (db
+   (person*
+    (name "s"
+    (address+
+     (address_type "s")
+     (street "s")
+     (street2? "s")
+     (city "s")
+     (zip? "s")))))
+
+The database db contains zero or more persons, each person has a
+mandatory name and at least one address.
+
+The cardinality mnemonics are as follows:
+
+=over
+
+=item +
+
+1 or more
+
+=item ?
+
+0 or one
+
+=item *
+
+0 or more
+
+=back
+
+The default cardinality is 1
+
+=head1 ARGUMENTS
+
+=over
+
+=item -p|parser FORMAT
+
+FORMAT is one of xml, sxpr or itext, or the name of a perl module
+
+xml assumed as default
+
+=item -w|writer FORMAT
+
+FORMAT is one of xml, sxpr or itext, or the name of a perl module
+
+The default is sxpr
+
+note that stag schemas exported as xml will be invalid xml, due to the
+use of symbols *, +, ? in the node names
+
+=back
+
+=head1 TODO
+
+add DTD option
+
+=head1 LIMITATIONS
+
+not event based - memory usage becomes exhorbitant on large files;
+prepare a small sample beforehand
+
+=cut
+
 

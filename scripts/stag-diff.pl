@@ -1,5 +1,7 @@
 #!/usr/local/bin/perl -w
 
+# POD docs at bottom of file
+
 use strict;
 
 use Data::Stag qw(:all);

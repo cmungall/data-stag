@@ -1,51 +1,6 @@
 #!/usr/local/bin/perl -w
 
-
-=head1 NAME 
-
-  stag-db.pl
-
-=head1 SYNOPSIS
-
-  stag-db.pl -r person -u social_security_no -i ./person-idx myrecords.xml
-  stag-db.pl -i ./person-idx -q 999-9999-9999 -q 888-8888-8888
-
-=head1 DESCRIPTION
-
-Builds a simple file-based database for persistent storage and
-retrieval of nodes from a stag compatible document.
-
-Imagine you have a very large file of data, in a stag compatible
-format such as XML. You want to index all the elements of type
-B<person>; each person can be uniquely identified by
-B<social_security_no>, which is a direct subnode of B<person>
-
-The first thing to do is to build an index file, which will be stored
-in your current directory:
-
-  stag-db.pl -r person -u social_security_no -i ./person-idx myrecords.xml
-
-You can then use the index "person-idx" to retrieve B<person> nodes by
-their social security number
-
-  stag-db.pl -i ./person-idx -q 999-9999-9999 > some-person.xml
-
-You can export using different stag formats
-
-  stag-db.pl -i ./person-idx -q 999-9999-9999 -w sxpr > some-person.xml
-
-You can retrieve multiple nodes (although these need to be rooted to
-make a valid file)
-
-  stag-db.pl -i ./person-idx -q 999-9999-9999 -q 888-8888-8888 -top personset
-
-Or you can use a list of IDs from a file (newline delimited)
-
-  stag-db.pl -i ./person-idx -qf my_ss_nmbrs.txt -top personset
-
-=head1 ARGUMENTS
-
-=cut
+# POD docs at bottom of file
 
 use strict;
 use Data::Stag qw(:all);
@@ -160,3 +115,62 @@ if (@query) {
 	}
     }
 }
+
+
+=head1 NAME 
+
+  stag-db.pl - persistent storage and retrieval for stag data (xml, sxpr, itext)
+
+=head1 SYNOPSIS
+
+  stag-db.pl -r person -u social_security_no -i ./person-idx myrecords.xml
+  stag-db.pl -i ./person-idx -q 999-9999-9999 -q 888-8888-8888
+
+=head1 DESCRIPTION
+
+Builds a simple file-based database for persistent storage and
+retrieval of nodes from a stag compatible document.
+
+Imagine you have a very large file of data, in a stag compatible
+format such as XML. You want to index all the elements of type
+B<person>; each person can be uniquely identified by
+B<social_security_no>, which is a direct subnode of B<person>
+
+The first thing to do is to build an index file, which will be stored
+in your current directory:
+
+  stag-db.pl -r person -u social_security_no -i ./person-idx myrecords.xml
+
+You can then use the index "person-idx" to retrieve B<person> nodes by
+their social security number
+
+  stag-db.pl -i ./person-idx -q 999-9999-9999 > some-person.xml
+
+You can export using different stag formats
+
+  stag-db.pl -i ./person-idx -q 999-9999-9999 -w sxpr > some-person.xml
+
+You can retrieve multiple nodes (although these need to be rooted to
+make a valid file)
+
+  stag-db.pl -i ./person-idx -q 999-9999-9999 -q 888-8888-8888 -top personset
+
+Or you can use a list of IDs from a file (newline delimited)
+
+  stag-db.pl -i ./person-idx -qf my_ss_nmbrs.txt -top personset
+
+=head1 ARGUMENTS
+
+=head1 SEE ALSO
+
+L<Data::Stag>
+
+For more complex stag to database mapping, see L<DBIx::DBStag> and the
+scripts
+
+L<stag-storenode.pl>
+
+L<selectall_xml>
+
+=cut
+

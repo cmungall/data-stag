@@ -1,52 +1,6 @@
 #!/usr/local/bin/perl -w
 
-=head1 NAME 
-
-stag-parse.pl
-
-=head1 SYNOPSIS
-
-  # convert XML to IText
-  stag-parse.pl -p xml -h itext file1.xml file2.xml
-
-  # use a custom parser/generator and a custom writer/generator
-  stag-parse.pl -p MyMod::MyParser -h MyMod::MyWriter file.txt
-
-=head1 DESCRIPTION
-
-script wrapper for the Data::Stag modules
-
-feeds in files into a parser object that generates nestarray events,
-and feeds the events into a handler/writer class
-
-=head1 ARGUMENTS
-
-=over
-
-=item -p|parser FORMAT
-
-FORMAT is one of xml, sxpr or itext
-
-xml assumed as default
-
-=item -w|writer FORMAT
-
-FORMAT is one of xml, sxpr or itext
-
-=item -color
-
-Works only if the output handler is able to provide ASCII-colors
-(currently supported for itext and xml)
-
-=back
-
-
-=head1 SEE ALSO
-
-L<Data::Stag>
-
-
-=cut
+# POD docs at end
 
 use strict;
 
@@ -104,4 +58,54 @@ foreach my $fn (@files) {
     }
 }
 exit 0;
+
+__END__
+
+=head1 NAME 
+
+stag-parse.pl - parses a file and fires events (e.g. sxpr to xml)
+
+=head1 SYNOPSIS
+
+  # convert XML to IText
+  stag-parse.pl -p xml -w itext file1.xml file2.xml
+
+  # use a custom parser/generator and a custom writer/generator
+  stag-parse.pl -p MyMod::MyParser -w MyMod::MyWriter file.txt
+
+=head1 DESCRIPTION
+
+script wrapper for the Data::Stag modules
+
+feeds in files into a parser object that generates nestarray events,
+and feeds the events into a handler/writer class
+
+=head1 ARGUMENTS
+
+=over
+
+=item -p|parser FORMAT
+
+FORMAT is one of xml, sxpr or itext, or the name of a perl module
+
+xml assumed as default
+
+=item -w|writer FORMAT
+
+FORMAT is one of xml, sxpr or itext, or the name of a perl module
+
+=item -color
+
+Works only if the output handler is able to provide ASCII-colors
+(currently supported for itext and xml)
+
+=back
+
+
+=head1 SEE ALSO
+
+L<Data::Stag>
+
+
+=cut
 
