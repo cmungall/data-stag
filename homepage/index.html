@@ -37,8 +37,10 @@
             This module is for conversion between relational
             representations and hierarchical (Stag)
             representations. SQL query results are automatically
-            decomposed into the relations from the underlying schema,
-            and a hierarchical structure is inferred.
+            decomposed into the relations and a hierarchical structure
+            is inferred. This modules also allows you to create SQL
+            templates - a powerful way of reusing SQL statements
+            joining multiple tables.
 
             <br>
             
@@ -86,6 +88,28 @@
 
         <tr>
           <td bgcolor="#FF8888">
+            <a href="http://search.cpan.org/perldoc?DBIx::DBStag::Cookbook">DBIx::DBStag::Cookbook</a>
+          </td>
+          <td>
+            DBStag cookbook - shows how to generate a normalised
+            relational db from an XML source (the CIA world factbook),
+            create your own SQL templates and build a WWW query
+            interface
+          </td>
+        </tr>
+
+        <tr>
+          <td bgcolor="#FF8888">
+            <a href="http://search.cpan.org/perldoc?DBIx::DBStag::SQLTemplate">DBIx::DBStag::SQLTemplate</a>
+          </td>
+          <td>
+            The POD manpage describing SQL templates - a powerful way
+            of reusing complex SQL statements
+          </td>
+        </tr>
+
+        <tr>
+          <td bgcolor="#FF8888">
             <i>coming soon</i>
           </td>
           <td>
@@ -96,12 +120,14 @@
         <tr>
           <td>
             <a
-               href="http://www.fruitfly.org/cgi-bin/sql2xml/sql2xml.pl">sql2xml web interface</a>
+               href="http://www.godatabase.org/cgi-bin/ubiq/ubiq.cgi">UBIQ</a>
           </td>
           <td>
-            Provides WWW access to a number of bioinformatics
-            databases - allows custom queries, also contains example
-            queries. Query results are transformed into indented XML.
+            A demo of DBStag for mapping query results to hierarchical
+            tag-value data. This interface provides WWW access to a
+            number of bioinformatics databases (Gene Ontology, Ensembl, Chado,
+            BioSQL, GadFly). Templates can be selected, or you can
+            feed in your own SQL.
           </td>
         </tr>
     </table>
@@ -114,7 +140,7 @@
     <address><a href="mailto:cjm@fruitfly.org">chris mungall</a></address>
 <!-- Created: Tue Dec  3 11:47:11 PST 2002 -->
 z<!-- hhmts start -->
-Last modified: Tue Jan 27 21:59:02 PST 2004
+Last modified: Fri Apr  2 14:08:53 PST 2004
 <!-- hhmts end -->
   </body>
 </html>
