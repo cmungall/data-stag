@@ -18,6 +18,9 @@ package Data::Stag::Arr2HTML;
 use strict;
 use base qw(Data::Stag::Base);
 
+use vars qw($VERSION);
+$VERSION="0.01";
+
 sub start_event {
     my $self = shift;
     my $ev = shift;

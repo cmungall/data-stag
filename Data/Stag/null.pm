@@ -18,6 +18,9 @@ package Data::Stag::null;
 use strict;
 use base qw(Data::Stag::BaseHandler);
 
+use vars qw($VERSION);
+$VERSION="0.01";
+
 sub start_event {}
 sub end_event {}
 sub evbody {}

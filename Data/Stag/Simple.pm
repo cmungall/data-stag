@@ -18,6 +18,9 @@ package Data::Stag::Simple;
 use strict;
 use base qw(Data::Stag::Base);
 
+use vars qw($VERSION);
+$VERSION="0.01";
+
 
 sub start_event { shift;print "OPEN :$_[0]\n"} 
 sub end_event { shift;print "CLOSE:$_[0]\n"} 

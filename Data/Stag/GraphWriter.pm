@@ -23,6 +23,9 @@ package Data::Stag::GraphWriter;
 
 use strict;
 use base qw(Data::Stag::BaseHandler);
+
+use vars qw($VERSION);
+$VERSION="0.01";
 use Graph;
 
 sub init {

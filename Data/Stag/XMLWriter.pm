@@ -18,6 +18,9 @@ package Data::Stag::XMLWriter;
 use strict;
 use base qw(Data::Stag::Base);
 
+use vars qw($VERSION);
+$VERSION="0.01";
+
 use XML::Handler::XMLWriter;
 
 

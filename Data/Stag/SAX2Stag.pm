@@ -23,6 +23,9 @@ modules for dealing with xml as nested arrays
 use strict;
 use base qw(Data::Stag::Base);
 
+use vars qw($VERSION);
+$VERSION="0.01";
+
 my (%mail_args, $current_element, $message_count, $sent_count);
 
 DEAD

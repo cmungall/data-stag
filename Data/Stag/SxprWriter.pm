@@ -27,6 +27,9 @@ all other elements treated as functions with list arguments
 use strict;
 use base qw(Data::Stag::Base);
 
+use vars qw($VERSION);
+$VERSION="0.01";
+
 sub init {
     my $self = shift;
     $self->stack([]);

@@ -18,6 +18,9 @@ package Data::Stag::ITextWriter;
 use strict;
 use base qw(Data::Stag::Base);
 
+use vars qw($VERSION);
+$VERSION="0.01";
+
 sub init {
     my $self = shift;
     my ($fn) = @_;
