@@ -1,4 +1,4 @@
-# $Id: StagImpl.pm,v 1.56 2005/01/30 03:27:11 cmungall Exp $
+# $Id: StagImpl.pm,v 1.57 2005/03/05 19:38:50 cmungall Exp $
 #
 # Author: Chris Mungall <cjm@fruitfly.org>
 #
@@ -881,7 +881,12 @@ sub addkid {
     my $newtree = shift;
     confess("problem: $tree not arr") unless ref($tree) && ref($tree) eq "ARRAY" || isastag($tree);
     my ($ev, $subtree) = @$tree;
-    push(@$subtree, $newtree);
+    if (ref($newtree) && $newtree->[0] eq '@') {
+        unshift(@$subtree, $newtree);
+    }
+    else {
+        push(@$subtree, $newtree);
+    }
     $newtree;
 }
 *addChildTree = \&addkid;
@@ -1011,7 +1016,7 @@ sub set {
     # place at the end if not already present
     if (!$is_set) {
         map {
-            addChildTree($tree, [$node=>$_]);
+            addkid($tree, [$node=>$_]);
         } @replace;
     }
     else {

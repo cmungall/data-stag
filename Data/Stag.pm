@@ -1,4 +1,4 @@
-# $Id: Stag.pm,v 1.36 2005/01/30 03:17:52 cmungall Exp $
+# $Id: Stag.pm,v 1.37 2005/03/05 19:38:50 cmungall Exp $
 # -------------------------------------------------------
 #
 # Copyright (C) 2004 Chris Mungall <cjm@fruitfly.org>
@@ -41,6 +41,7 @@ $VERSION="0.08";
                   gn getn getnode
 		  sgetmap sgm
                   s  set
+                  setl
                   u  unset
 		  free
                   a  add
@@ -1299,6 +1300,10 @@ primitive value, then you have to do it like this:
   ($person) = $people->qmatch('person', (name => "Sherlock Holmes"));
   $person->set("address", $address->data);
 
+If you are using XML data, you can set attributes like this:
+
+  $person->set('@'=>[[id=>$id],[foo=>$foo]]);
+
 =head3 unset (u)
 
        Title: unset
@@ -1364,7 +1369,48 @@ adds a datavalue or list of datavalues. appends if already existing,
 creates new element value pairs if not already existing.
 
 if the argument is a stag node, it will add this node under the
-current one
+current one.
+
+For example, if we have the following node in $dataset
+
+ <dataset>
+   <person>
+     <name>jim</name>
+   </person>
+ </dataset>
+
+And then we add data to it:
+
+  ($person) = $dataset->qmatch('person', name=>'jim');
+  $person->add('phone_no', '555-1111', '555-2222');
+
+We will be left with:
+
+ <dataset>
+   <person>
+     <name>jim</name>
+     <phone_no>555-1111</phone_no>
+     <phone_no>555-2222</phone_no>
+   </person>
+ </dataset>
+
+The above call is equivalent to:
+
+  $person->add_phone_no('555-1111', '555-2222');
+
+As well as adding data values, we can add whole nodes:
+
+  $dataset->add(person=>[[name=>"fred"],
+                         [phone_no=>"555-3333"]]);
+
+Which is equivalent to
+
+  $dataset->add_person([[name=>"fred"],
+                        [phone_no=>"555-3333"]]);
+
+Remember, the value has to be specified as an array reference of
+nodes. In general, you should use the addkid() method to add nodes and
+used add() to add values
 
 =head3 element (e name)
 
@@ -1456,9 +1502,14 @@ returns an array of nodes
 
         Args: kid node
       Return: ANY
-     Example: $person->addkid('job', $job);
+     Example: $person->addkid($job);
 
-adds a new child node to a non-terminal node, after all the existing child nodes
+adds a new child node to a non-terminal node, after all the existing
+child nodes
+
+You can use this method/procedure to add XML attribute data to a node:
+
+  $person->addkid(['@'=>[[id=>$id]]]);
 
 =head3 subnodes
 
@@ -1681,7 +1732,7 @@ does a deep copy of a stag structure
         Args:
       Return: hash
      Example: $h = $node->hash;
-
+ 
 turns a tree into a hash. all data values will be arrayrefs
 
 

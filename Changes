@@ -77,3 +77,5 @@ Version 0.09
 
 2005-01-30      - new format: 'indent'
                   Added IndentParser and IndentWriter
+
+2005-02-10      - setting @ will always place @ node at start of subnode list
