@@ -19,8 +19,8 @@
     
     <revhistory>
       <revision>
-        <revnumber>$Id: dbstag-tutorial.sgml,v 1.6 2004/05/14 07:26:24 cmungall Exp $</revnumber>
-        <date>$Date: 2004/05/14 07:26:24 $</date>
+        <revnumber>$Id: dbstag-tutorial.sgml,v 1.7 2004/05/14 07:37:00 cmungall Exp $</revnumber>
+        <date>$Date: 2004/05/14 07:37:00 $</date>
         <authorinitials>cjm</authorinitials>
       </revision>
     </revhistory>
@@ -790,11 +790,12 @@ CREATE TABLE gene_data (
     UNIQUE (intron_id,tid)
 );
 	</programlisting>
+	Visually, the schema looks like this
 	<figure>
 	  <title>Kerosene Schema</title>
 	  <mediaobject>
 	    <imageobject>
-	      <imagedata fileref="images/k-schema.png" format="PNG">
+	      <imagedata fileref="images/k-schema-diagram.png" format="PNG">
 
 	      </imagedata>
 	    </imageobject>
@@ -803,7 +804,7 @@ CREATE TABLE gene_data (
       </para>
       
     </sect2>
-    <sect2 id="kerosene_schema">
+    <sect2 id="repeatrunner_schema">
       <title>Kerosene Schema; Repeat Runner (rr) Module</title>
       <para>
 	This module can also be found in the cabal project;
@@ -894,11 +895,12 @@ CREATE TABLE repeat (
     UNIQUE(repeat_runner_output_id,nbeg,nend,family_id)
 );
 	</programlisting>
+	Visually, the schema looks like this
 	<figure>
 	  <title>Kerosene Schema</title>
 	  <mediaobject>
 	    <imageobject>
-	      <imagedata fileref="images/k-schema.png" format="PNG">
+	      <imagedata fileref="images/rr-schema-diagram.png" format="PNG">
 
 	      </imagedata>
 	    </imageobject>
@@ -1008,6 +1010,7 @@ kerosene-transcript_pair
 	  <emphasis>-v -h</emphasis> gives a detailed description of the
 	  template
 	  <programlisting>
+<![CDATA[
 kerosene-repeatfamily-summary-by-genus -h -v
 
 SELECT family.genus,
@@ -1031,6 +1034,7 @@ example_input: intron_org => SELECT DISTINCT org FROM intron
 
 PARAMETERS:
   intron_org
+]]>
 	  </programlisting>
 
 	  We can see there is only one parameter,
@@ -1096,6 +1100,7 @@ LTR/MaLR        3884    307.3558187435633368    1752    10
 	    All intron-centric queries start with
 	    <emphasis>kerosene-intron</emphasis>. Let's look at one:
 	    <programlisting>
+<![CDATA[
 kerosene-intron-repeatfamily -h -v
 
 SELECT family.family_id, family.species, family.genus,
@@ -1159,6 +1164,7 @@ QUERY RESULT STRUCTURE (NESTING):
   (intron
     (repeat
       (family " "))))
+]]>
 	    </programlisting>
 	    If you examine the USE NESTING clause you will see that
 	    this is an intron-centric query, with repeat elements
@@ -1179,6 +1185,7 @@ QUERY RESULT STRUCTURE (NESTING):
 	    <emphasis>find all introns that contain a DNA/Merlin
 	    repeat</emphasis>:
 	    <programlisting>
+<![CDATA[
 kerosene-intron-repeatfamily -d kmmus family_genus=DNA/Merlin > merlin.xml
 more merlin.xml
 
@@ -1234,6 +1241,7 @@ more merlin.xml
       </family>
     </repeat>
 ...
+]]>
 	    </programlisting>
 	    The report is truncated, so you can't actually see any
 	    DNA/Merlin repeats, but they are there further down the
