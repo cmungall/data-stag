@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<title>/home/cjm/DBIx-DBStag/scripts/stag-storenode.pl</title>
+<title>stag-storenode</title>
 <link rev="made" href="mailto:feedback@suse.de" />
 </head>
 
@@ -107,7 +107,7 @@ differently (a linking table will point to parent and child elements).</p>
 <pre>
   stag-autoddl.pl -l movie2star -l star2character data.mog.xml &gt; table.sql</pre>
 <p>Once you have done this, load the statements into your db; eg for postgresql
-(for other databases, use <a href="/SQL/Translator.html">the SQL::Translator manpage</a>)</p>
+(for other databases, use <a href="./SQL/Translator.html">the SQL::Translator manpage</a>)</p>
 <pre>
   psql -a mydb &lt; table.sql</pre>
 <p>If something goes wrong, go back to step 1 and sort it out!</p>
