@@ -1,4 +1,4 @@
-# $Id: Stag.pm,v 1.21 2003/08/03 08:39:38 cmungall Exp $
+# $Id: Stag.pm,v 1.22 2003/11/22 00:50:07 cmungall Exp $
 # -------------------------------------------------------
 #
 # Copyright (C) 2002 Chris Mungall <cjm@fruitfly.org>
@@ -30,6 +30,7 @@ $VERSION="0.03";
                   nodify stagify
                   unflatten
                   from
+                  f find
                   fn findnode
                   fvl findvallist
                   fv findval
@@ -70,7 +71,7 @@ $VERSION="0.03";
                   findhandler 
                   getformathandler 
 		  chainhandlers
-                  xml   tree2xml
+                  xml  
                   hash tree2hash
                   pairs tree2pairs
                   sax tree2sax
@@ -78,14 +79,6 @@ $VERSION="0.03";
                   xpq xpquery xpathquery
                  );
 
-@OLD = 
-  qw(
-     findSubTree
-     findSubTreeVal
-     findSubTreeValList
-     findSubTreeMatch
-     setSubTreeVal
-     );
 
 @EXPORT_OK =
   ((
@@ -93,11 +86,8 @@ $VERSION="0.03";
         "stag_$_"
     } @AUTOMETHODS
    ),
-   @OLD,
    qw(
       Node
-      xml2tree
-      tree2xml
       stag_unflatten
       stag_nodify
       stag_load
@@ -158,14 +148,14 @@ sub stag_unflatten {
     return $IMPL->unflatten(@_);
 }
 
-sub xml2tree {
-    warn("DEPRECATED: xml2tree");
-    stag_from('xml', @_);
-}
-sub tree2xml {
-    warn("DEPRECATED: tree2xml");
-    stag_xml(@_);
-}
+#sub xml2tree {
+#    warn("DEPRECATED: xml2tree");
+#    stag_from('xml', @_);
+#}
+#sub tree2xml {
+#    warn("DEPRECATED: tree2xml");
+#    stag_xml(@_);
+#}
 
 no strict 'refs';
 sub AUTOLOAD {
@@ -175,10 +165,6 @@ sub AUTOLOAD {
     $name =~ s/.*://;   # strip fully-qualified portion
     $name =~ s/^stag//;
     $name =~ s/_//g;
-
-    if (grep {lc($name) eq lc($_)} @OLD) {
-        warn "DEPRECATED: $name";
-    }
 
     # make it all lower case
     unless (UNIVERSAL::can($IMPL, $name)) {

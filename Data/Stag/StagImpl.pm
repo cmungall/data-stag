@@ -1,4 +1,4 @@
-# $Id: StagImpl.pm,v 1.34 2003/08/12 03:39:39 cmungall Exp $
+# $Id: StagImpl.pm,v 1.35 2003/11/22 00:50:07 cmungall Exp $
 #
 # Author: Chris Mungall <cjm@fruitfly.org>
 #
@@ -491,7 +491,7 @@ sub _dlist {
 sub xml {
     my $tree = shift;
     my $indent = shift || 0;
-    confess("problem: $tree not arr") unless ref($tree) && ref($tree) eq "ARRAY" || isaNode($tree);
+    confess("problem: $tree not arr") unless ref($tree) && ref($tree) eq "ARRAY" || isastag($tree);
     my ($ev, $subtree) = @$tree;
     return "" unless $ev;
     if (ref($subtree)) {
@@ -698,7 +698,7 @@ sub sxpr2tree {
 sub addkid {
     my $tree = shift;
     my $newtree = shift;
-    confess("problem: $tree not arr") unless ref($tree) && ref($tree) eq "ARRAY" || isaNode($tree);
+    confess("problem: $tree not arr") unless ref($tree) && ref($tree) eq "ARRAY" || isastag($tree);
     my ($ev, $subtree) = @$tree;
     push(@$subtree, $newtree);
     $newtree;
@@ -719,7 +719,7 @@ sub findnode {
     my ($node, @path) = splitpath(shift);
 
     my $replace = shift;
-    confess("problem: $tree not arr") unless ref($tree) && ref($tree) eq "ARRAY" || isaNode($tree);
+    confess("problem: $tree not arr") unless ref($tree) && ref($tree) eq "ARRAY" || isastag($tree);
 
     if (@path) {
         my @r = map { $_->findnode(\@path, $replace) } findnode($tree, $node);        
@@ -771,7 +771,7 @@ sub remove {
     my ($node, @path) = splitpath(shift);
 
     my $replace = shift;
-    confess("problem: $tree not arr") unless ref($tree) && ref($tree) eq "ARRAY" || isaNode($tree);
+    confess("problem: $tree not arr") unless ref($tree) && ref($tree) eq "ARRAY" || isastag($tree);
 
     if (@path) {
         $_->remove(\@path) foreach findnode($tree, $node);        
@@ -804,7 +804,7 @@ sub set {
         return @replace;
     }
 
-    confess("problem: $tree not arr") unless ref($tree) && ref($tree) eq "ARRAY" || isaNode($tree);
+    confess("problem: $tree not arr") unless ref($tree) && ref($tree) eq "ARRAY" || isastag($tree);
     my ($ev, $subtree) = @$tree;
     confess("$subtree not arr [$ev IS A TERMINAL NODE!!]") unless ref($subtree);
     my $is_set;
@@ -878,7 +878,7 @@ sub add {
     if (ref($v[0]) && !ref($v[0]->[0])) {
 	@v = map { $_->[1] } @v;
     }
-    confess("problem: $tree not arr") unless ref($tree) && ref($tree) eq "ARRAY" || isaNode($tree);
+    confess("problem: $tree not arr") unless ref($tree) && ref($tree) eq "ARRAY" || isastag($tree);
     my ($ev, $subtree) = @$tree;
 
     my @nu_subtree = ();
@@ -923,7 +923,7 @@ sub addnode {
 sub unset {
     my $tree = shift || confess;
     my ($node, @path) = splitpath(shift);
-    confess("problem: $tree not arr") unless ref($tree) && ref($tree) eq "ARRAY" || isaNode($tree);
+    confess("problem: $tree not arr") unless ref($tree) && ref($tree) eq "ARRAY" || isastag($tree);
 
     if (@path) {
 	$_->unset(\@path) foreach findnode($tree, $node);
@@ -951,7 +951,7 @@ sub find {
     my ($node, @path) = splitpath(shift);
     my $replace = shift;
 
-    confess("problem: $tree not arr") unless ref($tree) && ref($tree) eq "ARRAY" || isaNode($tree);
+    confess("problem: $tree not arr") unless (ref($tree) && ref($tree) eq "ARRAY") || isastag($tree);
 
     my @r = ();
     if (@path) {
@@ -988,7 +988,7 @@ sub findval {
     my ($node, @path) = splitpath(shift);
     my $replace = shift;
 
-    confess("problem: $tree not arr") unless ref($tree) && ref($tree) eq "ARRAY" || isaNode($tree);
+    confess("problem: $tree not arr") unless ref($tree) && ref($tree) eq "ARRAY" || isastag($tree);
 
     my @r = ();
     if (@path) {
@@ -1021,7 +1021,7 @@ sub getdata {
     my ($node, @path) = splitpath(shift);
     my $replace = shift;
 
-    confess("problem: $tree not arr") unless ref($tree) && ref($tree) eq "ARRAY" || isaNode($tree);
+    confess("problem: $tree not arr") unless ref($tree) && ref($tree) eq "ARRAY" || isastag($tree);
 
     my @v = ();
     if (@path) {
@@ -1053,7 +1053,7 @@ sub get {
     my $tree = shift || confess;
     my ($node, @path) = splitpath(shift);
     my $replace = shift;
-    confess("problem: $tree not arr") unless ref($tree) && ref($tree) eq "ARRAY" || isaNode($tree);
+    confess("problem: $tree not arr") unless ref($tree) && ref($tree) eq "ARRAY" || isastag($tree);
 
     my @v = ();
     if (@path) {
@@ -1108,7 +1108,7 @@ sub getnode {
     my ($node, @path) = splitpath(shift);
     my $replace = shift;
 
-    confess("problem: $tree not arr") unless ref($tree) && ref($tree) eq "ARRAY" || isaNode($tree);
+    confess("problem: $tree not arr") unless ref($tree) && ref($tree) eq "ARRAY" || isastag($tree);
 
     my @v = ();
     if (@path) {
@@ -1152,7 +1152,7 @@ sub getl {
     my @elts = @_;
     my %elth = map{$_=>1} @elts;
     my %valh = ();
-    confess("problem: $tree not arr") unless ref($tree) && ref($tree) eq "ARRAY" || isaNode($tree);
+    confess("problem: $tree not arr") unless ref($tree) && ref($tree) eq "ARRAY" || isastag($tree);
     my ($top_ev, $children) = @$tree;
     my @v = ();
     foreach my $child (@$children) {
@@ -1298,7 +1298,7 @@ sub normalize {
     if (!$schema) {
         $schema = $tree->new(schema=>[]);
     }
-    if (!isaNode($schema)) {
+    if (!isastag($schema)) {
         if (!ref($schema)) {
             # it's a string - parse it
             # (assume sxpr)
@@ -1732,7 +1732,7 @@ sub run {
     my @args = ();
     foreach my $p (@p) {
         if ($p->name eq 'arg') {
-            if (isaNode($p->children)) {
+            if (isastag($p->children)) {
                 die;
                 push(@args,
                      evalTree($tree,
@@ -1919,7 +1919,8 @@ sub duplicate {
 
 sub isastag {
     my $node = shift;
-    return UNIVERSAL::isa($node, "Data::Stag::StagI");
+    return UNIVERSAL::isa($node, "Data::Stag::StagI") ||
+      UNIVERSAL::isa($node, "Node");
 }
 *isanode = \&isastag;
 *isa_node = \&isanode;
