@@ -10,8 +10,10 @@ use Getopt::Long;
 
 my $parser = "";
 my $handler = "";
+my $writer = "";
 my $errhandler = "";
 my $errf;
+my $outf;
 my $mapf;
 my $tosql;
 my $toxml;
@@ -19,15 +21,16 @@ my $toperl;
 my $debug;
 my $help;
 my $color;
+my $root_node;
 
 GetOptions(
            "help|h"=>\$help,
+	   "root|r=s"=>\$root_node,
            "parser|format|p=s" => \$parser,
-           "handler|writer|w=s" => \$handler,
+           "handler|writer|w=s" => \$writer,
            "errhandler=s" => \$errhandler,
            "errf|e=s" => \$errf,
-           "xml"=>\$toxml,
-           "perl"=>\$toperl,
+           "out|o=s" => \$outf,
            "debug"=>\$debug,
            "colour|color"=>\$color,
           );
@@ -37,21 +40,33 @@ if ($help) {
 }
 
 $errhandler =  Data::Stag->getformathandler($errhandler || 'xml');
-
-my @files = @ARGV;
-foreach my $fn (@files) {
-
-    $handler = Data::Stag->getformathandler($handler);
-    $handler->fh(\*STDOUT) if $handler->can("fh");
-    if ($color) {
-	$handler->use_color(1);
-    }
-    if ($errf) {
-	$errhandler->file($errf);
+$handler = Data::Stag->getformathandler($writer);
+if ($handler->can("fh")) {
+    if ($outf) {
+	$handler->file($outf);
     }
     else {
-	$errhandler->fh(\*STDERR);
+	$handler->fh(\*STDOUT);
     }
+}
+
+if ($color) {
+    $handler->use_color(1);
+}
+if ($errf) {
+    $errhandler->file($errf);
+}
+else {
+    $errhandler->fh(\*STDERR);
+}
+
+my @files = @ARGV;
+if (@files > 1) {
+    $root_node = 'set' unless $root_node;
+}
+$handler->start_event($root_node) if $root_node;
+foreach my $fn (@files) {
+
     my @pargs = (-file=>$fn, -format=>$parser, -handler=>$handler, -errhandler=>$errhandler);
     if ($fn eq '-') {
 	if (!$parser) {
@@ -62,9 +77,6 @@ foreach my $fn (@files) {
     }
     my $tree = 
       Data::Stag->parse(@pargs);
-    if ($errf) {
-	$errhandler->finish;
-    }
 
     if ($toxml) {
         print $tree->xml;
@@ -73,7 +85,11 @@ foreach my $fn (@files) {
         print tree2perldump($tree);
     }
 }
-$errhandler->finish;
+if ($errf) {
+    $errhandler->finish;
+}
+$handler->end_event($root_node) if $root_node;
+$handler->fh->close if $outf;
 exit 0;
 
 __END__
@@ -105,11 +121,23 @@ and feeds the events into a handler/writer class
 
 FORMAT is one of xml, sxpr or itext, or the name of a perl module
 
+this is the class that parsers the input file(s) and generates stag
+events
+
 xml assumed as default
 
 =item -w|writer FORMAT
 
 FORMAT is one of xml, sxpr or itext, or the name of a perl module
+
+this is the class that catches the events thrown by the parser; it can
+be any class, but the class is typically a writer
+
+xml assumed as default
+
+=item -o|out FILE
+
+the writer will use this file (defaults to STDOUT)
 
 =item -e|errf FILE
 
@@ -120,6 +148,16 @@ file to store parse error handler output
 FORMAT is one of xml, sxpr or itext, or the name of a perl module
 
 all parse error events go to this module
+
+=item 
+
+=item -r|root NODE_NAME
+
+if this is specified, NODE_NAME becomes the root of the stag tree, and
+anything that was previously the root is placed below this.
+
+this happens automatically if more than one file is parsed (because
+there can only be one tree root)
 
 =item -color
 
