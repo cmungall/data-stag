@@ -55,7 +55,7 @@ Version 0.05
 Version 0.06
 ============
 
-                - Changed how attributes and mixed content is dealt with
+2004-07-15      - Changed how attributes and mixed content is dealt with
                   Conforms to SXML
                   Attributes placed under '@' node
                   PCDATA placed under '.' when attributes or mixed content

@@ -1,46 +1,41 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-<title>stag-autoschema</title>
-<link rev="made" href="mailto:feedback@suse.de" />
-</head>
+<HTML>
+<HEAD>
+<TITLE>stag-autoschema</TITLE>
+<LINK REV="made" HREF="mailto:feedback@suse.de">
+</HEAD>
 
-<body style="background-color: white">
+<BODY>
 
-<p><a name="__index__"></a></p>
+<A NAME="__index__"></A>
 <!-- INDEX BEGIN -->
 
-<ul>
+<UL>
 
-	<li><a href="#name">NAME</a></li>
-	<li><a href="#synopsis">SYNOPSIS</a></li>
-	<li><a href="#description">DESCRIPTION</a></li>
-	<li><a href="#arguments">ARGUMENTS</a></li>
-	<li><a href="#todo">TODO</a></li>
-	<li><a href="#limitations">LIMITATIONS</a></li>
-</ul>
+	<LI><A HREF="#name">NAME</A></LI>
+	<LI><A HREF="#synopsis">SYNOPSIS</A></LI>
+	<LI><A HREF="#description">DESCRIPTION</A></LI>
+	<LI><A HREF="#arguments">ARGUMENTS</A></LI>
+	<LI><A HREF="#limitations">LIMITATIONS</A></LI>
+</UL>
 <!-- INDEX END -->
 
-<hr />
-<p>
-</p>
-<h1><a name="name">NAME</a></h1>
-<p>stag-autoschema.pl - writes the implicit stag-schema for a stag file</p>
-<p>
-</p>
-<hr />
-<h1><a name="synopsis">SYNOPSIS</a></h1>
-<pre>
-  stag-autoschema.pl -w sxpr sample-data.xml</pre>
-<p>
-</p>
-<hr />
-<h1><a name="description">DESCRIPTION</a></h1>
-<p>Takes a stag compatible file (xml, sxpr, itext), or a file in any
-format plus a parser, and writes out the implicit underlying stag-schema</p>
-<p>stag-schema should look relatively self-explanatory.</p>
-<p>Here is an example stag-schema, shown in sxpr syntax:</p>
-<pre>
+<HR>
+<P>
+<H1><A NAME="name">NAME</A></H1>
+<P>stag-autoschema.pl - writes the implicit stag-schema for a stag file</P>
+<P>
+<HR>
+<H1><A NAME="synopsis">SYNOPSIS</A></H1>
+<PRE>
+  stag-autoschema.pl -w sxpr sample-data.xml</PRE>
+<P>
+<HR>
+<H1><A NAME="description">DESCRIPTION</A></H1>
+<P>Takes a stag compatible file (xml, sxpr, itext), or a file in any
+format plus a parser, and writes out the implicit underlying stag-schema</P>
+<P>stag-schema should look relatively self-explanatory.</P>
+<P>Here is an example stag-schema, shown in sxpr syntax:</P>
+<PRE>
   (db
    (person*
     (name &quot;s&quot;
@@ -49,66 +44,49 @@ format plus a parser, and writes out the implicit underlying stag-schema</p>
      (street &quot;s&quot;)
      (street2? &quot;s&quot;)
      (city &quot;s&quot;)
-     (zip? &quot;s&quot;)))))</pre>
-<p>The database db contains zero or more persons, each person has a
-mandatory name and at least one address.</p>
-<p>The cardinality mnemonics are as follows:</p>
-<dl>
-<dt><strong><a name="item_%2b">+</a></strong><br />
-</dt>
-<dd>
+     (zip? &quot;s&quot;)))))</PRE>
+<P>The database db contains zero or more persons, each person has a
+mandatory name and at least one address.</P>
+<P>The cardinality mnemonics are as follows:</P>
+<DL>
+<DT><STRONG><A NAME="item_%2B">+</A></STRONG><BR>
+<DD>
 1 or more
-</dd>
-<p></p>
-<dt><strong><a name="item_%3f">?</a></strong><br />
-</dt>
-<dd>
+<P></P>
+<DT><STRONG><A NAME="item_%3F">?</A></STRONG><BR>
+<DD>
 0 or one
-</dd>
-<p></p>
-<li></li>
+<P></P>
+<LI>
 0 or more
-<p></p></dl>
-<p>The default cardinality is 1</p>
-<p>
-</p>
-<hr />
-<h1><a name="arguments">ARGUMENTS</a></h1>
-<dl>
-<dt><strong><a name="item_%2dp%7cparser_format">-p|parser FORMAT</a></strong><br />
-</dt>
-<dd>
+<P></P></DL>
+<P>The default cardinality is 1</P>
+<P>
+<HR>
+<H1><A NAME="arguments">ARGUMENTS</A></H1>
+<DL>
+<DT><STRONG><A NAME="item_%2Dp%7Cparser_FORMAT">-p|parser FORMAT</A></STRONG><BR>
+<DD>
 FORMAT is one of xml, sxpr or itext, or the name of a perl module
-</dd>
-<dd>
-<p>xml assumed as default</p>
-</dd>
-<p></p>
-<dt><strong><a name="item_%2dw%7cwriter_format">-w|writer FORMAT</a></strong><br />
-</dt>
-<dd>
-FORMAT is one of xml, sxpr or itext, or the name of a perl module
-</dd>
-<dd>
-<p>The default is sxpr</p>
-</dd>
-<dd>
-<p>note that stag schemas exported as xml will be invalid xml, due to the
-use of symbols *, +, ? in the node names</p>
-</dd>
-<p></p></dl>
-<p>
-</p>
-<hr />
-<h1><a name="todo">TODO</a></h1>
-<p>add DTD option</p>
-<p>
-</p>
-<hr />
-<h1><a name="limitations">LIMITATIONS</a></h1>
-<p>not event based - memory usage becomes exhorbitant on large files;
-prepare a small sample beforehand</p>
+<P>xml assumed as default</P>
+<P></P>
+<DT><STRONG><A NAME="item_%2Ddtd">-dtd</A></STRONG><BR>
+<DD>
+exports schema as DTD
+<P></P>
+<DT><STRONG><A NAME="item_%2Dw%7Cwriter_FORMAT">-w|writer FORMAT</A></STRONG><BR>
+<DD>
+FORMAT is one of xml, sxpr or itext, or the name of a perl module, OR DTD
+<P>The default is sxpr</P>
+<P>note that stag schemas exported as xml will be invalid xml, due to the
+use of symbols *, +, ? in the node names</P>
+<P></P></DL>
+<P>
+<HR>
+<H1><A NAME="limitations">LIMITATIONS</A></H1>
+<P>not event based - memory usage becomes exhorbitant on large files;
+prepare a small sample beforehand</P>
 
-</body>
+</BODY>
 
-</html>
+</HTML>

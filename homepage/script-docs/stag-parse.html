@@ -1,127 +1,95 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-<title>stag-parse</title>
-<link rev="made" href="mailto:feedback@suse.de" />
-</head>
+<HTML>
+<HEAD>
+<TITLE>stag-parse</TITLE>
+<LINK REV="made" HREF="mailto:feedback@suse.de">
+</HEAD>
 
-<body style="background-color: white">
+<BODY>
 
-<p><a name="__index__"></a></p>
+<A NAME="__index__"></A>
 <!-- INDEX BEGIN -->
 
-<ul>
+<UL>
 
-	<li><a href="#name">NAME</a></li>
-	<li><a href="#synopsis">SYNOPSIS</a></li>
-	<li><a href="#description">DESCRIPTION</a></li>
-	<li><a href="#arguments">ARGUMENTS</a></li>
-	<li><a href="#see_also">SEE ALSO</a></li>
-</ul>
+	<LI><A HREF="#name">NAME</A></LI>
+	<LI><A HREF="#synopsis">SYNOPSIS</A></LI>
+	<LI><A HREF="#description">DESCRIPTION</A></LI>
+	<LI><A HREF="#arguments">ARGUMENTS</A></LI>
+	<LI><A HREF="#see also">SEE ALSO</A></LI>
+</UL>
 <!-- INDEX END -->
 
-<hr />
-<p>
-</p>
-<h1><a name="name">NAME</a></h1>
-<p>stag-parse.pl - parses a file and fires events (e.g. sxpr to xml)</p>
-<p>
-</p>
-<hr />
-<h1><a name="synopsis">SYNOPSIS</a></h1>
-<pre>
+<HR>
+<P>
+<H1><A NAME="name">NAME</A></H1>
+<P>stag-parse.pl - parses a file and fires events (e.g. sxpr to xml)</P>
+<P>
+<HR>
+<H1><A NAME="synopsis">SYNOPSIS</A></H1>
+<PRE>
   # convert XML to IText
-  stag-parse.pl -p xml -w itext file1.xml file2.xml</pre>
-<pre>
+  stag-parse.pl -p xml -w itext file1.xml file2.xml</PRE>
+<PRE>
   # use a custom parser/generator and a custom writer/generator
-  stag-parse.pl -p MyMod::MyParser -w MyMod::MyWriter file.txt</pre>
-<p>
-</p>
-<hr />
-<h1><a name="description">DESCRIPTION</a></h1>
-<p>script wrapper for the Data::Stag modules</p>
-<p>feeds in files into a parser object that generates nestarray events,
-and feeds the events into a handler/writer class</p>
-<p>
-</p>
-<hr />
-<h1><a name="arguments">ARGUMENTS</a></h1>
-<dl>
-<dt><strong><a name="item_%2dp%7cparser_format">-p|parser FORMAT</a></strong><br />
-</dt>
-<dd>
+  stag-parse.pl -p MyMod::MyParser -w MyMod::MyWriter file.txt</PRE>
+<P>
+<HR>
+<H1><A NAME="description">DESCRIPTION</A></H1>
+<P>script wrapper for the Data::Stag modules</P>
+<P>feeds in files into a parser object that generates nestarray events,
+and feeds the events into a handler/writer class</P>
+<P>
+<HR>
+<H1><A NAME="arguments">ARGUMENTS</A></H1>
+<DL>
+<DT><STRONG><A NAME="item_%2Dp%7Cparser_FORMAT">-p|parser FORMAT</A></STRONG><BR>
+<DD>
 FORMAT is one of xml, sxpr or itext, or the name of a perl module
-</dd>
-<dd>
-<p>this is the class that parsers the input <code>file(s)</code> and generates stag
-events</p>
-</dd>
-<dd>
-<p>xml assumed as default</p>
-</dd>
-<p></p>
-<dt><strong><a name="item_%2dw%7cwriter_format">-w|writer FORMAT</a></strong><br />
-</dt>
-<dd>
+<P>this is the class that parsers the input <CODE>file(s)</CODE> and generates stag
+events</P>
+<P>xml assumed as default</P>
+<P></P>
+<DT><STRONG><A NAME="item_%2Dw%7Cwriter_FORMAT">-w|writer FORMAT</A></STRONG><BR>
+<DD>
 FORMAT is one of xml, sxpr or itext, or the name of a perl module
-</dd>
-<dd>
-<p>this is the class that catches the events thrown by the parser; it can
-be any class, but the class is typically a writer</p>
-</dd>
-<dd>
-<p>xml assumed as default</p>
-</dd>
-<p></p>
-<dt><strong><a name="item_%2do%7cout_file">-o|out FILE</a></strong><br />
-</dt>
-<dd>
+<P>this is the class that catches the events thrown by the parser; it can
+be any class, but the class is typically a writer</P>
+<P>xml assumed as default</P>
+<P></P>
+<DT><STRONG><A NAME="item_%2Do%7Cout_FILE">-o|out FILE</A></STRONG><BR>
+<DD>
 the writer will use this file (defaults to STDOUT)
-</dd>
-<p></p>
-<dt><strong><a name="item_%2de%7cerrf_file">-e|errf FILE</a></strong><br />
-</dt>
-<dd>
+<P></P>
+<DT><STRONG><A NAME="item_%2De%7Cerrf_FILE">-e|errf FILE</A></STRONG><BR>
+<DD>
 file to store parse error handler output
-</dd>
-<p></p>
-<dt><strong><a name="item_%2derrhandler_format%2fmodule">-errhandler FORMAT/MODULE</a></strong><br />
-</dt>
-<dd>
+<P></P>
+<DT><STRONG><A NAME="item_%2Derrhandler_FORMAT%2FMODULE">-errhandler FORMAT/MODULE</A></STRONG><BR>
+<DD>
 FORMAT is one of xml, sxpr or itext, or the name of a perl module
-</dd>
-<dd>
-<p>all parse error events go to this module</p>
-</dd>
-<p></p>
-<dt></dt>
-<dt><strong><a name="item_%2dr%7croot_node_name">-r|root NODE_NAME</a></strong><br />
-</dt>
-<dd>
+<P>all parse error events go to this module</P>
+<P></P>
+<DT><DD>
+<DT><STRONG><A NAME="item_%2Dr%7Croot_NODE_NAME">-r|root NODE_NAME</A></STRONG><BR>
+<DD>
 if this is specified, NODE_NAME becomes the root of the stag tree, and
 anything that was previously the root is placed below this.
-</dd>
-<dd>
-<p>this happens automatically if more than one file is parsed (because
-there can only be one tree root)</p>
-</dd>
-<p></p>
-<dt><strong><a name="item_%2dcolor">-color</a></strong><br />
-</dt>
-<dd>
+<P>this happens automatically if more than one file is parsed (because
+there can only be one tree root)</P>
+<P></P>
+<DT><STRONG><A NAME="item_%2Dcolor">-color</A></STRONG><BR>
+<DD>
 Works only if the output handler is able to provide ASCII-colors
 (currently supported for itext and xml)
-</dd>
-<p></p></dl>
-<p>
-</p>
-<hr />
-<h1><a name="see_also">SEE ALSO</a></h1>
-<p><a href="./Data/Stag.html">the Data::Stag manpage</a></p>
-<p>This script is a wrapper for the method</p>
-<pre>
-  Data::Stag-&gt;parse()</pre>
+<P></P></DL>
+<P>
+<HR>
+<H1><A NAME="see also">SEE ALSO</A></H1>
+<P><A HREF="./Data/Stag.html">the Data::Stag manpage</A></P>
+<P>This script is a wrapper for the method</P>
+<PRE>
+  Data::Stag-&gt;parse()</PRE>
 
-</body>
+</BODY>
 
-</html>
+</HTML>

@@ -1,77 +1,65 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-<title>stag-bulkload</title>
-<link rev="made" href="mailto:feedback@suse.de" />
-</head>
+<HTML>
+<HEAD>
+<TITLE>stag-bulkload</TITLE>
+<LINK REV="made" HREF="mailto:feedback@suse.de">
+</HEAD>
 
-<body style="background-color: white">
+<BODY>
 
-<p><a name="__index__"></a></p>
+<A NAME="__index__"></A>
 <!-- INDEX BEGIN -->
 
-<ul>
+<UL>
 
-	<li><a href="#name">NAME</a></li>
-	<li><a href="#synopsis">SYNOPSIS</a></li>
-	<li><a href="#description">DESCRIPTION</a></li>
-	<li><a href="#arguments">ARGUMENTS</a></li>
-	<li><a href="#see_also">SEE ALSO</a></li>
-</ul>
+	<LI><A HREF="#name">NAME</A></LI>
+	<LI><A HREF="#synopsis">SYNOPSIS</A></LI>
+	<LI><A HREF="#description">DESCRIPTION</A></LI>
+	<LI><A HREF="#arguments">ARGUMENTS</A></LI>
+	<LI><A HREF="#see also">SEE ALSO</A></LI>
+</UL>
 <!-- INDEX END -->
 
-<hr />
-<p>
-</p>
-<h1><a name="name">NAME</a></h1>
-<p>stag-bulkload.pl - creates bulkload SQL for input data</p>
-<p>
-</p>
-<hr />
-<h1><a name="synopsis">SYNOPSIS</a></h1>
-<pre>
+<HR>
+<P>
+<H1><A NAME="name">NAME</A></H1>
+<P>stag-bulkload.pl - creates bulkload SQL for input data</P>
+<P>
+<HR>
+<H1><A NAME="synopsis">SYNOPSIS</A></H1>
+<PRE>
   # convert XML to IText
-  stag-bulkload.pl -l person file1.xml file2.xml</pre>
-<pre>
+  stag-bulkload.pl -l person file1.xml file2.xml</PRE>
+<PRE>
   # use a custom parser/generator and a custom writer/generator
-  stag-bulkload.pl -p MyMod::MyParser file.txt</pre>
-<p>
-</p>
-<hr />
-<h1><a name="description">DESCRIPTION</a></h1>
-<p>Creates bulkload SQL statements for an input file</p>
-<p>Works only with certain kinds of schemas, where the FK relations make
-a tree (not a graph); i.e. the only FKs are to the parent</p>
-<p>You do not need a connection to the DB</p>
-<p>It is of no use for incremental loading - it assumes integer surrogate
-promary keys and starts these from 1</p>
-<p>
-</p>
-<hr />
-<h1><a name="arguments">ARGUMENTS</a></h1>
-<dl>
-<dt><strong><a name="item_%2dp%7cparser_format">-p|parser FORMAT</a></strong><br />
-</dt>
-<dd>
+  stag-bulkload.pl -p MyMod::MyParser file.txt</PRE>
+<P>
+<HR>
+<H1><A NAME="description">DESCRIPTION</A></H1>
+<P>Creates bulkload SQL statements for an input file</P>
+<P>Works only with certain kinds of schemas, where the FK relations make
+a tree (not a graph); i.e. the only FKs are to the parent</P>
+<P>You do not need a connection to the DB</P>
+<P>It is of no use for incremental loading - it assumes integer surrogate
+promary keys and starts these from 1</P>
+<P>
+<HR>
+<H1><A NAME="arguments">ARGUMENTS</A></H1>
+<DL>
+<DT><STRONG><A NAME="item_%2Dp%7Cparser_FORMAT">-p|parser FORMAT</A></STRONG><BR>
+<DD>
 FORMAT is one of xml, sxpr or itext, or the name of a perl module
-</dd>
-<dd>
-<p>xml assumed as default</p>
-</dd>
-<p></p>
-<dt><strong><a name="item_%2dl%7cloadrecord_node">-l|loadrecord NODE</a></strong><br />
-</dt>
-<dd>
+<P>xml assumed as default</P>
+<P></P>
+<DT><STRONG><A NAME="item_%2Dl%7Cloadrecord_NODE">-l|loadrecord NODE</A></STRONG><BR>
+<DD>
 adds a COMMIT statement after the INSERTs for this node
-</dd>
-<p></p></dl>
-<p>
-</p>
-<hr />
-<h1><a name="see_also">SEE ALSO</a></h1>
-<p><a href="./Data/Stag.html">the Data::Stag manpage</a></p>
-<p><a href="./DBIx/DBStag.html">the DBIx::DBStag manpage</a></p>
+<P></P></DL>
+<P>
+<HR>
+<H1><A NAME="see also">SEE ALSO</A></H1>
+<P><A HREF="./Data/Stag.html">the Data::Stag manpage</A></P>
+<P><A HREF="./DBIx/DBStag.html">the DBIx::DBStag manpage</A></P>
 
-</body>
+</BODY>
 
-</html>
+</HTML>

@@ -1,88 +1,66 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-<title>stag-autoddl</title>
-<link rev="made" href="mailto:feedback@suse.de" />
-</head>
+<HTML>
+<HEAD>
+<TITLE>stag-autoddl</TITLE>
+<LINK REV="made" HREF="mailto:feedback@suse.de">
+</HEAD>
 
-<body style="background-color: white">
+<BODY>
 
-<p><a name="__index__"></a></p>
+<A NAME="__index__"></A>
 <!-- INDEX BEGIN -->
 
-<ul>
+<UL>
 
-	<li><a href="#name">NAME</a></li>
-	<li><a href="#synopsis">SYNOPSIS</a></li>
-	<li><a href="#description">DESCRIPTION</a></li>
-</ul>
+	<LI><A HREF="#name">NAME</A></LI>
+	<LI><A HREF="#synopsis">SYNOPSIS</A></LI>
+	<LI><A HREF="#description">DESCRIPTION</A></LI>
+</UL>
 <!-- INDEX END -->
 
-<hr />
-<p>
-</p>
-<h1><a name="name">NAME</a></h1>
-<p>stag-autoddl.pl</p>
-<p>
-</p>
-<hr />
-<h1><a name="synopsis">SYNOPSIS</a></h1>
-<pre>
-  stag-autoddl.pl -parser XMLAutoddl -handler ITextWriter file1.txt file2.txt</pre>
-<pre>
-  stag-autoddl.pl -parser MyMod::MyParser -handler MyMod::MyWriter file.txt</pre>
-<p>
-</p>
-<hr />
-<h1><a name="description">DESCRIPTION</a></h1>
-<p>script wrapper for the Data::Stag modules</p>
-<dl>
-<dt><strong><a name="item_%2dhelp%7ch">-help|h</a></strong><br />
-</dt>
-<dd>
+<HR>
+<P>
+<H1><A NAME="name">NAME</A></H1>
+<P>stag-autoddl.pl</P>
+<P>
+<HR>
+<H1><A NAME="synopsis">SYNOPSIS</A></H1>
+<PRE>
+  stag-autoddl.pl -parser XMLAutoddl -handler ITextWriter file1.txt file2.txt</PRE>
+<PRE>
+  stag-autoddl.pl -parser MyMod::MyParser -handler MyMod::MyWriter file.txt</PRE>
+<P>
+<HR>
+<H1><A NAME="description">DESCRIPTION</A></H1>
+<P>script wrapper for the Data::Stag modules</P>
+<DL>
+<DT><STRONG><A NAME="item_%2Dhelp%7Ch">-help|h</A></STRONG><BR>
+<DD>
 shows this document
-</dd>
-<p></p>
-<dt><strong><a name="item_%2dp%7cparser_format">-p|parser FORMAT</a></strong><br />
-</dt>
-<dd>
+<P></P>
+<DT><STRONG><A NAME="item_%2Dp%7Cparser_FORMAT">-p|parser FORMAT</A></STRONG><BR>
+<DD>
 FORMAT is one of xml, sxpr or itext, or the name of a perl module
-</dd>
-<dd>
-<p>xml assumed as default</p>
-</dd>
-<p></p>
-<dt><strong><a name="item_%2dw%7cwriter_format">-w|writer FORMAT</a></strong><br />
-</dt>
-<dd>
+<P>xml assumed as default</P>
+<P></P>
+<DT><STRONG><A NAME="item_%2Dw%7Cwriter_FORMAT">-w|writer FORMAT</A></STRONG><BR>
+<DD>
 FORMAT is one of xml, sxpr or itext, or the name of a perl module
-</dd>
-<dd>
-<p>This is only used if transforms are required on the data to turn it
+<P>This is only used if transforms are required on the data to turn it
 into relational form; the transformed xml (or other stag format) is
-stored in the file specified by -t</p>
-</dd>
-<p></p>
-<dt><strong><a name="item_%2dlink%7cl_node_name">-link|l NODE_NAME</a></strong><br />
-</dt>
-<dd>
+stored in the file specified by -t</P>
+<P></P>
+<DT><STRONG><A NAME="item_%2Dlink%7Cl_NODE_NAME">-link|l NODE_NAME</A></STRONG><BR>
+<DD>
 this node name will be used as a linking table
-</dd>
-<dd>
-<p>multiple linking nodes can be set:</p>
-</dd>
-<dd>
-<pre>
- -l foo2bar -l x2y -l bim2bum</pre>
-</dd>
-<p></p>
-<dt><strong><a name="item_%2dt_transformed_file_name">-t TRANSFORMED_FILE_NAME</a></strong><br />
-</dt>
-<dd>
+<P>multiple linking nodes can be set:</P>
+<PRE>
+ -l foo2bar -l x2y -l bim2bum</PRE>
+<P></P>
+<DT><STRONG><A NAME="item_%2Dt_TRANSFORMED_FILE_NAME">-t TRANSFORMED_FILE_NAME</A></STRONG><BR>
+<DD>
 the transformed input file is written here
-</dd>
-<p></p></dl>
+<P></P></DL>
 
-</body>
+</BODY>
 
-</html>
+</HTML>

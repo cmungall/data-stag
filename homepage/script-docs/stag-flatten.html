@@ -1,97 +1,85 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-<title>stag-flatten</title>
-<link rev="made" href="mailto:feedback@suse.de" />
-</head>
+<HTML>
+<HEAD>
+<TITLE>stag-flatten</TITLE>
+<LINK REV="made" HREF="mailto:feedback@suse.de">
+</HEAD>
 
-<body style="background-color: white">
+<BODY>
 
-<p><a name="__index__"></a></p>
+<A NAME="__index__"></A>
 <!-- INDEX BEGIN -->
 
-<ul>
+<UL>
 
-	<li><a href="#name">NAME</a></li>
-	<li><a href="#synopsis">SYNOPSIS</a></li>
-	<li><a href="#description">DESCRIPTION</a></li>
-	<li><a href="#usage">USAGE</a></li>
-	<li><a href="#arguments">ARGUMENTS</a></li>
-	<li><a href="#bugs">BUGS</a></li>
-	<li><a href="#see_also">SEE ALSO</a></li>
-</ul>
+	<LI><A HREF="#name">NAME</A></LI>
+	<LI><A HREF="#synopsis">SYNOPSIS</A></LI>
+	<LI><A HREF="#description">DESCRIPTION</A></LI>
+	<LI><A HREF="#usage">USAGE</A></LI>
+	<LI><A HREF="#arguments">ARGUMENTS</A></LI>
+	<LI><A HREF="#see also">SEE ALSO</A></LI>
+</UL>
 <!-- INDEX END -->
 
-<hr />
-<p>
-</p>
-<h1><a name="name">NAME</a></h1>
-<p>stag-flatten.pl - turns stag data into a flat table</p>
-<p>
-</p>
-<hr />
-<h1><a name="synopsis">SYNOPSIS</a></h1>
-<pre>
-  stag-flatten.pl MyFile.xml dept/name dept/person/name</pre>
-<p>
-</p>
-<hr />
-<h1><a name="description">DESCRIPTION</a></h1>
-<p>reads in a file in a stag format, and 'flattens' it to a tab-delimited
-table format. given this data:</p>
-<pre>
+<HR>
+<P>
+<H1><A NAME="name">NAME</A></H1>
+<P>stag-flatten.pl - turns stag data into a flat table</P>
+<P>
+<HR>
+<H1><A NAME="synopsis">SYNOPSIS</A></H1>
+<PRE>
+  stag-flatten.pl -c name -c person/name dept MyFile.xml</PRE>
+<P>
+<HR>
+<H1><A NAME="description">DESCRIPTION</A></H1>
+<P>reads in a file in a stag format, and 'flattens' it to a tab-delimited
+table format. given this data:</P>
+<PRE>
   (company
    (dept
     (name &quot;special-operations&quot;)
     (person
      (name &quot;james-bond&quot;))
     (person
-     (name &quot;fred&quot;))))</pre>
-<p>the above command will return a two column table</p>
-<pre>
+     (name &quot;fred&quot;))))</PRE>
+<P>the above command will return a two column table</P>
+<PRE>
   special-operations      james-bond
-  special-operations      fred</pre>
-<p>
-</p>
-<hr />
-<h1><a name="usage">USAGE</a></h1>
-<pre>
-  stag-flatten.pl [-p PARSER] [-c COLS] [-c COLS]... &lt;file&gt; [COL][COL]...</pre>
-<p>
-</p>
-<hr />
-<h1><a name="arguments">ARGUMENTS</a></h1>
-<dl>
-<dt><strong><a name="item_%2dp%7cparser_format">-p|parser FORMAT</a></strong><br />
-</dt>
-<dd>
+  special-operations      fred</PRE>
+<P>If there are multiple values for the columns within the node, then the
+cartesian product will be calculated</P>
+<P>
+<HR>
+<H1><A NAME="usage">USAGE</A></H1>
+<PRE>
+  stag-flatten.pl [-p PARSER] [-c COLS] [-c COLS] NODE &lt;file&gt;</PRE>
+<P>
+<HR>
+<H1><A NAME="arguments">ARGUMENTS</A></H1>
+<DL>
+<DT><STRONG><A NAME="item_%2Dp%7Cparser_FORMAT">-p|parser FORMAT</A></STRONG><BR>
+<DD>
 FORMAT is one of xml, sxpr or itext
-</dd>
-<dd>
-<p>xml assumed as default</p>
-</dd>
-<p></p>
-<dt><strong><a name="item_%2dc%7ccolumn_col1%2ccol2%2ccol3%2c%2e%2e">-c|column COL1,COL2,COL3,..</a></strong><br />
-</dt>
-<dd>
+<P>xml assumed as default</P>
+<P></P>
+<DT><STRONG><A NAME="item_%2Dc%7Ccolumn_COL1%2CCOL2%2CCOL3%2C%2E%2E">-c|column COL1,COL2,COL3,..</A></STRONG><BR>
+<DD>
 the name of the columns/elements to write out
-</dd>
-<dd>
-<p>(alternatively this argument can be written after the filename is
-specified)</p>
-</dd>
-<p></p></dl>
-<p>
-</p>
-<hr />
-<h1><a name="bugs">BUGS</a></h1>
-<p>still not working quite right...</p>
-<p>
-</p>
-<hr />
-<h1><a name="see_also">SEE ALSO</a></h1>
-<p><a href="./Data/Stag.html">the Data::Stag manpage</a></p>
+<P>this can be specified either with multiple -c arguments, or with a
+comma-seperated (no spaces) list of column (terminal node) names after
+a single -c</P>
+<P></P>
+<DT><STRONG><A NAME="item_%2Dn%7Cnest">-n|nest</A></STRONG><BR>
+<DD>
+if set, then the output will be a compress repeating values into the
+same row; each cell in the table will be enclosed by {}, and will
+contain a comma-delimited set of values
+<P></P></DL>
+<P>
+<HR>
+<H1><A NAME="see also">SEE ALSO</A></H1>
+<P><A HREF="./Data/Stag.html">the Data::Stag manpage</A></P>
 
-</body>
+</BODY>
 
-</html>
+</HTML>
