@@ -69,4 +69,11 @@ Version 0.07
 
 Version 0.08
 ============
+
 2004-12-20      - Removed dependency on PerlSAX, now optional
+
+Version 0.09
+============
+
+2005-01-30      - new format: 'indent'
+                  Added IndentParser and IndentWriter

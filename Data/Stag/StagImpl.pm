@@ -1,4 +1,4 @@
-# $Id: StagImpl.pm,v 1.54 2004/12/21 02:26:26 cmungall Exp $
+# $Id: StagImpl.pm,v 1.55 2005/01/30 03:17:52 cmungall Exp $
 #
 # Author: Chris Mungall <cjm@fruitfly.org>
 #
@@ -152,6 +152,15 @@ sub parser {
 	if ($fn =~ /\.xml$/) {
             $fmt = "xml";
         }
+        elsif ($fn =~ /\.indent$/) {
+            $fmt = "indent";
+        }
+        elsif ($fn =~ /\.ind$/) {
+            $fmt = "indent";
+        }
+        elsif ($fn =~ /\.xtc$/) {
+            $fmt = "indent";
+        }
         elsif ($fn =~ /\.ite?xt$/) {
             $fmt = "itext";
         }
@@ -196,11 +205,14 @@ sub parser {
         elsif ($str =~ /^\s*\</) {
             $fmt = "xml";
         }
-        elsif ($str =~ /^\s*\w+\:/) {
+        elsif ($str =~ /^\s*\w+\:\s/) {
             $fmt = "itext";
         }
         elsif ($str =~ /^\s*\#/) {
-            $fmt = "itext";
+            $fmt = "indent";
+        }
+        elsif ($str =~ /^\w+/) {
+            $fmt = "indent";
         }
         else {
         }
@@ -217,6 +229,9 @@ sub parser {
     }
     elsif ($fmt eq "xml") {
         $parser = "Data::Stag::XMLParser";
+    }
+    elsif ($fmt eq "indent") {
+        $parser = "Data::Stag::IndentParser";
     }
     elsif ($fmt eq "itext") {
         $parser = "Data::Stag::ITextParser";
@@ -319,6 +334,9 @@ sub _gethandlerobj {
         elsif ($fn =~ /\.ite?xt$/) {
             $fmt = "itext";
         }
+        elsif ($fn =~ /\.ind/) {
+            $fmt = "indent";
+        }
         else {
         }
     }
@@ -331,6 +349,9 @@ sub _gethandlerobj {
     }
     elsif ($fmt =~ /itext/i) {
         $writer = "Data::Stag::ITextWriter";
+    }
+    elsif ($fmt =~ /indent/i) {
+        $writer = "Data::Stag::IndentWriter";
     }
     elsif ($fmt =~ /sxpr/i) {
         $writer = "Data::Stag::SxprWriter";
@@ -649,6 +670,12 @@ sub itext {
     my $tree = shift;
     my $fn = shift;
     generate($tree, $fn, 'itext', @_);
+}
+
+sub indent {
+    my $tree = shift;
+    my $fn = shift;
+    generate($tree, $fn, 'indent', @_);
 }
 
 sub as {

@@ -1,4 +1,4 @@
-# $Id: Stag.pm,v 1.35 2004/12/21 02:26:25 cmungall Exp $
+# $Id: Stag.pm,v 1.36 2005/01/30 03:17:52 cmungall Exp $
 # -------------------------------------------------------
 #
 # Copyright (C) 2004 Chris Mungall <cjm@fruitfly.org>
@@ -14,7 +14,7 @@
 
 package Data::Stag;
 
-#require 5.6.0;
+require 5.006;
 use strict;
 use vars qw(@ISA @EXPORT_OK %EXPORT_TAGS $DEBUG $AUTOLOAD @AUTOMETHODS @OLD);
 use Carp;
@@ -76,6 +76,7 @@ $VERSION="0.08";
                   xml  
                   sxpr
                   itext
+                  indent
                   hash tree2hash
                   pairs tree2pairs
                   sax tree2sax
@@ -850,7 +851,7 @@ similar to B<new>
      Example: $node = Data::Stag->parse(-file=>$fn, -handler=>$myhandler);
 
 slurps a file or string into a Data::Stag node structure. Will guess
-the format (xml, sxpr, itext) from the suffix if it is not given.
+the format (xml, sxpr, itext, indent) from the suffix if it is not given.
 
 The format can also be the name of a parsing module, or an actual
 parser object; 
@@ -987,7 +988,11 @@ Generates S-Expressions from events
 
 =item itext
 
-Generates indented text from events
+Generates itext format from events
+
+=item indent
+
+Generates indent format from events
 
 =back
 
@@ -1413,6 +1418,15 @@ or
 
   element:
     sub_element: ...
+
+=item indent
+
+  element "data"
+
+or
+
+  element
+    sub_element "..."
 
 =back
  
