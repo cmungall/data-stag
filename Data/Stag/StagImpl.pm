@@ -1,4 +1,4 @@
-# $Id: StagImpl.pm,v 1.32 2003/08/03 08:39:39 cmungall Exp $
+# $Id: StagImpl.pm,v 1.33 2003/08/04 00:27:27 cmungall Exp $
 #
 # Author: Chris Mungall <cjm@fruitfly.org>
 #
@@ -2070,7 +2070,16 @@ sub _max {
 sub autoschema {
     my $tree = shift;
     my $schema = _autoschema($tree);
-    return genschema($tree, undef, $tree->element, $schema);
+#    use Data::Dumper;
+#    print Dumper $schema;
+    my $nu = genschema($tree, undef, $tree->element, $schema);
+    $nu->iterate(sub{
+		     my $node = shift;
+		     if ($node->name =~ /(\S+)\.(\S+)/) {
+			 $node->name($2);
+		     }
+		 });
+    return $nu;
 }
 
 sub genschema {
@@ -2142,7 +2151,14 @@ sub _autoschema {
     #                      ? : 0 or one
     my %lcard = ();  # local cardinality
     foreach (@sn) {
+	# nonterminal nodes are uniquely defined
+	# by the node name
         my $se = element($_);
+	if (isterminal($_)) {
+	    # a terminal node is uniquely defined
+	    # by parent.node
+	    $se = "$elt.$se";
+	}
         push(@{$childh->{$elt}}, $se)
           unless $childh->{$elt} &&
             grep { $_ eq $se } @{$childh->{$elt}};
@@ -2161,25 +2177,29 @@ sub _autoschema {
                $maxcard->{$link});
     }
     foreach (grep {isterminal($_)} @sn) {
-        my $elt = element($_);
+        my $elt = $elt.'.'.element($_);
 #        push(@{$data->{$elt}}, $_->data);
         my $in = $_->data;
         my $d = $data->{$elt} || 'INT';
         if (!$in) {
         }
-        elsif ($in =~ /^\d+$/ &&
-            ($d eq 'INT')) {
-            $d = 'INT';
-	    my $lin = length($in);
-	    if ($lin > 10) {
-		# too big for an int
-		# TODO: largeint?
-		$d = "VARCHAR($lin)";
+        elsif ($in =~ /^\-?\d+$/) {  # LOOKS LIKE INT
+	    # CHANGE SIZE IF IT IS
+            if ($d eq 'INT') {
+		$d = 'INT';
+		my $lin = length($in);
+		if ($lin > 10) {
+		    # too big for an int
+		    # TODO: largeint?
+		    $d = "VARCHAR($lin)";
+		}
 	    }
         }
-        elsif ($in =~ /^\d+\.\d+$/ &&
-            ($d eq 'INT' || $d eq 'FLOAT')) {
-            $d = 'FLOAT';
+        elsif ($in =~ /^\-?\d*\.\d+$/) { # LOOKS LIKE FLOAT
+	    # PROMOTE TO FLOAT IF INT
+            if ($d eq 'INT') {
+		$d = 'FLOAT';
+	    }
         }
         else {
             my $lin = length($in) || 0;
