@@ -1,4 +1,4 @@
-# $Id: Stag.pm,v 1.2 2002/12/05 04:33:48 cmungall Exp $
+# $Id: Stag.pm,v 1.3 2002/12/06 22:58:09 cmungall Exp $
 # -------------------------------------------------------
 #
 # Copyright (C) 2002 Chris Mungall <cjm@fruitfly.org>
@@ -1307,6 +1307,10 @@ Not a bug, but the underlying default datastructure of nested arrays
 is more heavyweight than it needs to be. More lightweight
 implementations are possible. Given time I would like to write the
 underlying guts in C.
+
+=head1 WEBSITE
+
+http://stag.sourceforge.net
 
 =head1 AUTHOR
 
