@@ -46,3 +46,8 @@ Version 0.04
 		- methods ->sxpr() ->itext() now return strings rather
 		  than printing to stdout be default
 		  (you can still pass in a filename)
+
+Version 0.05
+============
+
+2004-02-04      - Incremented version (v4 CPAN release messed up)    
