@@ -85,7 +85,7 @@ sub o {
 
 sub start_event {
     my $self = shift;
-    my $ev = shift;
+    my $ev = shift || "";
     my $stack = $self->stack;
     $self->o("($ev");
     push(@$stack, $ev);

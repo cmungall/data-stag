@@ -33,3 +33,8 @@ Version 0.03
 
                 - added ChainHandler
 		- added various stag-* scripts
+
+Version 0.04
+============
+
+2003-??-??	- Fixed empty tag bug with free (was exported as <></>)

@@ -1,4 +1,4 @@
-# $Id: BaseHandler.pm,v 1.8 2003/04/29 22:28:58 cmungall Exp $
+# $Id: BaseHandler.pm,v 1.9 2003/05/22 01:42:30 cmungall Exp $
 #
 # This  module is maintained by Chris Mungall <cjm@fruitfly.org>
 
@@ -418,7 +418,9 @@ sub event {
     if (ref($st)) {
         if (ref($st) ne "ARRAY") {confess($st)}
 	foreach (@$st) { 
-	    confess($_) unless ref($_);
+#	    use Data::Dumper;
+#	    print Dumper $st;
+	    confess("$ev $st $_") unless ref($_);
 	    $self->event(@$_) 
 	}
     }

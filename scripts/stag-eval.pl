@@ -3,11 +3,11 @@
 
 =head1 NAME 
 
-stag-findsubtree.pl
+stag-eval.pl
 
 =head1 SYNOPSIS
 
-  stag-findsubtree.pl 'person/name' file2.xml
+  stag-eval.pl '' file2.xml
 
 =head1 DESCRIPTION
 

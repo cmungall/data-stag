@@ -1,4 +1,4 @@
-# $Id: Stag.pm,v 1.16 2003/04/30 05:46:07 cmungall Exp $
+# $Id: Stag.pm,v 1.17 2003/05/22 01:42:30 cmungall Exp $
 # -------------------------------------------------------
 #
 # Copyright (C) 2002 Chris Mungall <cjm@fruitfly.org>
@@ -14,7 +14,7 @@
 
 package Data::Stag;
 
-
+require 5.6.0;
 use strict;
 use vars qw(@ISA @EXPORT_OK %EXPORT_TAGS $DEBUG $AUTOLOAD @AUTOMETHODS @OLD);
 use Carp;
@@ -22,7 +22,7 @@ use Data::Stag::Base;
 use XML::Parser::PerlSAX;
 
 use vars qw($VERSION);
-$VERSION="0.02";
+$VERSION="0.03";
 
 @AUTOMETHODS = qw(
                   new

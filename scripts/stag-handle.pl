@@ -65,8 +65,8 @@ __END__
 will take a Stag compatible format (xml, sxpr or itext), turn the data
 into an event stream passing it through my-handler.pl
 
-cat my-handler.pl
-{
+  unix> cat my-handler.pl
+  {
     person => sub {
 	my ($self, $person) = @_;
 	$person->set_fullname($person->get_firstname . ' ' .
@@ -77,6 +77,6 @@ cat my-handler.pl
 	# remove addresses altogether from processed file
 	$address->free;
     },
-}
+  }
 
 =cut

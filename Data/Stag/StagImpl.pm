@@ -1,4 +1,4 @@
-# $Id: StagImpl.pm,v 1.21 2003/04/30 05:46:08 cmungall Exp $
+# $Id: StagImpl.pm,v 1.22 2003/05/22 01:42:30 cmungall Exp $
 #
 # Author: Chris Mungall <cjm@fruitfly.org>
 #
@@ -44,20 +44,29 @@ sub new {
 }
 
 sub unflatten {
-    my $tree = shift || [];
-    my @intree = @_;
-    my @outtree = ();
-    while (@intree) {
-        my $k = shift @intree;
-        my $v = shift @intree;
-        if (ref($v)) {
-            $v = [unflatten(@$v)];
-        }
-        push(@outtree,
-             [$k=>$v]);
+    my $proto = shift; 
+    my $class = ref($proto) || $proto;
+    my ($name, $flist) = @_;
+    my @uflist = ();
+    if (!ref($flist)) {
+	return $class->new($name=>$flist);
     }
-    @$tree = @outtree;
-    return $tree;
+    if (ref($flist) ne 'ARRAY') {
+	confess("$name => $flist not array");
+    }
+    while (@$flist) {
+	my $k = shift @$flist;
+        my $v = shift @$flist;
+	if (ref($v)) {
+	    push(@uflist,
+		 $class->unflatten($k=>$v));
+	}
+	else {
+	    push(@uflist,
+		 [$k=>$v]);
+	}
+    }
+    return $class->new($name=>[@uflist]);
 }
 
 sub load_module {
@@ -424,6 +433,7 @@ sub xml {
     my $indent = shift || 0;
     confess("problem: $tree not arr") unless ref($tree) && ref($tree) eq "ARRAY" || isaNode($tree);
     my ($ev, $subtree) = @$tree;
+    return "" unless $ev;
     if (ref($subtree)) {
         return 
           sprintf("%s<$ev>\n%s%s</$ev>\n",
@@ -667,10 +677,10 @@ sub findnode {
         if (defined $replace) {
             my @old = @$tree;
             @$tree = @$replace;
-            return [@old];
+            return Nodify([@old]);
         }
 #        return [$ev=>$subtree] ;
-        return $tree ;
+        return Nodify($tree);
     }
     return unless ref($subtree);
     my @nextlevel =
@@ -766,6 +776,17 @@ sub set {
 }
 *s = \&set;
 *setSubTreeVal = \&set;
+
+sub setl {
+    my $tree = shift || confess;
+    my @args = @_;
+    while (@args) {
+	set($tree, splice(@args, 0, 2));
+    }
+    return;
+}
+*sl = \&setl;
+*setlist = \&setl;
 
 sub setnode {
     my $tree = shift;
@@ -1122,7 +1143,9 @@ sub njoin {
     my $key = shift;          # name of join element
     my $searchstruct = shift; # structure
     my @elts = $tree->fst($element);
-    map { paste($_, $key, $searchstruct) } @elts;
+    paste($_, $key, $searchstruct)
+      foreach @elts;
+    
     return;
 }
 *nj = \&njoin;

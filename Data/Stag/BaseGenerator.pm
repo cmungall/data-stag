@@ -1,4 +1,4 @@
-# $Id: BaseGenerator.pm,v 1.6 2003/03/29 23:33:58 cmungall Exp $
+# $Id: BaseGenerator.pm,v 1.7 2003/05/22 01:42:30 cmungall Exp $
 #
 # Copyright (C) 2002 Chris Mungall <cjm@fruitfly.org>
 #
@@ -87,6 +87,11 @@ sub pop_stack_to_depth {
     while ($depth < $self->stack_depth) {
         $self->end_event;
     }
+}
+
+sub pop_all {
+    my $self = shift;
+    $self->pop_stack_to_depth(0);
 }
 
 sub stack_depth {
