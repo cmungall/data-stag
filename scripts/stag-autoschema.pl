@@ -36,6 +36,8 @@ if ($help) {
     exit 0;
 }
 
+$dtd = 1 if $handler eq 'dtd';
+
 #my @hdr = ();
 #if ($name) {
 #    push(@hdr, (name=>$name));
@@ -146,9 +148,13 @@ FORMAT is one of xml, sxpr or itext, or the name of a perl module
 
 xml assumed as default
 
+=item -dtd
+
+exports schema as DTD
+
 =item -w|writer FORMAT
 
-FORMAT is one of xml, sxpr or itext, or the name of a perl module
+FORMAT is one of xml, sxpr or itext, or the name of a perl module, OR DTD
 
 The default is sxpr
 
@@ -156,10 +162,6 @@ note that stag schemas exported as xml will be invalid xml, due to the
 use of symbols *, +, ? in the node names
 
 =back
-
-=head1 TODO
-
-add DTD option
 
 =head1 LIMITATIONS
 
