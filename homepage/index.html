@@ -13,20 +13,36 @@
             <img src="images/celtic-stag.gif">
           </td>
           <td>
-            This library is for manipulating data as recursively
+
+            The Stag project currently consists of two perl modules:
+
+            <h3>Data::Stag</h3>
+
+            This module is for manipulating data as recursively
             nested tag/value pairs (<b>S</b>tructured <b>tag</b>s or <b>S</b>imple <b>T</b>ree
             <b>ag</b>greggates). At this time there is only a perl
-            implementation, <a href="pod/Data/Stag.html">Data::Stag</a>, but C and Lisp implementations
+            implementation, <a href="http://search.cpan.org/author/CMUNGALL/Data-Stag-0.02/Data/Stag.pm">Data::Stag</a>, but C and Lisp implementations
             are planned.
 
             <br>
             <br>
-            i
             Stags can easily be represented as XML or as lisp-style
             S-expressions, or using the Stag native indented text
             format. They can also be represented in perl using nested
             arrays.
-              
+
+            <h3>DBIx::DBIStag</h3>
+
+            This module is for conversion between relational
+            representations and hierarchical (Stag)
+            representations. Joined relations are automatically
+            decomposed back into the original relations, and a
+            hierarchical structure is inferred.
+
+            <br>
+            
+            Not yet released on CPAN, but available from sourceforge
+            CVS.
 
           </td>
         </tr>
@@ -35,13 +51,33 @@
     <hr>
 
     <table>
-      <tr>
+        <tr>
           <td>
             <a href="http://sourceforge.net/projects/stag">Stag
               project page on Sourceforge</a>
           </td>
           <td>
             Here you can find the Stag CVS repository, mail lists, etc
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <a
+               href="http://www.fruitfly.org/~cjm/rel-talk/dbistag.html">DBIStag Tutorial</a>
+          </td>
+          <td>
+            Brief tutorial on basic DBIStag usage for biological databases.
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <a
+               href="http://www.fruitfly.org/cgi-bin/sql2xml/sql2xml.pl">sql2xml web interface</a>
+          </td>
+          <td>
+            Provides WWW access to a number of bioinformatics
+            databases - allows custom queries, also contains example
+            queries. Query results are transformed into indented XML.
           </td>
         </tr>
     </table>
@@ -54,7 +90,7 @@
     <address><a href="mailto:cjm@fruitfly.org">chris mungall</a></address>
 <!-- Created: Tue Dec  3 11:47:11 PST 2002 -->
 <!-- hhmts start -->
-Last modified: Mon Dec  9 23:35:24 PST 2002
+Last modified: Mon Jan 13 15:52:32 PST 2003
 <!-- hhmts end -->
   </body>
 </html>

@@ -1,4 +1,4 @@
-# $Id: StagImpl.pm,v 1.12 2003/01/11 00:27:14 cmungall Exp $
+# $Id: StagImpl.pm,v 1.13 2003/01/14 01:05:53 cmungall Exp $
 #
 # Author: Chris Mungall <cjm@fruitfly.org>
 #
@@ -62,7 +62,7 @@ sub unflatten {
 sub load_module {
 
     my $classname = shift;
-    confess unless $classname;
+    confess("no class") unless $classname;
     my $mod = $classname;
     $mod =~ s/::/\//g;
 
@@ -158,6 +158,7 @@ sub parser {
     }
     else {
     }
+    confess("cannot guess parser from @_") unless $parser;
     load_module($parser);
     my $p = $parser->new;
     return $p;
@@ -735,7 +736,7 @@ sub find {
                     $tree->[1] = $replace;
                 }
             }
-            return $is_nt ? $tree : $subtree;
+            return $is_nt ? Nodify($tree) : $subtree;
         }
         return unless ref($subtree);
         @r = map { find($_, $node, $replace) } @$subtree;
@@ -848,7 +849,7 @@ sub get {
                     }
                 }
                 if ($is_nt) {
-                    push(@v, $child);
+                    push(@v, Nodify($child));
                 }
                 else {
                     push(@v, $subtree);
