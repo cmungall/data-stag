@@ -66,6 +66,13 @@ sub o {
     $self->addtext( $o );
 }
 
+sub first_line {
+    my $self = shift;
+    $self->{_first_line} = shift if @_;
+    return $self->{_first_line};
+}
+
+
 sub start_event {
     my $self = shift;
     my $ev = shift;
@@ -74,7 +81,7 @@ sub start_event {
     }
     my $stack = $self->stack;
     if (!@$stack) {
-	$self->o("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+	$self->o($self->first_line || "<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
     }
 
     if ($ev eq '@') {

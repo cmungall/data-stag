@@ -19,8 +19,8 @@
     
     <revhistory>
       <revision>
-        <revnumber>$Id: dbstag-tutorial.sgml,v 1.5 2004/04/30 17:12:07 cmungall Exp $</revnumber>
-        <date>$Date: 2004/04/30 17:12:07 $</date>
+        <revnumber>$Id: dbstag-tutorial.sgml,v 1.6 2004/05/14 07:26:24 cmungall Exp $</revnumber>
+        <date>$Date: 2004/05/14 07:26:24 $</date>
         <authorinitials>cjm</authorinitials>
       </revision>
     </revhistory>
@@ -128,7 +128,7 @@ install DBIx::DBStag
       </sect3>
     </sect2>
   </sect1>
-  <sect1 id="basic">
+  <sect1 id="go">
     <title>Basic Querying - GO Database</title>
     <para>Assuming you're already set up, you can now start querying the
       GO database using one of the predefined templates. Each
@@ -671,6 +671,583 @@ foreach my $gp ($gpset->get_gene_product) {
 }
       </programlisting>
     </para>
+  </sect1>
+
+  <sect1 id="kerosene">
+    <title>Kerosene Templates</title>
+    <para>
+      Kerosene is the name for an internal BDGP database for storing
+      comparative intron data, and downstream analyses, such as repeat
+      analyses. The kerosene schema is very specific to this kind of
+      data, unlike Chado which is a generic database for storing all
+      kinds of biological data. We could have used Chado, but many of
+      the analysis queries would be difficuly to express.
+    </para>
+    <para>
+      The kerosene schema is currently two modular parts: kerosene
+      (for intron_pairs) and rr (for repeat_runner_outputs). These
+      parts are linked by the bioseq table. bioseq is uniquely keyed
+      by the md5 checksum of the sequence. One consequence is that two
+      introns with the same sequence will share the same repeat_runner
+      results.
+    </para>
+    <sect2 id="kerosene_schema">
+      <title>Kerosene Schema; Main Module</title>
+      <para>
+	The kerosene schema and associated files can be found in the
+	BDGP CVS in the "cabal" project, in cabal/sql/kerosene.
+	  <programlisting>
+cvs -d /usr/local/develop/public-CVS co scratch/cabal
+cd cabal/sql/kerosene
+more k-schema.sql
+	  </programlisting>
+	The raw CREATE TABLE statements look like this (it may be
+	informative to look at the diagram that follows). Yes, the
+	documentation is extremely minimal; these tables were actually
+	created almost automatically from the normalised kerosene XML
+	(see later section on BUILDING DATABASES)
+	<programlisting>
+CREATE TABLE KEROSENE2 (
+    KEROSENE2_id serial PRIMARY KEY NOT NULL,
+    q_org VARCHAR(32),
+    s_org VARCHAR(32)
+);
+
+CREATE TABLE bioseq (
+    bioseq_id serial PRIMARY KEY NOT NULL,
+    md5 CHAR(32) NOT NULL,
+    residues TEXT,
+    seqlen INTEGER,
+
+    UNIQUE(md5)
+);
+
+CREATE TABLE transcript (
+    transcript_id serial PRIMARY KEY NOT NULL,
+    tid VARCHAR(64) NOT NULL,
+    pid VARCHAR(64) NOT NULL,
+    gid VARCHAR(64) NOT NULL,
+    cid VARCHAR(64),
+    gene_name VARCHAR(255),
+    org VARCHAR(32)  NOT NULL,
+
+    UNIQUE(tid)
+);
+
+CREATE TABLE transcript_pair (
+    transcript_pair_id serial PRIMARY KEY NOT NULL,
+    tpid VARCHAR(128) NOT NULL,
+    KEROSENE2_id INT,
+    FOREIGN KEY (KEROSENE2_id) REFERENCES KEROSENE2(KEROSENE2_id) ON DELETE CASCADE,
+    antype CHAR(2),
+    antime CHAR(10),
+    andata VARCHAR(255),
+    query_transcript_id INT REFERENCES transcript(transcript_id) ON DELETE CASCADE,
+    sbjct_transcript_id INT REFERENCES transcript(transcript_id) ON DELETE CASCADE,
+
+    UNIQUE(tpid)
+);
+
+CREATE TABLE intron (
+    intron_id serial PRIMARY KEY NOT NULL,
+    iid VARCHAR(64) NOT NULL,
+    splice_junction INT,
+    position_in_protein_of_junction FLOAT,
+    AA_at_junction VARCHAR(16),
+    codon_at_junction CHAR(3),
+    AA_triad_at_junction CHAR(3),
+    codon_triad_at_junction CHAR(12),
+    upstream_intron_flank VARCHAR(32),
+    dnstream_intron_flank VARCHAR(32),
+    org VARCHAR(32),
+    orgdb VARCHAR(32),
+    md5 CHAR(32),
+    bioseq_id INT REFERENCES bioseq(bioseq_id) ON DELETE CASCADE,
+
+    UNIQUE(iid)
+);
+
+CREATE TABLE intron_pair (
+    intron_pair_id serial PRIMARY KEY NOT NULL,
+    ipid VARCHAR(128),
+    transcript_pair_id INT,
+    FOREIGN KEY (transcript_pair_id) REFERENCES transcript_pair(transcript_pair_id) ON DELETE CASCADE,
+    query_intron_id INT REFERENCES intron(intron_id) ON DELETE CASCADE,
+    sbjct_intron_id INT REFERENCES intron(intron_id) ON DELETE CASCADE
+);
+
+CREATE TABLE gene_data (
+    gene_data_id serial PRIMARY KEY NOT NULL,
+    tid VARCHAR(64),
+    pid VARCHAR(64),
+    gid VARCHAR(64),
+    cid VARCHAR(64),
+    gene_name VARCHAR(255),
+    org VARCHAR(32),
+    intron_id INT,
+    FOREIGN KEY (intron_id) REFERENCES intron(intron_id) ON DELETE CASCADE,
+
+    UNIQUE (intron_id,tid)
+);
+	</programlisting>
+	<figure>
+	  <title>Kerosene Schema</title>
+	  <mediaobject>
+	    <imageobject>
+	      <imagedata fileref="images/k-schema.png" format="PNG">
+
+	      </imagedata>
+	    </imageobject>
+	  </mediaobject>
+	</figure>
+      </para>
+      
+    </sect2>
+    <sect2 id="kerosene_schema">
+      <title>Kerosene Schema; Repeat Runner (rr) Module</title>
+      <para>
+	This module can also be found in the cabal project;
+	<programlisting>
+cd cabal/sql/repeatrunner
+more rr-schema.sql
+	</programlisting>
+	The raw CREATE TABLE statements look like this; again,
+	documentation is currently minimal
+	<programlisting>
+CREATE TABLE bioseq (
+    bioseq_id serial PRIMARY KEY NOT NULL,
+    md5 CHAR(32) NOT NULL,
+    residues TEXT,
+    seqlen INTEGER,
+
+    UNIQUE(md5)
+);
+
+CREATE TABLE repeat_runner (
+    repeat_runner_id serial PRIMARY KEY NOT NULL
+);
+
+CREATE TABLE repeat_runner_output (
+    repeat_runner_output_id serial PRIMARY KEY NOT NULL,
+    qid VARCHAR(128) NOT NULL,
+    description TEXT,
+    org VARCHAR(64),
+    blast_db VARCHAR(255),
+    repeat_runner_id INT,
+    FOREIGN KEY (repeat_runner_id) REFERENCES repeat_runner(repeat_runner_id) ON DELETE CASCADE,
+    query_seq_id INT NOT NULL,
+    FOREIGN KEY (query_seq_id) REFERENCES bioseq(bioseq_id) ON DELETE CASCADE,
+    masked_query_seq_id INT NOT NULL,
+    FOREIGN KEY (masked_query_seq_id) REFERENCES bioseq(bioseq_id) ON DELETE CASCADE,
+ 
+    UNIQUE(qid)
+);
+
+CREATE TABLE family (
+    family_id serial PRIMARY KEY NOT NULL,
+    name VARCHAR(64) NOT NULL,
+    species VARCHAR(64) NOT NULL,
+    genus VARCHAR(64) NOT NULL,
+    sp1 VARCHAR(64) NOT NULL,
+    sp2 VARCHAR(64) NOT NULL,
+    gen1 VARCHAR(64) NOT NULL,
+    gen2 VARCHAR(64) NOT NULL,
+
+    UNIQUE(name),
+    UNIQUE(species,genus),
+    UNIQUE(sp1,sp2,gen1,gen2)
+);
+
+CREATE TABLE segment (
+    segment_id serial PRIMARY KEY NOT NULL,
+    segment_number INT NOT NULL,
+    source VARCHAR(128),
+    name VARCHAR(128) NOT NULL,
+    family_id INT NOT NULL,
+    FOREIGN KEY (family_id) REFERENCES family(family_id) ON DELETE CASCADE,
+    score INT,
+    significance FLOAT,
+    nbeg INT NOT NULL,
+    nend INT NOT NULL,
+    repeat_runner_output_id INT NOT NULL,
+    FOREIGN KEY (repeat_runner_output_id) REFERENCES repeat_runner_output(repeat_runner_output_id) ON DELETE CASCADE,
+
+    UNIQUE (repeat_runner_output_id, segment_number),
+    UNIQUE (repeat_runner_output_id, nbeg, nend)
+);
+
+CREATE TABLE repeat (
+    repeat_id serial PRIMARY KEY NOT NULL,
+    source VARCHAR(128),
+    name VARCHAR(128) NOT NULL,
+    family_id INT NOT NULL,
+    FOREIGN KEY (family_id) REFERENCES family(family_id) ON DELETE CASCADE,
+    score INT,
+    significance FLOAT,
+    nbeg INT NOT NULL,
+    hit_nbeg INT NOT NULL,
+    nend INT NOT NULL,
+    hit_nend INT NOT NULL,
+    repeat_runner_output_id INT NOT NULL,
+    FOREIGN KEY (repeat_runner_output_id) REFERENCES repeat_runner_output(repeat_runner_output_id) ON DELETE CASCADE,
+
+    UNIQUE(repeat_runner_output_id,nbeg,nend,family_id)
+);
+	</programlisting>
+	<figure>
+	  <title>Kerosene Schema</title>
+	  <mediaobject>
+	    <imageobject>
+	      <imagedata fileref="images/k-schema.png" format="PNG">
+
+	      </imagedata>
+	    </imageobject>
+	  </mediaobject>
+	</figure>
+	Note that both modules contain the bioseq table; it is
+	included twice because it may be desirable to use the rr
+	module without the main kerosene module (eg for
+	non-comparative repeat finding)
+      </para>
+      
+    </sect2>
+    <sect2 id="kerosene_setup">
+      <title>Kerosene Setup</title>
+      <para>
+	You have to be on a BDGP machine to query a kerosene db right
+	now. See the setup instructions for using GO. To find out
+	which kerosene databases are available, just look for dbs with
+	the schema kerosene in the BDGP bioresources file
+	<programlisting>
+grep -B 1 kerosene /data/bioconf/bioresources.conf
+# kerosene and repeat runner results; dmel vs dpse   admin:CJM
+!kdpse            rdb   Pg:kdpse@reaper                schema=kerosene
+	</programlisting>
+      </para>
+      <para>
+	If you have set yourself up for using GO (see above), you're
+	ready to use the kerosene templates too. If you wish to
+	modify/add templates, read the next subsection, otherwise skip
+	it.
+      </para>
+      <sect3 id="kerosene_template_dir">
+	<title>Primary Storage/Management area</title>
+	<para>
+	  Kerosene templates are kept (along with various others) in
+	  the BDGP public CVS repository in the "chai" project
+	  <programlisting>
+cvs -d /usr/local/develop/public-CVS co chai
+cd chai/sql-templates
+ls kerosene-*
+	  </programlisting>
+	  You don't actually need to do this, since the templates and
+	  template executable are kept in the main shared area
+	  (/data/bioconf/templates and /usr/local/bdgp/stagbin
+	  respectively). However, if you wish to add new templates or
+	  modify existing ones, this is the primary storage
+	  area. Check in any changes you make, and use the makefile to
+	  make public/share any changes.
+	  <programlisting>
+cd chai/sql-templates
+vim kerosene-my-template.stg
+cvs add kerosene-my-template.stg
+cvs commit
+make all
+	  </programlisting>
+	  This will make your template available to all of BDGP. Note
+	  that if you are testing this out on a non-BDGP machine, you
+	  may have to specify different makefile parameters on the
+	  command line.
+	</para>
+      </sect3>
+    </sect2>
+
+    <sect2 id="kerosene_templates">
+      <title>Kerosene SQL Templates</title>
+      <para>
+	To list available kerosene templates, type kerosene-[TAB], or
+	execute the following command (which finds the templates that
+	can be used with database kdpse):
+      </para>
+      <programlisting>
+selectall_xml.pl -d kdpse -h
+      </programlisting>
+      <para>
+	This gives names and descriptions of all kerosene
+	templates. Here are some of them (there may be more by the
+	time you read this)
+      <programlisting>
+selectall_xml.pl -d kdpse -h | grep ^NAME | cut -f2 -d ' '
+
+kerosene-family-repeat_count
+kerosene-intron-repeatfamily-summary-by-org
+kerosene-intron-repeatfamily
+kerosene-intron-with-bioseq
+kerosene-intron
+kerosene-intron_pair-repeatfamily-correlations-by-genus
+kerosene-intron_pair-repeatfamily-correlations-by-name
+kerosene-intron_pair-repeatfamily-summary
+kerosene-intron_pair-repeatfamily
+kerosene-intron_pair-with-bioseq
+kerosene-intron_pair
+kerosene-repeatfamily-summary-by-genus
+kerosene-transcript_pair-with-bioseq
+kerosene-transcript_pair
+	</programlisting>
+	the first part of the template name is always the name of the
+	schema - in this case <emphasis>kerosene</emphasis>, which
+	also covers the repeatrunner module. Some of the queries will
+	work on a database with only the kerosene (comparative intron)
+	part populated; some require both kerosene and repeatrunner
+	portions to be populated.
+      </para>
+      <sect3 id="kerosene_repeatfamily">
+	<title>Repeat Family Summaries</title>
+	<para>
+	  Let's look at one of templates in more details. Recall that
+	  <emphasis>-v -h</emphasis> gives a detailed description of the
+	  template
+	  <programlisting>
+kerosene-repeatfamily-summary-by-genus -h -v
+
+SELECT family.genus,
+       count(repeat.repeat_id) AS repeat_count,
+       avg(abs(nend-nbeg))       AS avg_length,
+       max(abs(nend-nbeg))       AS max_length,
+       min(abs(nend-nbeg))       AS min_length
+FROM repeat INNER JOIN family USING (family_id)
+WHERE [ repeat_id in (SELECT repeat_id FROM intron_and_repeat WHERE org => &intron_org&) ]
+GROUP BY genus
+ORDER BY genus
+// -- METADATA --
+schema: kerosene
+desc: for every repeat family "genus", gives statistics on how many
+  occurrences there are of that repeat, the avergae max and min sizes
+
+  if unconstrained, will report for the whole database. it can be
+  constrained by organism.
+
+example_input: intron_org => SELECT DISTINCT org FROM intron
+
+PARAMETERS:
+  intron_org
+	  </programlisting>
+
+	  We can see there is only one parameter,
+	  <emphasis>intron_org</emphasis>. In the metadata there is a
+	  tag <emphasis>example_input</emphasis> which specifies how to
+	  generate example values for this parameter (it isn't always
+	  obvious what the values should be). We can find some sensible
+	  values for a particular database like this:
+	  <programlisting>
+selectall_xml.pl -d kmmus -rows "SELECT DISTINCT org FROM intron"
+
+H_sapiens
+M_musculus
+	  </programlisting>
+	  Using the <emphasis>selectall_xml</emphasis> script in this
+	  way (with the <emphasis>-rows</emphasis> switch, and without a
+	  template) is equivalent to using the native database SQL
+	  interactive interface. It is convenient to use the dbstag
+	  tools here, even though we aren't using much of the dbstag
+	  functionality, it gives a uniform way of accessing databases
+	  without caring if the underlying DBMS is Pg or MySQL (it
+	  happens to be Pg for this db - note that MySQL can't do
+	  subselects, as we are doing in the query above).
+	</para>
+	<para>
+	  Now we know what the sensible values are for
+	  <emphasis>intron_org</emphasis>, we can plug them into the
+	  template, or leave the unconstrained.
+	</para>
+	<para>
+	  As you can see from the SQL above, there is no <emphasis>USE
+	    NESTING</emphasis> clause - this query is more for summarising
+	  data rather than providing complex hierarchical data in all
+	  it's glory. As such, we are better off getting the data in
+	  tabular form, with the <emphasis>-rows</emphasis> switch.
+	  <programlisting>
+kerosene-repeatfamily-summary-by-genus -rows -d kmmus -order 'repeat_count\ DESC' intron_org=H_sapiens
+
+SINE/Alu        31068   257.2501931247585941    490     10
+LINE/L1 16873   439.8779114561725834    7422    10
+SINE/MIR        14200   137.3043661971830986    394     10
+LINE/L2 8856    217.6514227642276423    2482    10
+Simple_repeat   7880    58.8263959390862944     966     5
+Low_complexity  7045    43.1927608232789212     616     10
+DNA/MER1_type   4887    176.0566809903826478    2394    10
+LTR/MaLR        3884    307.3558187435633368    1752    10
+...
+	  </programlisting>
+	  We are setting/overriding the <emphasis>ORDER BY</emphasis>
+	  clause. Notice that if you want to pass an argument that
+	  includes a space (in this case we want to sort by
+	  repeat_count, DESCending) then you need to enclose the
+	  argument in quotes, AND backslash-escape the space. This
+	  appears to be a limitation of the command line interpreter and
+	  I'm not sure if there is a better way of doing this (in fact I
+	  needed a hacky bit of preprocessing before using the
+	  Getopt::Long module - see the script if you're interested). If
+	  anyone has any ideas, let me know!
+	</para>
+	<sect3 id="kerosene_intron">
+	  <title>Intron Queries</title>
+	  <para>
+	    All intron-centric queries start with
+	    <emphasis>kerosene-intron</emphasis>. Let's look at one:
+	    <programlisting>
+kerosene-intron-repeatfamily -h -v
+
+SELECT family.family_id, family.species, family.genus,
+  repeat.*,
+  intron.*
+FROM family
+  INNER JOIN repeat USING (family_id)
+  INNER JOIN repeat_runner_output USING (repeat_runner_output_id)
+  INNER JOIN intron ON (intron.bioseq_id=repeat_runner_output.query_seq_id)
+WHERE [ intron.iid => &iid& ]
+  [ intron_id IN (SELECT intron_id FROM bioseq WHERE bioseq.md5 => &bioseq_md5&) ]
+  [ intron_id IN (SELECT intron_id FROM bioseq WHERE bioseq.residues => &bioseq_residues&) ]
+  [ intron_id IN (SELECT intron_id FROM intron_and_repeat WHERE repeat.repeat_id => &repeat_repeat_id&) ]
+  [ intron_id IN (SELECT intron_id FROM intron_and_repeat WHERE repeat.source => &repeat_source&) ]
+  [ intron_id IN (SELECT intron_id FROM intron_and_repeat WHERE repeat.name => &repeat_name&) ]
+  [ intron_id IN (SELECT intron_id FROM intron_and_repeat WHERE repeat.family_id => &repeat_family_id&) ]
+  [ intron_id IN (SELECT intron_id FROM intron_and_repeat WHERE repeat.score => &repeat_score&) ]
+  [ intron_id IN (SELECT intron_id FROM intron_and_repeat WHERE repeat.nbeg => &repeat_nbeg&) ]
+  [ intron_id IN (SELECT intron_id FROM intron_and_repeat WHERE repeat.hit_nbeg => &repeat_hit_nbeg&) ]
+  [ intron_id IN (SELECT intron_id FROM intron_and_repeat WHERE repeat.nend => &repeat_nend&) ]
+  [ intron_id IN (SELECT intron_id FROM intron_and_repeat WHERE repeat.hit_nend => &repeat_hit_nend&) ]
+  [ intron_id IN (SELECT intron_id FROM intron_and_repeat WHERE repeat.repeat_runner_output_id => &repeat_repeat_runner_output_id&) ]
+  [ intron_id IN (SELECT intron_id FROM intron_and_repeat INNER JOIN family USING (family_id) WHERE family.family_id => &family_family_id&) ]
+  [ intron_id IN (SELECT intron_id FROM intron_and_repeat INNER JOIN family USING (family_id) WHERE family.species => &family_species&) ]
+  [ intron_id IN (SELECT intron_id FROM intron_and_repeat INNER JOIN family USING (family_id) WHERE family.genus => &family_genus&) ]
+USE NESTING
+ (set
+   (intron
+     (repeat
+       (family))))
+// -- METADATA --
+schema: kerosene
+desc:
+
+   introns have a number of repeat repeats attached to them; each
+   repeat repeat belongs to a family.
+
+   this intron-centric templates will fetch introns with the families
+   attached to them
+
+   note that if an intron had no repeats, that intron will not be fetched
+PARAMETERS:
+  iid
+  bioseq_md5
+  bioseq_residues
+  repeat_repeat_id
+  repeat_source
+  repeat_name
+  repeat_family_id
+  repeat_score
+  repeat_nbeg
+  repeat_hit_nbeg
+  repeat_nend
+  repeat_hit_nend
+  repeat_repeat_runner_output_id
+  family_family_id
+  family_species
+  family_genus
+QUERY RESULT STRUCTURE (NESTING):
+'(set
+  (intron
+    (repeat
+      (family " "))))
+	    </programlisting>
+	    If you examine the USE NESTING clause you will see that
+	    this is an intron-centric query, with repeat elements
+	    nested inside repeats, and (repeat)family elements nested
+	    inside repeats.
+	  </para>
+	  <para>
+	    There are a lot of parameters available for this template
+	    - you can constrain introns either directly by intron
+	    columns (like <emphasis>iid</emphasis>), or by columns of
+	    the repeats of the introns. Note that the lengthy set of
+	    parameters in the WHERE clause was generated
+	    automatically, and uses a SQL VIEW,
+	    <emphasis>intron_and_repeat</emphasis> -- this is a view
+	    that is the cartesian product of the intron and repeat
+	    tables (joined via repeat_runner_output). But anyway, you
+	    don't need to do this to launch a query. For example,
+	    <emphasis>find all introns that contain a DNA/Merlin
+	    repeat</emphasis>:
+	    <programlisting>
+kerosene-intron-repeatfamily -d kmmus family_genus=DNA/Merlin > merlin.xml
+more merlin.xml
+
+<?xml version="1.0" encoding="UTF-8"?>
+<set>
+  <intron>
+    <intron_id>1213</intron_id>
+    <iid>contig-NRLN1-500-500:4215:33495</iid>
+    <splice_junction>1</splice_junction>
+    <position_in_protein_of_junction>25.3333333333333</position_in_protein_of_junction>
+    <aa_at_junction>H</aa_at_junction>
+    <codon_at_junction>CAT</codon_at_junction>
+    <aa_triad_at_junction>KHS</aa_triad_at_junction>
+    <codon_triad_at_junction>AAA|C^AT|TCA</codon_triad_at_junction>
+    <upstream_intron_flank>LEGGKTEQVK</upstream_intron_flank>
+    <dnstream_intron_flank>HSETYCMFQD</dnstream_intron_flank>
+    <org>H_sapiens</org>
+    <orgdb>H_sapiens.4_3_7_04</orgdb>
+    <md5>9ef647d9761ac732b5645f387593cbde</md5>
+    <bioseq_id>1213</bioseq_id>
+    <repeat>
+      <repeat_id>85794</repeat_id>
+      <source>Bio::Search::HSP::GenericHSP::repeatmasker::PhatHsp</source>
+      <name>species:L1ME4a genus:LINE/L1</name>
+      <family_id>938</family_id>
+      <score>315</score>
+      <nbeg>2054</nbeg>
+      <hit_nbeg>5717</hit_nbeg>
+      <nend>2206</nend>
+      <hit_nend>5877</hit_nend>
+      <repeat_runner_output_id>6782</repeat_runner_output_id>
+      <family>
+        <family_id>938</family_id>
+        <species>L1ME4a</species>
+        <genus>LINE/L1</genus>
+      </family>
+    </repeat>
+    <repeat>
+      <repeat_id>85795</repeat_id>
+      <source>Bio::Search::HSP::GenericHSP::repeatmasker::PhatHsp</source>
+      <name>species:L1ME4a genus:LINE/L1</name>
+      <family_id>938</family_id>
+      <score>467</score>
+      <nbeg>2299</nbeg>
+      <hit_nbeg>5338</hit_nbeg>
+      <nend>2932</nend>
+      <hit_nend>6026</hit_nend>
+      <repeat_runner_output_id>6782</repeat_runner_output_id>
+      <family>
+        <family_id>938</family_id>
+        <species>L1ME4a</species>
+        <genus>LINE/L1</genus>
+      </family>
+    </repeat>
+...
+	    </programlisting>
+	    The report is truncated, so you can't actually see any
+	    DNA/Merlin repeats, but they are there further down the
+	    report.
+	  </para>
+	  <para>
+	    The advantage of using XML in this query is that each
+	    intron is only listed once; multiple repeats per intron
+	    are listed beneath each intron element.
+	  </para>
+	</sect3>
+
+    </sect2>
+
   </sect1>
 
   <sect1 id="making_dbs">
