@@ -1,4 +1,4 @@
-# $Id: StagImpl.pm,v 1.45 2004/04/20 23:50:22 cmungall Exp $
+# $Id: StagImpl.pm,v 1.46 2004/04/26 16:02:23 cmungall Exp $
 #
 # Author: Chris Mungall <cjm@fruitfly.org>
 #
@@ -337,6 +337,14 @@ sub _gethandlerobj {
     }
     elsif ($fmt =~ /simple/i) {
         $writer = "Data::Stag::Simple";
+    }
+    elsif ($fmt =~ /xslt\/(.+)/i) {
+	my $xslt_file = $1;
+        $writer = "Data::Stag::XSLTHandler";
+	load_module($writer);
+	my $w = $writer->new(-file=>$fn, -fh=>$fh);
+	$w->xslt_file($xslt_file);
+	return $w;
     }
     elsif ($fmt =~ /::/) {
         $writer = $fmt;

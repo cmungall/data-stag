@@ -1,4 +1,4 @@
-# $Id: XSLTHandler.pm,v 1.1 2004/03/05 23:10:11 cmungall Exp $
+# $Id: XSLTHandler.pm,v 1.2 2004/04/26 16:02:23 cmungall Exp $
 #
 # This GO module is maintained by Chris Mungall <cjm@fruitfly.org>
 #
@@ -41,7 +41,9 @@ sub end_stag {
 }
 
 sub xslt_file {
-    die "You must subclass XSLTHandler and provide xslt_file";
+    my $self = shift;
+    $self->{_xslt_file} = shift if @_;
+    return $self->{_xslt_file} || die "You must subclass XSLTHandler and provide xslt_file";
 }
 
 1;

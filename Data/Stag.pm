@@ -1,4 +1,4 @@
-# $Id: Stag.pm,v 1.29 2004/04/16 00:31:48 cmungall Exp $
+# $Id: Stag.pm,v 1.30 2004/04/26 16:02:22 cmungall Exp $
 # -------------------------------------------------------
 #
 # Copyright (C) 2004 Chris Mungall <cjm@fruitfly.org>
@@ -258,6 +258,9 @@ Advanced querying is performed by passing functions, for example:
 One of the things that marks this module out against other XML modules
 is this emphasis on a B<functional> approach as an obect-oriented or
 procedural approach.
+
+For full information on the stag project, see
+L<http://stag.sourceforge.net>
 
 =head2 PROCEDURAL VS OBJECT-ORIENTED USAGE
 
@@ -1830,10 +1833,6 @@ implementation.
 =head1 WEBSITE
 
 L<http://stag.sourceforge.net>
-
-=head1 WEBSITE
-
-http://stag.sourceforge.net
 
 =head1 AUTHOR
 

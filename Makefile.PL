@@ -1,4 +1,4 @@
-# $Id: Makefile.PL,v 1.6 2004/02/02 20:31:09 cmungall Exp $
+# $Id: Makefile.PL,v 1.7 2004/04/26 16:02:18 cmungall Exp $
 
 use ExtUtils::MakeMaker;
 require 5.005;
@@ -8,6 +8,8 @@ require 5.005;
   (
    'Tk'                       => '0.0/Tk/tree viewer/stag-view.pl',
    'GD'                       => '1.3/Graphical Drawing Toolkit/drawing trees/stag-drawtree.pl',
+   'XML::LibXSLT'             => '0.0/XSLT/XSLT Transformations/Data::Stag::XSLTHandler',
+   'Storable'          => '0.0/storage of data structures/storing stag trees/Data::Stag::StagDB',
    'MLDBM'          => '0.0/multilevel hash store/indexing stag nodes/Data::Stag::StagDB',
    'Graph::Directed'          => '0.0/Generic Graph data stucture and algorithms/transforming stag trees to graphs/Data::Stag::GraphHandler',
    
