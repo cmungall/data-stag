@@ -6,9 +6,11 @@ stag-parse.pl
 
 =head1 SYNOPSIS
 
-  stag-parse.pl -parser XMLParse -handler ITextWriter file1.txt file2.txt
+  # convert XML to IText
+  stag-parse.pl -p xml -h itext file1.xml file2.xml
 
-  stag-parse.pl -parser MyMod::MyParser -handler MyMod::MyWriter file.txt
+  # use a custom parser/generator and a custom writer/generator
+  stag-parse.pl -p MyMod::MyParser -h MyMod::MyWriter file.txt
 
 =head1 DESCRIPTION
 
@@ -19,9 +21,32 @@ and feeds the events into a handler/writer class
 
 =head1 ARGUMENTS
 
+=over
+
+=item -p|parser FORMAT
+
+FORMAT is one of xml, sxpr or itext
+
+xml assumed as default
+
+=item -w|writer FORMAT
+
+FORMAT is one of xml, sxpr or itext
+
+=item -color
+
+Works only if the output handler is able to provide ASCII-colors
+(currently supported for itext and xml)
+
+=back
+
+
+=head1 SEE ALSO
+
+L<Data::Stag>
+
+
 =cut
-
-
 
 use strict;
 
@@ -78,4 +103,5 @@ foreach my $fn (@files) {
         print tree2perldump($tree);
     }
 }
+exit 0;
 
