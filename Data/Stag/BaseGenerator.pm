@@ -1,4 +1,4 @@
-# $Id: BaseGenerator.pm,v 1.10 2003/07/17 00:06:21 cmungall Exp $
+# $Id: BaseGenerator.pm,v 1.11 2003/12/18 20:56:27 cmungall Exp $
 #
 # Copyright (C) 2002 Chris Mungall <cjm@fruitfly.org>
 #
@@ -43,14 +43,6 @@ sub warn {
     my $self = shift;
     warn("@_");
 }
-
-sub messages {
-    my $self = shift;
-    $self->{_messages} = shift if @_;
-    $self->{_messages} = [] unless $self->{_messages};
-    return $self->{_messages};
-}
-
 
 sub last_evcall_type {
     my $self = shift;
@@ -182,18 +174,6 @@ sub handler {
     return $self->{handler};
 }
 
-sub line_no {
-    my $self = shift;
-    $self->{_line_no} = shift if @_;
-    return $self->{_line_no};
-}
-
-sub line {
-    my $self = shift;
-    $self->{_line} = shift if @_;
-    return $self->{_line};
-}
-
 sub file {
     my $self = shift;
     $self->{_file} = shift if @_;
@@ -216,6 +196,8 @@ sub parse {
     my $self = shift;
     my ($file, $str, $fh) = 
       rearrange([qw(file str fh)], @_);
+
+    $self->file($file);
     if ($str) {
         $self->load_module("IO::String");
         $fh = IO::String->new($str) || confess($str);
@@ -226,7 +208,7 @@ sub parse {
         }
         else {
             $self->load_module("FileHandle");
-            $fh = FileHandle->new($file) || confess($file);
+            $fh = FileHandle->new($file) || confess("cannot open file: $file");
         }
     }
     else {
@@ -249,7 +231,7 @@ sub start_event {
     }
     $self->last_evcall_type('start_event');
     $self->handler->start_event(@_);
-    $self->check_handler_messages;
+    return;
 }
 sub end_event { 
     my $self = shift; 
@@ -262,7 +244,7 @@ sub end_event {
         confess("MISMATCH: '$ev' ne '$out'");
     }
     $self->last_evcall_type('end_event');
-    $self->check_handler_messages;
+    return;
 }
 sub event {
     my $self = shift;
@@ -273,7 +255,7 @@ sub event {
 
     $self->handler->event(@_);
     $self->last_evcall_type('end_event');
-    $self->check_handler_messages;
+    return;
 }
 sub evbody {
     my $self = shift;
@@ -284,24 +266,7 @@ sub evbody {
 
     $self->handler->evbody(@_);
     $self->last_evcall_type('evbody');
-
-    $self->check_handler_messages;
-}
-
-# the handlers may throw errors / complain about stuff;
-# catch their messages here, and add them to the parser
-# messages
-sub check_handler_messages {
-    my $self = shift;
-    my $msgs = $self->handler->messages ||[];
-    if (@$msgs) {
-        map {
-            $self->message(ref($_) ? $_ : {msg=>$_});
-        } @$msgs;
-        $self->handler->messages([]);
-    }
     return;
 }
-
 
 1;
