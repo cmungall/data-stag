@@ -1,4 +1,4 @@
-# $Id: BaseHandler.pm,v 1.16 2003/11/20 00:01:10 cmungall Exp $
+# $Id: BaseHandler.pm,v 1.17 2003/12/04 04:26:24 cmungall Exp $
 #
 # This  module is maintained by Chris Mungall <cjm@fruitfly.org>
 
@@ -11,14 +11,13 @@
   package MyPersonHandler;
   use base qw(Data::Stag::BaseHandler);
 
-
   # handler that prints person nodes as they are parsed
   sub e_person {
       my $self = shift;
       my $node = shift;
       printf "Person name:%s address:%s\n",
         $node->sget('name'), $node->sget('address');
-      $node->free;
+      return;
   }
   
   package MyPersonHandler;
@@ -32,7 +31,7 @@
           $node->set('unit', 'cm');
           $node->set('quantity', $node->get('quantity') * 2.5);
       }
-      return;
+      return $node;
   }
   
 
@@ -49,8 +48,7 @@ subclassing module to intercept these. Unintercepted events get pushed
 into a tree.
 
 This class can take SAX events and turn them into simple
-Data::Stag events; mixed content and attributes are currently
-ignored. email me if you would like this behaviour changed.
+Data::Stag events
 
 the events recognised are
 
@@ -71,7 +69,17 @@ you can either intercept these methods; or you can define methods
   e_<element_name>
 
 that get called on the start/end of an event; you can dynamically
-change the structure of the tree by returning nodes from these methods
+change the structure of the tree by returning nodes from these methods.
+
+  my $h = Data::Stag->makehandler( foo => 0,
+				   person => sub {
+				       my $self = shift;
+				       my $node = shift;
+				       printf "Person name:%s address:%s\n",
+					 $node->sget('name'), $node->sget('address');
+				       return;
+				   });
+  Data::Stag->parse(-fh=>$fh, -handler=>$h);
 
 
 
@@ -109,7 +117,7 @@ returns the tree that was built from all uncaught events
 sub tree {
     my $self = shift;
     $self->{_tree} = shift if @_;
-    return $self->{_tree} || [];
+    return Data::Stag::stag_nodify($self->{_tree} || []);
 }
 *stag = \&tree;
 
@@ -350,73 +358,26 @@ sub end_event {
     if ($trap_h) {
 	my $trapped_ev = $ev;
 	my @P = @$stack;
-	while (!$trap_h->{$trapped_ev} && scalar(@P)) {
+	while (!defined($trap_h->{$trapped_ev}) && scalar(@P)) {
 	    my $next = pop @P;
 	    $trapped_ev = "$next/$trapped_ev";
 	}
 
-	if ($trap_h->{$trapped_ev}) {
-	    # call anonymous subroutine supplied in hash
-	    @R = $trap_h->{$trapped_ev}->($self, Data::Stag::stag_nodify($topnode));
+	if (defined($trap_h->{$trapped_ev})) {
+	    if ($trap_h->{$trapped_ev}) {
+		# call anonymous subroutine supplied in hash
+		@R = $trap_h->{$trapped_ev}->($self, Data::Stag::stag_nodify($topnode));
+	    }
+	    else {
+		@R = ();
+	    }
 	}
     }
 
-#    if ($self->can("flatten_elts") &&
-#        grep {$ev eq $_} $self->flatten_elts) {
-
-#        if (ref($topnodeval)) {
-#            my $el = $node->[$#{$node}];
-#            my $subevent = $topnodeval->[0]->[0];
-#            foreach my $subtree (@$topnodeval) {
-#                if ($subtree->[0] ne $subevent) {
-#                    use Data::Dumper;
-#                    print Dumper $topnodeval;
-#                    $self->throw("can't flatten $ev because $subtree->[0] ne $subevent");
-#                }
-#                push(@{$el->[1]}, [$ev, $subtree->[1]]);
-#            }
-#        }
-#    }
-#    elsif ($self->can("raise_elts") &&
-#        grep {$ev eq $_} $self->raise_elts) {
-
-#        if (ref($topnodeval)) {
-#            my $el = $node->[$#{$node}];
-#            my $subevent = $topnodeval->[0]->[0];
-#            foreach my $subtree (@$topnodeval) {
-#                if ($subtree->[0] ne $subevent) {
-#                    use Data::Dumper;
-#                    print Dumper $topnodeval;
-#                    $self->throw("can't flatten $ev because $subtree->[0] ne $subevent");
-#                }
-#                push(@{$el->[1]}, [$subtree->[0], $subtree->[1]]);
-#            }
-####            push(@{$el->[1]}, [$topnodeval->[0]->[0],
-####                               $topnodeval->[0]->[1]]);
-#        }
-
-#    }
-#    elsif ($self->can("kill_elts") &&
-#           grep {$ev eq $_} $self->kill_elts) {
-#        # do nothing
-#    }
-#    elsif ($self->can("multivalued_elts") &&
-#        grep {$ev eq $_} $self->multivalued_elts) {
-
-#        if (ref($topnodeval)) {
-#            my $el = $node->[$#{$node}];
-
-#            my $new =  [map {[$ev, [$_]]} @{$topnodeval}];
-#            push(@{$el->[1]},@$new);
-#        }
-
-##    }
-###    elsif ($self->can($m)) {
 
     if ($self->can($m)) {
 #        my $tree = $self->$m($topnodeval);
         @R = $self->$m(Data::Stag::stag_nodify($topnode));
-
     }
     else {
         if ($self->can("catch_end")) {
@@ -425,20 +386,25 @@ sub end_event {
         if ($self->catch_end_sub) {
             @R = $self->catch_end_sub->($self, Data::Stag::stag_nodify($topnode));
         }
-        if (@$node) {
-            my $el = $node->[$#{$node}]; # next node up
-            if (@R && $R[0]) {
-		if (!$el->[1]) {
-		    $el->[1] = [];
-		}
-		push(@{$el->[1]}, @R);
-            }
-        }
+    }
+    if (@$node) {
+	my $el = $node->[-1]; # next node up
+	if (!$el->[1]) {
+	    $el->[1] = [];
+	}
+#	use Data::Dumper;
+#	print Dumper $el->[1];
+#	print Dumper \@R;
+	
+	if (scalar(@R) && !$R[0]) {
+	    @R = ();
+	}
+	push(@{$el->[1]}, @R);
     }
 
     $self->tree(Data::Stag::stag_nodify($topnode));
 
-    return $ev;
+    return @R;
 }
 sub E {shift->end_event(@_)}
 sub e {shift->end_event(@_)}

@@ -12,11 +12,13 @@ my $codefile;
 my $parser = '';
 my $writer = '';
 my %trap = ();
+my $datafmt;
 GetOptions("codefile|c=s"=>\$codefile,
 	   "sub|s=s"=>\$exec,
 	   "trap|t=s%"=>\%trap,
            "parser|format|p=s" => \$parser,
 	   "writer|w=s"=>\$writer,
+	   "data|d=s"=>\$datafmt,
 	  );
 
 if (!$codefile && !$exec) {
@@ -50,8 +52,8 @@ if ($codefile) {
     }
 }
 if (%trap) {
-    use Data::Dumper;
-    die Dumper \%trap;
+#    use Data::Dumper;
+#    die Dumper \%trap;
     %$catch = (%$catch, %trap);
 }
 use strict;
@@ -69,7 +71,9 @@ my $h = Data::Stag->chainhandlers([@events],
 				 $writer);
 $p->handler($h);
 $p->parse_fh($fh);
-
+if ($datafmt) {
+    print $inner_handler->stag->$datafmt();
+}
 
 __END__
 
@@ -118,11 +122,12 @@ a perl hashref containing handlers
 	my ($self, $person) = @_;
 	$person->set_fullname($person->get_firstname . ' ' .
 			   $person->get_lastname);
+        $person;
     },
     address => sub {
 	my ($self, $address) = @_;
 	# remove addresses altogether from processed file
-	$address->free;
+        return;
     },
   }
 

@@ -1,4 +1,4 @@
-# $Id: ITextParser.pm,v 1.9 2003/08/12 03:39:39 cmungall Exp $
+# $Id: ITextParser.pm,v 1.10 2003/12/04 04:26:24 cmungall Exp $
 #
 # Copyright (C) 2002 Chris Mungall <cjm@fruitfly.org>
 #
@@ -71,7 +71,7 @@ sub parse_fh {
 
         my ($indent_txt, $elt) = ($1, $2);
         my $indent = length($indent_txt);
-        if ($elt =~ /^(\w+):\s*(.*)$/s) {
+        if ($elt =~ /^([\w\-\+\?\*]+):\s*(.*)$/s) {
             $elt = $1;
             my $nu_txt = $2;
 

@@ -7,12 +7,12 @@ use Getopt::Long;
 use Data::Dumper;
 
 my $e = "";
-my @prints = ();
+my @cols = ();
 my $sep = "\t";
 my $parser;
 GetOptions("element|e=s"=>\$e,
            "parser|format|p=s" => \$parser,
-	   "prints|p=s@"=>\@prints,
+	   "cols|c=s@"=>\@cols,
 	  );
 
 my $fn = shift @ARGV;
@@ -23,25 +23,39 @@ if ($fn eq '-') {
 else {
     $fh = FileHandle->new($fn) || die $fn;
 }
-$e = shift @ARGV unless $e;
-push(@prints, @ARGV);
-my %catch = (
-	     $e => sub {
-		 my ($self, $stag) = @_;
-		 my @tuple =
-		   map {
-		       '['.
-			 join(' ',
-			      $stag->get($_)).
-				']';
-		   } @prints;
-		 print join($sep, @tuple), "\n";
-#		 print $stag->xml;
-		 return;
-	     }
-	     );
+push(@cols, @ARGV);
+my $np = scalar @cols;
+my %idx = map {$cols[$_]=>$_} (0..$#cols);
+my @vals;
+
+sub writerel {
+    print join("\t", map {defined($_) ? $_ : 'NULL'} @vals), 
+      "\n";
+}
+
+sub setcol {
+    my ($col, $val) = @_;
+    my $i = $idx{$col};
+    die $col unless defined $i;
+    my $curval = $vals[$i];
+    if (defined $curval) {
+	writerel();
+    }
+    $vals[$i] = $val;
+    return;
+}
+
+my %catch = ();
+foreach my $col (@cols) {
+    $catch{$col} =
+      sub {
+	  my ($self, $stag) = @_;
+	  setcol($col, $stag->data);
+	  return;
+      };
+}
 my $p = Data::Stag->parser(-file=>$fn, -format=>$parser);
 my $h = Data::Stag->makehandler(%catch);
 $p->handler($h);
 $p->parse_fh($fh);
-
+writerel();

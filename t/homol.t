@@ -17,7 +17,7 @@ $tree->parse($fn);
 
 my ($gene_set) = $tree->fn("gene_set");
 my ($species_set) = $tree->fn("species_set");
-$gene_set->njoin("gene", "tax_id", $species_set);
+$gene_set->ijoin("gene", "tax_id=tax_id", $species_set);
 print $gene_set->xml;
   
 my @g = $gene_set->where("gene",
@@ -40,7 +40,7 @@ ok(grep { $_->tm("binomial", "Mus musculus") } @g);
 
 
 my ($ss) = $tree->fn("similarity_set");
-$ss->njoin("pair", "symbol", $gene_set);
+$ss->ijoin("pair", "symbol", $gene_set);
 print $ss->xml;
 
 sub q_gene_by_phenotype {

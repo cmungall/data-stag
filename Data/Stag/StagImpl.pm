@@ -1,4 +1,4 @@
-# $Id: StagImpl.pm,v 1.35 2003/11/22 00:50:07 cmungall Exp $
+# $Id: StagImpl.pm,v 1.36 2003/12/04 04:26:24 cmungall Exp $
 #
 # Author: Chris Mungall <cjm@fruitfly.org>
 #
@@ -374,6 +374,8 @@ sub transform {
 	  $from=> sub {
 	      my $self = shift;
 	      my $stag = shift;
+#	      print STDERR "Transforming $from => $to\n";
+#	      print STDERR $stag->sxpr;
 	      my $data = $stag->data;
 	      my @path = splitpath($to);
 	      my $node = [];
@@ -390,10 +392,10 @@ sub transform {
 		      $p->[1] = $data;
 		  }
 	      }
-	      @$stag = @$node;
-#	      print STDERR "Transforming $from => $to\n";
-#	      return $node;
-	      return 0;
+#	      @$stag = @$node;
+#	      print STDERR $stag->sxpr;
+	      return $node;
+#	      return 0;
 	  }
       } @T;
     load_module("Data::Stag::BaseHandler");
@@ -1225,7 +1227,7 @@ sub indexOn {
 }
 
 # does a relational style join
-sub njoin {
+sub ijoin {
     my $tree = shift;
     my $element = shift;      # name of element to join
     my $key = shift;          # name of join element
@@ -1236,22 +1238,28 @@ sub njoin {
     
     return;
 }
-*nj = \&njoin;
-*j = \&njoin;
+*ij = \&ijoin;
+*j = \&ijoin;
+*nj = \&ijoin;
+*njoin = \&ijoin;
 
 sub paste {
     my $tree = shift;
     my $key = shift;
     my $searchstruct = shift;
     # use indexing?
-    my $ssidx = indexOn($searchstruct, $key);
+    my ($key1, $key2) = ($key, $key);
+    if ($key =~ /(.*)=(.*)/) {
+	($key1, $key2) = ($1, $2);
+    }
+    my $ssidx = indexOn($searchstruct, $key2);
 
     my ($evParent, $stParent) = @$tree;
     my @children = ();
     foreach my $subtree (@$stParent) {
 	my @nu = ($subtree);
 	my ($ev, $st) = @$subtree;
-	if ($ev eq $key) {
+	if ($ev eq $key1) {
 	    $tree->throw("can't join on $ev - $st is not primitive")
 	      if ref $st;
 	    my $replace = $ssidx->{$st} || [];
@@ -2054,6 +2062,18 @@ sub data {
         $self->[1] = shift;
     }
     return $self->[1];
+}
+
+sub rename {
+    my $tree = shift;
+    my $from = shift;
+    my $to = shift;
+    foreach (kids($tree)) {
+	if ($_->[0] eq $from) {
+	    $_->[0] = $to;
+	}
+    }
+    return;
 }
 
 sub isterminal {

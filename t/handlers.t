@@ -26,8 +26,13 @@ my %h =
        my ($self, $stag) = @_;
        my $species_h = $self->{species_h};
        # cache by primary key:
-       $species_h->{$stag->get_tax_id} = $stag;
+       my $clone = $stag->clone;
+       $species_h->{$stag->get_tax_id} = $clone;
        $stag;
+   },
+   cytological => sub {
+       my ($self, $stag) = @_;
+       ($stag, [foo=>1]);
    },
    gene => sub {
        my ($self, $stag) = @_;
@@ -75,10 +80,12 @@ $handler->{gene_h} = {};
 
 $stag->parse(-file=>$fn, -handler=>$handler);
 print $stag->xml;
+print "remaining tree:\n";
 print $handler->stag->sxpr;
 
 my ($gene_set) = $stag->fn("gene_set");
-my ($species_set) = $stag->fn("species_set");
+my ($ss) = $stag->fn("similarity_set");
+print $ss->xml;
 print $gene_set->xml;
   
 my @g = $gene_set->where("gene",
@@ -99,8 +106,6 @@ ok(grep { $_->tm("binomial", "Homo sapiens") } @g);
 ok(@g == 1);
 ok(grep { $_->tm("binomial", "Mus musculus") } @g);
 
-my ($ss) = $stag->fn("similarity_set");
-print $ss->xml;
 
 sub q_gene_by_phenotype {
     my $gs = shift;

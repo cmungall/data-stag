@@ -135,10 +135,14 @@ sub end_event {
 	# not inside another blocked event
         my ($h, @rest) = @$sh;
 
-        $h->end_event($ev);
-        foreach (@rest) {
-            my $tree = $h->tree;
-            $_->event(@$tree) if $tree->[0];
+        my @R = $h->end_event($ev);
+        foreach my $handler (@rest) {
+#            my $tree = $h->tree;
+            #$handler->event(@$tree) if $tree->[0];
+	    if (@R) {
+		$handler->event(@$_) foreach @R;
+		$_->free foreach @R;
+	    }
         }
 #        use Data::Dumper;
 #        print Dumper $node->[-1];

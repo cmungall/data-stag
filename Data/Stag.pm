@@ -1,4 +1,4 @@
-# $Id: Stag.pm,v 1.22 2003/11/22 00:50:07 cmungall Exp $
+# $Id: Stag.pm,v 1.23 2003/12/04 04:26:23 cmungall Exp $
 # -------------------------------------------------------
 #
 # Copyright (C) 2002 Chris Mungall <cjm@fruitfly.org>
@@ -49,7 +49,7 @@ $VERSION="0.03";
                   ak addkid addchild
                   subnodes
                   isterminal
-                  j nj njoin
+                  j ij ijoin nj njoin
                   paste
                   qm qmatch
                   tm tmatch
@@ -430,7 +430,7 @@ advantages over others, eg hashes and mixed hash/array structures.
 The following example is taken from molecular biology; we have a list
 of species (mouse, human, fly) and a list of genes found in that
 species. These are cross-referenced by an identifier called
-B<tax_id>. We can do a relational-style natural join on this
+B<tax_id>. We can do a relational-style inner join on this
 identifier, as follows -
 
   use Data::Stag qw(:all);
@@ -466,11 +466,11 @@ identifier, as follows -
         [ 'map' => '13 A2-A4' ]]]]]]
    );
 
-  # natural join of species and gene parts of tree,
+  # inner join of species and gene parts of tree,
   # based on 'tax_id' element
-  my ($gene_set) = $tree->findnode("gene_set");
-  my ($species_set) = $tree->findnode("species_set");
-  $gene_set->njoin("gene", "tax_id", $species_set);
+  my ($gene_set) = $tree->find("gene_set");
+  my ($species_set) = $tree->find("species_set");
+  $gene_set->ijoin("gene", "tax_id", $species_set);
   print $gene_set->xml;
 
   # find all genes starting with H in human
@@ -1320,18 +1320,20 @@ returns the non-terminal data value(s) of the current node;
 
 
 
-=head3 njoin (j)
+=head3 ijoin (j)
 
-       Title: njoin
+       Title: ijoin
      Synonym: j
-     Synonym: nj
+     Synonym: ij
 
         Args: element str, key str, data Node
       Return: undef
 
-does a relational style natural join - see previous example in this doc
+does a relational style inner join - see previous example in this doc
 
-
+key can either be a single node name that must be shared (analagous to
+SQL INNER JOIN .. USING), or a key1=key2 equivalence relation
+(analagous to SQL INNER JOIN ... ON)
 
 =head3 qmatch (qm)
 

@@ -18,7 +18,7 @@ GetOptions("split|s=s"=>\$split,
 	   "outformat=s"=>\$outfmt,
 	   "help|h"=>\$help,
 	  );
-print usage() && exit(0) if $help;
+print usage() if $help;
 my $h = Splitter->new;
 if ($dir) {
     `mkdir $dir` unless -d $dir;
@@ -31,10 +31,17 @@ $h->split_on_element($split);
 $h->name_by_element($name);
 $h->fmt($outfmt || $fmt);
 foreach my $file (@ARGV) {
-    my $p = Data::Stag->parser($file, $fmt);
-    $p->handler($h);
-    $split = $split || shift @ARGV;
-    $p->parse($file);
+    my @pargs = (-file=>$file, -format=>$fmt, -handler=>$h);
+    if ($file eq '-') {
+	if (!$fmt) {
+	    $fmt = 'xml';
+	}
+	@pargs = (-format=>$fmt, -fh=>\*STDIN, -handler=>$h);
+    }
+#    $split = $split || shift @ARGV;
+    Data::Stag->parse(@pargs);
+#    $p->handler($h);
+#    $p->parse($file);
 #    print stag_xml($h->tree);
 }
 
@@ -136,7 +143,8 @@ sub end_event {
 	my $dir = $self->dir || '.';
 	my $fmt = $self->fmt;
 	$fmt = $fmt || 'xml';
-	my $fh = FileHandle->new(">$dir/$name.$fmt") || die;
+	$name = safe($name);
+	my $fh = FileHandle->new(">$dir/$name.$fmt") || die("can't open >$dir/$name.$fmt");
 	if ($fmt eq 'xml') {
 	    my $out = stag_xml($topnode);
 	    print $fh $out;
@@ -150,6 +158,12 @@ sub end_event {
     else {
 	return $self->SUPER::end_event($ev, @_);
     }
+}
+
+sub safe {
+    my $n = shift;
+    $n =~ s/\///g;
+    $n;
 }
 
 1;
