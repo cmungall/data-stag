@@ -1,4 +1,4 @@
-# $Id: Stag.pm,v 1.1 2002/12/03 19:18:02 cmungall Exp $
+# $Id: Stag.pm,v 1.2 2002/12/05 04:33:48 cmungall Exp $
 # -------------------------------------------------------
 #
 # Copyright (C) 2002 Chris Mungall <cjm@fruitfly.org>
@@ -19,53 +19,52 @@ use Carp;
 use Data::Stag::Base;
 use XML::Parser::PerlSAX;
 $VERSION = '0.01';
-#use Data::Stag::Base;
 
-    @AUTOMETHODS = qw(
-                      new
-                      node
-                      nodify
-                      unflatten
-                      from
-                      fn findnode
-                      fvl findvallist
-                      fv findval
-                      fvl findvallist
-                      sfv sfindval
-                      g  get
-                      sg sget scalarget
-                      gl getl getlist
-                      gn getn getnode
-                      s  set
-                      u  unset
-                      a  add
-                      e element name
-                      k kids children
-                      ak addkid addchild
-                      subnodes
-                      j join
-                      paste
-                      qm qmatch
-                      tm tmatch
-                      tmh tmatchhash
-                      tmn tmatchnode
-                      cm cmatch
-                      w where
-                      run
-                      collapse
-                      merge
-                      d duplicate
-                      isanode
-                      parser
-                      parse parsefile
-                      write
-                      xml   tree2xml
-                      hash tree2hash
-                      pairs tree2pairs
-                      sax tree2sax
-                      xp xpath tree2xpath
-                      xpq xpquery xpathquery
-                     );
+@AUTOMETHODS = qw(
+                  new
+                  node
+                  nodify
+                  unflatten
+                  from
+                  fn findnode
+                  fvl findvallist
+                  fv findval
+                  fvl findvallist
+                  sfv sfindval
+                  g  get
+                  sg sget scalarget
+                  gl getl getlist
+                  gn getn getnode
+                  s  set
+                  u  unset
+                  a  add
+                  e element name
+                  k kids children
+                  ak addkid addchild
+                  subnodes
+                  j nj njoin
+                  paste
+                  qm qmatch
+                  tm tmatch
+                  tmh tmatchhash
+                  tmn tmatchnode
+                  cm cmatch
+                  w where
+                  run
+                  collapse
+                  merge
+                  d duplicate
+                  isanode
+                  parser
+                  parse parsefile
+                  write
+                  xml   tree2xml
+                  hash tree2hash
+                  pairs tree2pairs
+                  sax tree2sax
+                  xp xpath tree2xpath
+                  xpq xpquery xpathquery
+                 );
 
 @OLD = 
   qw(
@@ -144,18 +143,7 @@ sub stag_nodify {
 # allows entering trees like this
 # [tag=>val, tag=>val, tag=>val]
 sub stag_unflatten {
-    my @intree = @_;
-    my @outtree = ();
-    while (@intree) {
-        my $k = shift @intree;
-        my $v = shift @intree;
-        if (ref($v)) {
-            $v = [stag_unflatten(@$v)];
-        }
-        push(@outtree,
-             [$k=>$v]);
-    }
-    return [@outtree];
+    return $IMPL->unflatten(@_);
 }
 
 sub xml2tree {
@@ -483,7 +471,7 @@ identifier, as follows -
   # based on 'tax_id' element
   my ($gene_set) = $tree->findnode("gene_set");
   my ($species_set) = $tree->findnode("species_set");
-  $gene_set->join("gene", "tax_id", $species_set);
+  $gene_set->njoin("gene", "tax_id", $species_set);
   print $gene_set->xml;
 
   # find all genes starting with H in human
@@ -607,47 +595,6 @@ written as follows -
         symbol: Wnt3a
 
 See L<Data::Stag::ITextParser> and  L<Data::Stag::ITextWriter>
-
-There is also a format based on S-Expressions;
-See L<Data::Stag::SxprParser> and  L<Data::Stag::SxprWriter>
-
-  (db
-    (species_set
-      (species
-        (common_name "house mouse")
-        (binomial "Mus musculus")
-        (tax_id "10090"))
-      (species
-        (common_name "fruit fly")
-        (binomial "Drosophila melanogaster")
-        (tax_id "7227"))
-      (species
-        (common_name "human")
-        (binomial "Homo sapiens")
-        (tax_id "9606")))
-    (gene_set
-      (gene
-        (symbol "HGNC")
-        (tax_id "9606")
-        (phenotype "Hemochromatosis")
-        (phenotype "Porphyria variegata")
-        (GO_term "iron homeostasis")
-        (map
-          (cytological
-            (chromosome "6")
-            (band "p21.3"))))
-      (gene
-        (symbol "Hfe")
-        (synonym "MR2")
-        (tax_id "10090")
-        (GO_term "integral membrane protein")))
-    (similarity_set
-      (pair
-        (symbol "HGNC")
-        (symbol "Hfe"))
-      (pair
-        (symbol "WNT3A")
-        (symbol "Wnt3a"))))
 
 
 =head2 NESTED ARRAY SPECIFICATION II
@@ -1134,10 +1081,11 @@ returns the non-terminal data value(s) of the current node;
 
 
 
-=head3 join (j)
+=head3 njoin (j)
 
-       Title: join
+       Title: njoin
      Synonym: j
+     Synonym: nj
 
         Args: element str
       Return: undef

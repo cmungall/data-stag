@@ -1,4 +1,4 @@
-# $Id: XMLParser.pm,v 1.1 2002/12/03 19:18:02 cmungall Exp $
+# $Id: XMLParser.pm,v 1.2 2002/12/05 04:33:49 cmungall Exp $
 #
 #
 # see also - http://www.geneontology.org
@@ -30,14 +30,11 @@ use strict;
 use XML::Parser::PerlSAX;
 use base qw(Data::Stag::BaseGenerator Exporter);
 
-sub parse_file {
+sub parse_fh {
     my $self = shift;
-    my $file = shift;
+    my $fh = shift;
     my $parser = XML::Parser::PerlSAX->new();
-    my $source = {SystemId => $file};
-    if ($file eq '-') {
-	$source = {ByteStream => \*STDIN};
-    }
+    my $source = {ByteStream => $fh};
     my %parser_args = (Source => $source,
                        Handler => $self->handler);
     $parser->parse(%parser_args);

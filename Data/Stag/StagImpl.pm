@@ -1,4 +1,4 @@
-# $Id: StagImpl.pm,v 1.1 2002/12/03 19:18:06 cmungall Exp $
+# $Id: StagImpl.pm,v 1.2 2002/12/05 04:33:49 cmungall Exp $
 #
 # Author: Chris Mungall <cjm@fruitfly.org>
 #
@@ -20,29 +20,36 @@ use Carp;
 use strict;
 use vars qw($AUTOLOAD $DEBUG);
 use Data::Stag::Base;
+use Data::Stag::Util qw(rearrange);
 use base qw(Data::Stag::StagI);
 
 
 sub new {
     my $class = shift;
-    my ($k, $v) = @_;
-    bless [$k, $v], $class
-}
-
-sub from {
-    my $class = shift;
-    my ($fmt, $data) = @_;
-    if ($fmt eq 'xml') {
-        return xml2tree($data);
-    }
-    elsif ($fmt eq 'xmlstr') {
-        return xmlstr2tree($data);
+    if (@_ == 2 || @_ == 0) {
+        return bless [@_], $class;
     }
     else {
-        return parse([], $data, $fmt);
+        confess @_;
     }
 }
 
+sub unflatten {
+    my $tree = shift || [];
+    my @intree = @_;
+    my @outtree = ();
+    while (@intree) {
+        my $k = shift @intree;
+        my $v = shift @intree;
+        if (ref($v)) {
+            $v = [unflatten(@$v)];
+        }
+        push(@outtree,
+             [$k=>$v]);
+    }
+    @$tree = @outtree;
+    return $tree;
+}
 
 sub load_module {
 
@@ -69,7 +76,8 @@ sub load_module {
 
 sub parser {
     my $tree = shift;
-    my ($fn, $fmt, $h) = rearrange([qw(file format handler)], @_);
+    my ($fn, $fmt, $h, $str, $fh) = 
+      rearrange([qw(file format handler str fh)], @_);
     if (!$fmt) {
 	if ($fn =~ /\.xml$/) {
             $fmt = "xml";
@@ -123,7 +131,8 @@ sub parser {
 
 sub parse {
     my $tree = shift;
-    my ($fn, $fmt, $h) = rearrange([qw(file format handler)], @_);
+    my ($fn, $fmt, $h, $str, $fh) = 
+      rearrange([qw(file format handler str fh)], @_);
 
     if (!$tree || !ref($tree)) {
         $tree = [];
@@ -132,12 +141,40 @@ sub parse {
     my $p = parser($tree, @_);
     $h = Data::Stag::Base->new unless $h;
     $p->handler($h);
-    $p->parse($fn);
+    $p->parse(
+              -file=>$fn,
+              -str=>$str,
+              -fh=>$fh,
+             );
     Nodify($h->tree);
     @$tree = @{$h->tree || []};
     return $h->tree;
 }
 *parseFile = \&parse;
+
+sub from {
+    my $class = shift;
+    my ($fmt, $file, $str) = 
+      rearrange([qw(fmt file str)], @_);
+    if ($fmt eq 'xmlstr') {
+        return xmlstr2tree($file);
+    }
+    elsif ($fmt =~ /(.*)str/) {
+        $fmt = $1;
+        return parse([], 
+                     -str=>$file,
+                     -format=>$fmt);
+        
+    }
+    elsif ($fmt eq 'xml') {
+        return xml2tree($file);
+    }
+    else {
+        return parse([], 
+                     -file=>$file,
+                     -format=>$fmt);
+    }
+}
 
 sub write {
     my $tree = shift || [];
@@ -504,6 +541,13 @@ sub set {
 *s = \&set;
 *setSubTreeVal = \&set;
 
+sub setnode {
+    my $tree = shift;
+    my $elt = shift;
+    my $nunode = shift;
+    set($tree, $elt, $nunode->data); 
+}
+
 sub add {
     my $tree = shift || confess;
     my $node = shift;
@@ -657,6 +701,15 @@ sub getnode {
 *gn = \&getnode;
 *gettree = \&getnode;
 
+sub sgetnode {
+    my $tree = shift;
+    my @v = getnode($tree, @_);
+    return $v[0];
+}
+*sgetn = \&sgetnode;
+*sgn = \&sgetnode;
+*sgettree = \&sgetnode;
+
 
 sub getl {
     my $tree = shift || confess;
@@ -713,7 +766,7 @@ sub indexOn {
 }
 
 # does a relational style join
-sub join {
+sub njoin {
     my $tree = shift;
     my $element = shift;      # name of element to join
     my $key = shift;          # name of join element
@@ -722,7 +775,8 @@ sub join {
     map { paste($_, $key, $searchstruct) } @elts;
     return;
 }
-*j = \&join;
+*nj = \&njoin;
+*j = \&njoin;
 
 sub paste {
     my $tree = shift;
@@ -746,6 +800,256 @@ sub paste {
     }
     @$tree = ($evParent, \@children);
     return;
+}
+
+# iterate depth first through tree executing code
+sub iterate {
+    my $tree = shift;
+    my $code = shift;
+    my $parent = shift;
+    $code->($tree, $parent);
+    my @subnodes = $tree->subnodes;
+    foreach (@subnodes) {
+        iterate($_, $code, $tree);
+    }
+    return;
+}
+*i = \&iterate;
+
+# takes a denormalized flat table of rows/columns
+# and turns it back into its original tree structure;
+# useful for querying databases
+sub normalize {
+    my $tree = shift || [];
+    my ($schema,
+        $rows,
+        $top,
+        $cols,
+        $constraints,
+        $path) =
+          rearrange([qw(schema
+                        rows
+                        top
+                        cols
+                        constraints
+                        path)], @_);
+    if (!$schema) {
+        $schema = $tree->new(schema=>[]);
+    }
+    if (!isaNode($schema)) {
+        if (!ref($schema)) {
+            # it's a string - parse it
+            # (assume sxpr)
+        }
+        $schema = $tree->from('sxprstr', $schema);
+    }
+    # TOP - this is the element name
+    # to group the structs under.
+    # [override if specified explicitly]
+    if ($top) {
+        $schema->set_top($top);
+    }
+    $top = $schema->get_top || "set";
+    my $topstruct = $tree->new($top, []);
+
+    # COLS - this is the columns (attribute names)
+    # in the order they appear
+    # [override if specified explicitly]
+    if ($cols) {
+        my @ncols =
+          map {
+              if (ref($_)) {
+                  $_
+              }
+              else {
+                  # presume it's a string
+                  # format = GROUP.ATTRIBUTENAME
+                  if (/(\w+)\.(\w+)/) {
+                      $tree->new(col=>[
+                                       [group=>$1],
+                                       [name=>$2]]);
+                  }
+                  else {
+                      confess $_;
+                  }
+              }
+          } @$cols;
+        $schema->set_cols([@ncols]);
+    }
+
+
+    # PATH - this is the tree structure in
+    # which the groups are structured
+    # [override if specified explicitly]
+    if ($path) {
+        if (ref($path)) {
+        }
+        else {
+            $path = $tree->from('sxprstr', $path);
+        }
+        $schema->set_path([$path]);
+    }
+    $path = $schema->sgetnode_path;
+    if (!$path) {
+        confess("no path!");
+    }
+    
+    # column headings
+    my @cols = $schema->sgetnode_cols->getnode_col();
+
+    # set the primary key for each group;
+    # the default is all the columns in that group
+    my %pkey_by_groupname = ();
+    my %cols_by_groupname = ();
+    foreach my $col (@cols) {
+        my $groupname = $col->get_group;
+        my $colname = $col->get_name;
+        $pkey_by_groupname{$groupname} = []
+          unless $pkey_by_groupname{$groupname};
+        push(@{$pkey_by_groupname{$groupname}},
+             $colname);
+        $cols_by_groupname{$groupname} = []
+          unless $cols_by_groupname{$groupname};
+        push(@{$cols_by_groupname{$groupname}},
+             $colname);
+    }
+    my @groupnames = keys %pkey_by_groupname;
+
+    # override PK if set as a constraint
+    my @pks = $schema->findnode("primarykey");
+    foreach my $pk (@pks) {
+        my $groupname = $pk->get_group;
+        my @cols = $pk->get_col;
+        $pkey_by_groupname{$groupname} = [@cols];
+    }
+
+    # ------------------
+    #
+    # loop through denormalised rows,
+    # grouping the columns into their
+    # respecive groups
+    #
+    # eg
+    #
+    #  <----- a ----->   <-- b -->
+    #  a.1   a.2   a.3   b.1   b.2
+    #
+    # algorithm:
+    #  use path/tree to walk through
+    #
+    # ------------------
+
+    # keep a hash of all groups by their primary key vals
+    #  outer key = groupname
+    #  inner key = pkval
+    #  hash val  = group structure
+    my %all_group_hh = ();
+    foreach my $groupname (@groupnames) {
+        $all_group_hh{$groupname} = {};
+    }
+
+    # keep an array of all groups
+    #  outer key = groupname
+    #  inner array = ordered list of groups
+#    my %all_group_ah = ();
+#    foreach my $groupname (keys %pkey_by_groupname) {
+#        $all_group_ah{$groupname} = [];
+#    }
+
+    my ($first_in_path) = $path->subnodes;
+    my $top_record_h = 
+      {
+       child_h=>{
+                 $first_in_path->name=>{}
+                },
+       struct=>$topstruct
+      };
+    # loop through rows
+    foreach my $row (@$rows) {
+        my @colvals = @$row;
+
+        # keep a record of all groups in
+        # this row
+        my %current_group_h = ();
+        for (my $i=0; $i<@cols; $i++) {
+            my $colval = $colvals[$i];
+            my $col = $cols[$i];
+            my $groupname = $col->get_group;
+            my $colname = $col->get_name;
+            my $group = $current_group_h{$groupname};
+            if (!$group) {
+                $group = {};
+                $current_group_h{$groupname} = $group;
+            }
+            $group->{$colname} = $colval;
+        }
+
+        # we now have a hash of hashes -
+        #  outer keyed by group id
+        #  inner keyed by group attribute name
+        
+        # traverse depth first down path;
+        # add new nodes as children of the parent
+        sub make_a_tree {
+            my $class = shift;
+            my $parent_rec_h = shift;
+            my $node = shift;
+            my %current_group_h= %{shift ||{}};
+            my %pkey_by_groupname = %{shift ||{}};
+            my %cols_by_groupname = %{shift ||{}};
+            my $groupname = $node->name;
+            my $grouprec = $current_group_h{$groupname};
+            my $pkcols = $pkey_by_groupname{$groupname};
+            my $pkval = 
+              CORE::join("\t",
+                         map {
+                             esctab($grouprec->{$_})
+                         } @$pkcols);
+            my $rec = $parent_rec_h->{child_h}->{$groupname}->{$pkval};
+            if (!$rec) {
+                my $groupcols = $cols_by_groupname{$groupname};
+                my $groupstruct =
+                  $class->new($groupname=>[
+                                          map {
+                                              [$_ => $grouprec->{$_}]
+                                          } @$groupcols
+                                         ]);
+                my $parent_groupstruct = $parent_rec_h->{struct};
+                if (!$parent_groupstruct) {
+                    confess("no parent for $groupname");
+                }
+                add($parent_groupstruct,
+                    $groupstruct->name,
+                    $groupstruct->data);
+                $rec =
+                  {struct=>$groupstruct,
+                   child_h=>{}};
+                foreach ($node->subnodes) {
+                    # keep index of children by PK
+                    $rec->{child_h}->{$_->name} = {};
+                }
+                $parent_rec_h->{child_h}->{$groupname}->{$pkval} = $rec;
+            }
+            foreach ($node->subnodes) {
+                make_a_tree($class,
+                            $rec, $_, \%current_group_h,
+                            \%pkey_by_groupname, \%cols_by_groupname);
+            }
+        }
+        make_a_tree($tree,
+                    $top_record_h, $first_in_path, \%current_group_h,
+                    \%pkey_by_groupname, \%cols_by_groupname);
+    }
+    return $topstruct;
+}
+*norm = \&normalize;
+*normalise = \&normalize;
+
+
+sub esctab {
+    my $w=shift;
+    $w =~ s/\t/__MAGICTAB__/g;
+    $w;
 }
 
 sub findvallist {
@@ -1247,58 +1551,6 @@ sub AUTOLOAD {
 }
 
 # --MISC--
-
-sub rearrange {
-  my($order,@param) = @_;
-
-  # If there are no parameters, we simply wish to return
-  # an undef array which is the size of the @{$order} array.
-  return (undef) x $#{$order} unless @param;
-
-  # If we've got parameters, we need to check to see whether
-  # they are named or simply listed. If they are listed, we
-  # can just return them.
-  return @param unless (defined($param[0]) && $param[0]=~/^-/);
-
-  # Now we've got to do some work on the named parameters.
-  # The next few lines strip out the '-' characters which
-  # preceed the keys, and capitalizes them.
-  my $i;
-  for ($i=0;$i<@param;$i+=2) {
-      if (!defined($param[$i])) {
-	  cluck("Hmmm in $i ".CORE::join(";", @param)." == ".CORE::join(";",@$order)."\n");
-      }
-      else {
-	  $param[$i]=~s/^\-//;
-	  $param[$i]=~tr/a-z/A-Z/;
-      }
-  }
-  
-  # Now we'll convert the @params variable into an associative array.
-  my(%param) = @param;
-
-  my(@return_array);
-  
-  # What we intend to do is loop through the @{$order} variable,
-  # and for each value, we use that as a key into our associative
-  # array, pushing the value at that key onto our return array.
-  my($key);
-
-  foreach $key (@{$order}) {
-      $key=~tr/a-z/A-Z/;
-      my($value) = $param{$key};
-      delete $param{$key};
-      push(@return_array,$value);
-  }
-  
-  # catch user misspellings resulting in unrecognized names
-  my(@restkeys) = keys %param;
-  if (scalar(@restkeys) > 0) {
-       carp("@restkeys not processed in rearrange(), did you use a
-       non-recognized parameter name ? ");
-  }
-  return @return_array;
-}
 
 sub splitpath {
     my $node = shift;

@@ -8,16 +8,16 @@ BEGIN {
     use Test;    
     plan tests => 9;
 }
-use XML::NestArray;
+use Data::Stag;
 use FileHandle;
 
 my $fn = "t/data/homol.itext";
-my $tree = XML::NestArray->new;
+my $tree = Data::Stag->new;
 $tree->parse($fn);
 
 my ($gene_set) = $tree->fn("gene_set");
 my ($species_set) = $tree->fn("species_set");
-$gene_set->join("gene", "tax_id", $species_set);
+$gene_set->njoin("gene", "tax_id", $species_set);
 print $gene_set->xml;
   
 my @g = $gene_set->where("gene",
@@ -40,7 +40,7 @@ ok(grep { $_->tm("binomial", "Mus musculus") } @g);
 
 
 my ($ss) = $tree->fn("similarity_set");
-$ss->join("pair", "symbol", $gene_set);
+$ss->njoin("pair", "symbol", $gene_set);
 print $ss->xml;
 
 sub q_gene_by_phenotype {
@@ -68,3 +68,14 @@ ok(@g == 0);
 ok(@g == 1);
 @g = q_gene_by_go($gene_set, "");
 ok(@g == 2);
+
+my @names = ();
+$gene_set->iterate(sub{push(@names, shift->name)});
+print "names=@names\n";
+
+$gene_set->iterate(sub {
+                       my $node= shift;
+                       my $parent = shift;
+                       printf "%s=>%s\n", $parent ? $parent->name : '', $node->name;
+                   });
+

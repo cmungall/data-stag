@@ -8,9 +8,9 @@ BEGIN {
     use Test;    
     plan tests => 3;
 }
-use XML::NestArray qw(:all);
-use XML::NestArray::Arr2HTML;
-use XML::NestArray::null;
+use Data::Stag qw(:all);
+use Data::Stag::Arr2HTML;
+use Data::Stag::null;
 use XML::Handler::XMLWriter;
 use FileHandle;
 use strict;
@@ -95,21 +95,21 @@ my $tree =
       );
 
 # find all people
-my @persons = narr_fn($tree, 'person');
+my @persons = stag_fn($tree, 'person');
 
 # write xml for all red haired people
 map {
     print Dumper $_;
-    print narr_xml($_)
-      if narr_tmatch($_, "hair", "red");
+    print stag_xml($_)
+      if stag_tmatch($_, "hair", "red");
 } @persons;
 
 print "desc\n";
-my @desc = narr_gn($tree, 'personset/person/description');
+my @desc = stag_gn($tree, 'personset/person/description');
 map {
-    print narr_xml($_);
+    print stag_xml($_);
 } @desc;
-my @teeth = map {narr_get($_, 'teeth')} @desc;
+my @teeth = map {stag_get($_, 'teeth')} @desc;
 ok("@teeth" eq '5 1');
 
 # find all people called shuggy
@@ -127,8 +127,8 @@ sub findperson {
         my $tree = shift;
         return
           grep {
-              narr_tmatch($_, 'name', $name)
-          } narr_fn($tree, 'person');
+              stag_tmatch($_, 'name', $name)
+          } stag_fn($tree, 'person');
     }
 }
 
@@ -136,7 +136,7 @@ my $shuggyfinder = findperson("shuggy");
 
 @p = $shuggyfinder->($tree);
 map {
-    print narr_xml($_);
+    print stag_xml($_);
 } @p;
 
 sub mkhairfilter {
@@ -144,7 +144,7 @@ sub mkhairfilter {
     return sub {
         my $tree = shift;
         return
-          narr_tmatch($tree, 'hair', $col);
+          stag_tmatch($tree, 'hair', $col);
     }
 }
 
@@ -153,13 +153,13 @@ sub mkhaspet {
     my $animal = shift;
     return sub {
         my $subtree = shift;
-        my @pets = narr_fn($subtree, 'pets');
-        my @petnames = map {narr_fv($_, 'petname')} @pets;
+        my @pets = stag_fn($subtree, 'pets');
+        my @petnames = map {stag_fv($_, 'petname')} @pets;
         my @animals = 
           grep {
-              narr_tmatch($_, 'class', $animal)
-            } narr_fn($fulltree, 'animal');
-        my %anames = map {$_=>1} map {narr_fv($_, 'name')} @animals;
+              stag_tmatch($_, 'class', $animal)
+            } stag_fn($fulltree, 'animal');
+        my %anames = map {$_=>1} map {stag_fv($_, 'name')} @animals;
         return grep {$anames{$_}} @petnames;
     }
 }
@@ -167,16 +167,16 @@ sub mkhaspet {
 
 my $greenhairfilter = mkhairfilter('green');
 print "finding green haired people..\n";
-@p = grep {$greenhairfilter->($_)} narr_fn($tree, 'person');
+@p = grep {$greenhairfilter->($_)} stag_fn($tree, 'person');
 map {
-    print narr_xml($_);
+    print stag_xml($_);
 } @p;
 ok(@p == 1);
 
 
 my $haspetelephant = mkhaspet($tree, "elephant");
-@p = grep {$haspetelephant->($_)} narr_fn($tree, 'person');
+@p = grep {$haspetelephant->($_)} stag_fn($tree, 'person');
 map {
-    print narr_xml($_);
+    print stag_xml($_);
 } @p;
 ok(@p == 1);

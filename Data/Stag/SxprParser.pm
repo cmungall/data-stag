@@ -1,4 +1,4 @@
-# $Id: SxprParser.pm,v 1.1 2002/12/03 19:18:02 cmungall Exp $
+# $Id: SxprParser.pm,v 1.2 2002/12/05 04:33:49 cmungall Exp $
 #
 #
 # see also - http://www.geneontology.org
@@ -31,10 +31,9 @@ use XML::Parser::PerlSAX;
 use Data::Stag qw(:all);
 use base qw(Data::Stag::BaseGenerator Exporter);
 
-sub parse_file {
+sub parse_fh {
     my $self = shift;
-    my $file = shift;
-    my $fh = FileHandle->new($file) || $self->throw("cannot open $file");
+    my $fh = shift;
 
 #    my $sxpr = join("", <$fh>);
 #    $self->sxpr2tree($sxpr);

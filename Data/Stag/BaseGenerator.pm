@@ -1,4 +1,4 @@
-# $Id: BaseGenerator.pm,v 1.1 2002/12/03 19:18:03 cmungall Exp $
+# $Id: BaseGenerator.pm,v 1.2 2002/12/05 04:33:49 cmungall Exp $
 #
 #
 # see also - http://www.geneontology.org
@@ -27,6 +27,7 @@ use Exporter;
 
 use Carp;
 use FileHandle;
+use Data::Stag::Util qw(rearrange);
 use Data::Stag::null;
 use strict qw(subs vars refs);
 
@@ -187,8 +188,30 @@ delegates results to handler
 =cut
 
 sub parse {
-    my ($self, @files) = @_;
-    foreach my $file (@files) { $self->parse_file ($file) }
+    my $self = shift;
+    my ($file, $str, $fh) = 
+      rearrange([qw(file str fh)], @_);
+    if ($str) {
+        $self->load_module("IO::String");
+        $fh = IO::String->new($str) || confess($str);
+    }
+    elsif ($file) {
+        if ($file eq '-') {
+            $fh = \*STDIN;
+        }
+        else {
+            $self->load_module("FileHandle");
+            $fh = FileHandle->new($file) || confess($file);
+        }
+    }
+    else {
+    }
+    if (!$fh) {
+        confess("no filehandle");
+    }
+    $self->parse_fh($fh);
+    $fh->close;
+    return;
 }
 
 sub start_event {

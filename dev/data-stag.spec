@@ -164,11 +164,19 @@ returns the data values for a list of sub-elements of a node
 /getn gn getnode
 
 +args element str
-+return node[]
++return node[] or node
 -$namestruct = $person->getn('name');
 -@pstructs = $person->getn('phone_no');
 
 as B<get> but returns the whole node rather than just the data valie
+
+/sgetn sgn sgetnode
+
++args element str
++return node
+-$pstruct = $person->sgetn('phone_no');
+
+as B<getnode> but always returns a scalar
 
 /set s
 
@@ -233,12 +241,19 @@ adds a new child node to a non-terminal node, after all the existing child nodes
 # querying
 *QUERYING AND ADVANCED DATA MANIPULATION
 
-/join j
+/njoin nj j
 
 +args element str
 +return undef
 
 does a relational style natural join - see previous example in this doc
+
+/normalise norm
+
++args 
++return node or node[]
+
+normalises denormalised tables/rows
 
 /qmatch qm
 
@@ -296,6 +311,13 @@ satisfy the coderef (must return a boolean)
                       $p->where('pet',
                                 sub {shift->get_type =~ /(dog|cat)/})});
 
+/iterate i
+
++args code CODE
++return
+-my @nodes=(); $data->iterate(sub {push(@nodes, shift->name}));
+
+iterates through tree depth first, executing code
 
 # experimental
 #run
