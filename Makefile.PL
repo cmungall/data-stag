@@ -1,21 +1,26 @@
-package Data::Stag;
+# $id$
 
-use strict;
 use ExtUtils::MakeMaker;
-use Config;
+require 5.004;
+#use Config;
 
 WriteMakefile(
-    'NAME'         => __PACKAGE__,
-    'VERSION_FROM' => "Data/Stag",
-    'EXE_FILES'    => [
-        'scripts/stag-parse.pl',
-    ],
-    'PREREQ_PM'    => {
-        'XML::Parser::PerlSAX'  => 0, 
-        'Pod::Usage'         => 0,
-    },
-    clean => {
-        FILES => 'Data-Stag-$(VERSION).tar.gz',
-    },
-);
+	      'NAME'         => "Data",
+	      'ABSTRACT'     => 'Structured Tags',
+	      'AUTHOR'       => 'Chris Mungall <cjm@fruitfly.org>',
+	      'dist'  => { COMPRESS    => 'gzip -9f',
+			   SUFFIX      => 'gz'},
+	      'VERSION_FROM' => "Data/Stag.pm",
+	      'PREREQ_PM'    => {
+				 'XML::Parser::PerlSAX'  => 0, 
+				 'Pod::Usage'         => 0,
+				},
+	      'EXE_FILES'    => [
+				 'scripts/stag-parse.pl',
+				],
+	      
+	      clean => {
+			FILES => 'Data-Stag-$(VERSION).tar.gz',
+		       },
+	     );
 

@@ -1,4 +1,4 @@
-# $Id: StagImpl.pm,v 1.4 2002/12/10 03:30:04 cmungall Exp $
+# $Id: StagImpl.pm,v 1.5 2002/12/15 22:53:33 cmungall Exp $
 #
 # Author: Chris Mungall <cjm@fruitfly.org>
 #
@@ -179,7 +179,7 @@ sub from {
     }
 }
 
-sub write {
+sub generate {
     my $tree = shift || [];
     my ($fn, $fmt, @args) = @_;
     if (!$fmt) {
@@ -202,6 +202,9 @@ sub write {
     elsif ($fmt eq "itext") {
         $writer = "Data::Stag::ITextWriter";
     }
+    elsif ($fmt eq "sxpr") {
+        $writer = "Data::Stag::SxprWriter";
+    }
     else {
     }
     load_module($writer);
@@ -209,6 +212,8 @@ sub write {
     $w->event(@$tree);
     return;
 }
+*gen = \&generate;
+*write = \&generate;
 
 sub hash {
     my $tree = shift;
@@ -289,14 +294,14 @@ sub xml {
 sub sxpr {
     my $tree = shift;
     my $fn = shift;
-    write($tree, $fn, @_);
+    generate($tree, $fn, 'sxpr', @_);
 }
 
 sub as {
     my $tree = shift;
     my $fmt = shift;
     my $fn = shift;
-    write($tree, $fn, $fmt, @_);
+    generate($tree, $fn, $fmt, @_);
 }
 
 sub perldump {
@@ -1489,6 +1494,17 @@ sub xpquery {
 *xpfind = \&xpquery;
 *xpFind = \&xpquery;
 
+sub grammarparser {
+    my $tree = shift;
+    my $grammar = shift;
+    load_module("Parse::RecDescent");
+    $::RD_AUTOACTION = q 
+      { use Data::Stag;
+	$#item == 1 && !ref $item[1] ? $item[1] : Data::Stag->new(shift @item, [map {if(ref($_)) {$_} else {[arg=>$_]}} @item ]); 
+      };
+    my $parser = Parse::RecDescent->new($grammar) or confess "Bad grammar!\n";
+    return $parser;
+}
 
 #use overload
 #  '.' => sub {my @r=findnodeVal($_[0],$_[1]);$r[0]},
