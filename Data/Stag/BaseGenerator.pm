@@ -1,4 +1,4 @@
-# $Id: BaseGenerator.pm,v 1.8 2003/05/27 06:49:31 cmungall Exp $
+# $Id: BaseGenerator.pm,v 1.9 2003/07/03 00:39:10 cmungall Exp $
 #
 # Copyright (C) 2002 Chris Mungall <cjm@fruitfly.org>
 #
@@ -78,7 +78,10 @@ sub push_stack {
 
 sub pop_stack {
     my $self = shift;
-    pop(@{$self->stack});
+    my $top = $self->stack_top;
+    $self->end_event($top);
+    $top;
+    
 }
 
 sub pop_stack_to_depth {
@@ -250,7 +253,8 @@ sub end_event {
     my $ev = shift || $self->stack->[-1];
     $self->handler->end_event($ev);
 
-    my $out = $self->pop_stack();
+    my $out = pop(@{$self->stack});
+#    my $out = $self->pop_stack();
     if ($ev ne $out) {
         confess("MISMATCH: '$ev' ne '$out'");
     }

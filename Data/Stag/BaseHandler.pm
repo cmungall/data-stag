@@ -1,4 +1,4 @@
-# $Id: BaseHandler.pm,v 1.10 2003/05/27 06:49:31 cmungall Exp $
+# $Id: BaseHandler.pm,v 1.11 2003/07/03 00:39:10 cmungall Exp $
 #
 # This  module is maintained by Chris Mungall <cjm@fruitfly.org>
 
@@ -93,11 +93,16 @@ use vars qw($VERSION);
 $VERSION="0.03";
 
 
-=head2 tree
+=head3 tree (stag)
 
-  Usage   -
-  Returns -
-  Args    -
+       Title: tree
+     Synonym: stag
+
+        Args: 
+      Return: L<Data::Stag>
+     Example: print $parser->handler->tree->xml;
+
+returns the tree that was built from all uncaught events
 
 =cut
 
@@ -106,6 +111,7 @@ sub tree {
     $self->{_tree} = shift if @_;
     return $self->{_tree} || [];
 }
+*stag = \&tree;
 
 
 sub messages {
@@ -297,6 +303,9 @@ sub end_event {
     }
     
     my $m = perlify("e_$ev");
+    if (!ref($topnode)) {
+	confess("ASSERTION ERROR: $topnode not an array");
+    }
     my $check = scalar(@$topnode);
     if ($check < 2) {
         # NULLs are treated the same as

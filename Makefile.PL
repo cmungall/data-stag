@@ -14,6 +14,7 @@ WriteMakefile(
 				 'XML::Handler::XMLWriter' => 0,
 				 'XML::Parser::PerlSAX'  => 0, 
 				 'Pod::Usage'         => 0,
+				 'IO::String'         => 0,
 				},
 	      'EXE_FILES'    => [
                                  qw(

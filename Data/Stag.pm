@@ -1,4 +1,4 @@
-# $Id: Stag.pm,v 1.17 2003/05/22 01:42:30 cmungall Exp $
+# $Id: Stag.pm,v 1.18 2003/07/03 00:39:10 cmungall Exp $
 # -------------------------------------------------------
 #
 # Copyright (C) 2002 Chris Mungall <cjm@fruitfly.org>
@@ -679,10 +679,10 @@ like this:
   # write xml for all red haired people
   foreach my $p (@persons) {
     print stag_xml($p)
-      if stag_tmatch("hair", "red");
+      if stag_tmatch($p, "hair", "red");
   } ;
 
-  # find all people called shuggy
+  # find all people that have name == shuggy
   my @p =
     stag_qmatch($tree, 
                 "person",
@@ -1102,9 +1102,9 @@ opposed to all descendents) are checked]
        Title: set
      Synonym: s
 
-        Args: element str, datavalue ANY
+        Args: element str, datavalue ANY (list)
       Return: ANY
-     Example: $person->set('name', 'fred');
+     Example: $person->set('name', 'fred');    # single val
      Example: $person->set('phone_no', $cellphone, $homephone);
 
 sets the data value of an element for any node. if the element is
@@ -1115,14 +1115,57 @@ ordering will be preserved, unless the element specified does not
 exist, in which case, the new tag/value pair will be placed at the
 end.
 
+for example, if we have a stag node $person
+
+  person:
+    name: shuggy
+    job:  bus driver
+
+if we do this
+
+  $person->set('name', ());
+
+we will end up with
+
+  person:
+    job:  bus driver
+
+then if we do this
+
+  $person->set('name', 'shuggy');
+
+the 'name' node will be placed as the last attribute
+
+  person:
+    job:  bus driver
+    name: shuggy
+
+You can also use B<magic methods>, for example
+
+  $person->set_name('shuggy');
+  $person->set_job('bus driver', 'poet');
+  print $person->itext;
+
+will print
+
+  person:
+    name: shuggy
+    job:  bus driver
+    job:  poet
+
+  
 note that if the datavalue is a non-terminal node as opposed to a
 primitive value, then you have to do it like this:
 
+  $people  = Data::Stag->new(people=>[
+                                      [person=>[[name=>'Sherlock Holmes']]],
+                                      [person=>[[name=>'Moriarty']]],
+                                     ]);
   $address = Data::Stag->new(address=>[
                                        [address_line=>"221B Baker Street"],
                                        [city=>"London"],
                                        [country=>"Great Britain"]]);
-  ($person) = $data->qmatch("name", "Sherlock Holmes");
+  ($person) = $people->qmatch('person', (name => "Sherlock Holmes"));
   $person->set("address", $address->data);
 
 =head3 unset (u)
@@ -1136,6 +1179,11 @@ primitive value, then you have to do it like this:
      Example: $person->unset('phone_no');
 
 prunes all nodes of the specified element from the current node
+
+You can use B<magic methods>, like this
+
+  $person->unset_name;
+  $person->unset_phone_no;
 
 =head3 free 
 
@@ -1304,13 +1352,23 @@ does a relational style natural join - see previous example in this doc
 
         Args: return-element str, match-element str, match-value str
       Return: node[]
-     Example: @persons = $s->qmatch('name', 'fred');
+     Example: @persons = $s->qmatch('person', 'name', 'fred');
+     Example: @persons = $s->qmatch('person', (job=>'bus driver'));
 
 queries the node tree for all elements that satisfy the specified
 key=val match - see previous example in this doc
 
+for those inclined to thinking relationally, this can be thought of
+as a query that returns a stag object:
 
+  SELECT <return-element> FROM <stag-node> WHERE <match-element> = <match-value>
 
+this always returns an array; this means that calling in a scalar
+context will return the number of elements; for example
+
+  $n = $s->qmatch('person', (name=>'fred'));
+
+the value of $n will be equal to the number of persons called fred
 
 =head3 tmatch (tm)
 

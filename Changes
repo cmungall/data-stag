@@ -38,3 +38,4 @@ Version 0.04
 ============
 
 2003-??-??	- Fixed empty tag bug with free (was exported as <></>)
+		- Fixed qmatch documentation

@@ -89,7 +89,10 @@ sub o {
 
 sub start_event {
     my $self = shift;
-    my $ev = shift || "";
+    my $ev = shift;
+    if (!defined($ev)) {
+	$ev = '';
+    }
     my $stack = $self->stack;
     $self->o("($ev");
     push(@$stack, $ev);
@@ -117,7 +120,8 @@ sub evbody {
 
 sub lispesc {
     my $w = shift;
-    return '""' unless $w;
+    return '""' unless defined $w;
+    return '"0"' if $w eq '0';
     $w =~ s/\(/\\\(/g;
     $w =~ s/\)/\\\)/g;
     $w =~ s/\"/\\\"/g;

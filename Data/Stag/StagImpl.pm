@@ -1,4 +1,4 @@
-# $Id: StagImpl.pm,v 1.26 2003/06/06 07:39:58 cmungall Exp $
+# $Id: StagImpl.pm,v 1.27 2003/07/03 00:39:10 cmungall Exp $
 #
 # Author: Chris Mungall <cjm@fruitfly.org>
 #
@@ -50,6 +50,10 @@ sub unflatten {
     my @uflist = ();
     if (!ref($flist)) {
 	return $class->new($name=>$flist);
+    }
+    if (ref($flist) eq 'HASH') {
+	# unpack hash into array
+	$flist = [%$flist];
     }
     if (ref($flist) ne 'ARRAY') {
 	confess("$name => $flist not array");
@@ -1112,16 +1116,19 @@ sub sgetdata {
 }
 *sgd = \&sgetdata;
 
-sub replace {
+sub mapv {
     my $tree = shift;
-    my $oldkey = shift;
-    my $newkey = shift;
-    my @v = get($tree, $oldkey);
-    set($tree, $newkey, @v);
-    unset($tree, $oldkey);
+    my %maph = @_;
+    foreach my $oldkey (keys %maph) {
+	my $newkey = $maph{$oldkey};
+	my @currv = get($tree, $newkey);
+	next if @currv;
+	my @v = get($tree, $oldkey);
+	set($tree, $newkey, @v);
+	unset($tree, $oldkey);
+    }
     return;
 }
-*r = \&replace;
 
 sub sfindval {
     my $tree = shift;
@@ -1487,7 +1494,8 @@ sub qmatch {
     my @st = findnode($tree, $elt);
     my @match =
       grep {
-          testSubTreeMatch($_, $matchkey, $matchval);
+#          tmatch($_, $matchkey, $matchval);
+	  grep {$_ eq $matchval} $_->get($matchkey);
       } @st;
     if ($replace) {
 	map {

@@ -34,6 +34,8 @@ my $toxml;
 my $toperl;
 my $debug;
 my $help;
+my $name;
+my $defs;
 GetOptions(
            "help|h"=>\$help,
            "parser|format|p=s" => \$parser,
@@ -41,12 +43,18 @@ GetOptions(
            "xml"=>\$toxml,
            "perl"=>\$toperl,
            "debug"=>\$debug,
+	   "name|n=s"=>\$name,
+	   "defs"=>\$defs,
           );
 if ($help) {
     system("perldoc $0");
     exit 0;
 }
 
+#my @hdr = ();
+#if ($name) {
+#    push(@hdr, (name=>$name));
+#}
 
 my @files = @ARGV;
 foreach my $fn (@files) {
@@ -55,6 +63,34 @@ foreach my $fn (@files) {
       Data::Stag->parse($fn, 
                         $parser);
     my $s = $tree->autoschema;
+    if ($defs) {
+	my @sdefs = ();
+	my %u = ();
+	$s->iterate(sub {
+			my $stag = shift;
+			my $n = $stag->name;
+			$n =~ s/[\+\?\*]$//;
+			return if $u{$n};
+			$u{$n}=1;
+			push(@sdefs, ($n=>''));
+			return;
+		    });
+	$s = Data::Stag->unflatten(schemadefs=>[@sdefs]);
+    }
+    else {
+	$s->iterate(sub {
+			my $stag = shift;
+			my $d = $stag->data;
+			if (!ref $d) {
+			    $stag->data($d =~ /INT/ ? "i" : "s");
+			}
+		    });
+    }
+#    my $top = 
+#      Data::Stag->unflatten(schema=>[
+#				     @hdr,
+#				    ]);
+#    $top->set_nesting($s->data);
     if ($toxml) {
         print $s->xml;
     }
