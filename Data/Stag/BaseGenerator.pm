@@ -1,4 +1,4 @@
-# $Id: BaseGenerator.pm,v 1.13 2004/04/30 17:12:04 cmungall Exp $
+# $Id: BaseGenerator.pm,v 1.14 2004/10/27 22:10:43 cmungall Exp $
 #
 # Copyright (C) 2002 Chris Mungall <cjm@fruitfly.org>
 #
@@ -232,11 +232,11 @@ sub warn {
     warn("@_");
 }
 
-sub last_evcall_type {
-    my $self = shift;
-    $self->{_last_evcall_type} = shift if @_;
-    return $self->{_last_evcall_type};
-}
+#sub last_evcall_type {
+#    my $self = shift;
+#    $self->{_last_evcall_type} = shift if @_;
+#    return $self->{_last_evcall_type};
+#}
 
 
 sub stack {
@@ -353,13 +353,13 @@ sub handler {
 		$h->fh(\*STDOUT);
 	    }
         }
-        $self->{handler} = $h;
+        $self->{_handler} = $h;
         if (!$h->errhandler && $self->errhandler) {
             $h->errhandler($self->errhandler);
         }
     }
-#    return $self->{handler} || Data::Stag::null->new();
-    return $self->{handler};
+#    return $self->{_handler} || Data::Stag::null->new();
+    return $self->{_handler};
 }
 
 sub cache_errors {
@@ -454,7 +454,7 @@ sub parse {
     my ($file, $str, $fh) = 
       rearrange([qw(file str fh)], @_);
 
-    $self->file($file);
+    $self->file($file) if $file;
     if ($str) {
         $self->load_module("IO::String");
         $fh = IO::String->new($str) || confess($str);
@@ -475,7 +475,10 @@ sub parse {
     }
     $self->parse_fh($fh);
     # problem with IO::String closing in perl5.6.1
-    $fh->close unless $str;
+    unless ($str) {
+        #$fh->close  || confess("cannot close file: $file");  // problem stdout
+        $fh->close;
+    }
     return;
 }
 
@@ -495,70 +498,79 @@ sub errlist {
     return ();
 }
 
+
+# MAIN EVENT HANDLING
+# start/end/event/body
+
 sub start_event {
     my $self = shift;
-    $self->push_stack($_[0]);
-    my $lc = $self->last_evcall_type;
-    if ($lc && $lc eq 'evbody') {
-        confess("attempting to start event:$_[0] illegally (in terminal node after body)");
-    }
-    $self->last_evcall_type('start_event');
-    eval {
-	$self->handler->start_event(@_);
-    };
-    if ($@) {
-	$self->handler_err($@);
-    }
+    push(@{$self->{_stack}}, $_[0]);
+#    my $lc = $self->last_evcall_type;
+#    if ($lc && $lc eq 'evbody') {
+#        confess("attempting to start event:$_[0] illegally (in terminal node after body)");
+#    }
+#    $self->last_evcall_type('start_event');
+#    eval {
+#	$self->handler->start_event(@_);
+#    };
+#    if ($@) {
+#	$self->handler_err($@);
+#    }
+    $self->{_handler}->start_event(@_);
     return;
 }
 sub end_event { 
     my $self = shift; 
-    my $ev = shift || $self->stack->[-1];
-    eval {
-	$self->handler->end_event($ev);
-    };
-    if ($@) {
-	$self->handler_err($@);
-    }
+    my $ev = shift || $self->{_stack}->[-1];
+    $self->{_handler}->end_event($ev);
+#    eval {
+#	$self->handler->end_event($ev);
+#    };
+#    if ($@) {
+#	$self->handler_err($@);
+#    }
 
-    my $out = pop(@{$self->stack});
-#    my $out = $self->pop_stack();
-    if ($ev ne $out) {
-        confess("MISMATCH: '$ev' ne '$out'");
-    }
-    $self->last_evcall_type('end_event');
+    my $out = pop(@{$self->{_stack}});
+##    my $out = $self->pop_stack();
+#    if ($ev ne $out) {
+#        confess("MISMATCH: '$ev' ne '$out'");
+#    }
+#    $self->last_evcall_type('end_event');
     return;
 }
+
 sub event {
     my $self = shift;
-    my $lc = $self->last_evcall_type;
-    if ($lc && $lc eq 'evbody') {
-        confess("attempting to start event:$_[0] illegally (in terminal node after body)");
-    }
+#    my $lc = $self->last_evcall_type;
+#    if ($lc && $lc eq 'evbody') {
+#        confess("attempting to start event:$_[0] illegally (in terminal node after body)");
+#    }
 
-    eval {
-	$self->handler->event(@_);
-    };
-    if ($@) {
-	$self->handler_err($@);
-    }
-    $self->last_evcall_type('end_event');
+#    eval {
+#	$self->handler->event(@_);
+#    };
+#    if ($@) {
+#	$self->handler_err($@);
+#    }
+#    $self->last_evcall_type('end_event');
+    $self->{_handler}->event(@_);
     return;
 }
 sub evbody {
     my $self = shift;
-    my $lc = $self->last_evcall_type;
-    if ($lc && $lc eq 'evbody') {
-        confess("attempting to event_body illegally (body already defined)");
-    }
+    $self->{_handler}->evbody(@_);
+#    my $lc = $self->last_evcall_type;
+#    if ($lc && $lc eq 'evbody') {
+#        confess("attempting to event_body illegally (body already defined)");
+#    }
 
-    eval {
-	$self->handler->evbody(@_);
-    };
-    if ($@) {
-	$self->handler_err($@);
-    }
-    $self->last_evcall_type('evbody');
+#    eval {
+#	$self->handler->evbody(@_);
+#    };
+#    if ($@) {
+#	$self->handler_err($@);
+#    }
+#    $self->last_evcall_type('evbody');
     return;
 }
 

@@ -1,4 +1,4 @@
-# $Id: BaseHandler.pm,v 1.27 2004/09/08 21:27:12 cmungall Exp $
+# $Id: BaseHandler.pm,v 1.28 2004/10/27 22:10:44 cmungall Exp $
 #
 # This  module is maintained by Chris Mungall <cjm@fruitfly.org>
 
@@ -408,6 +408,7 @@ sub skip_elts {
 
 sub rename_elts {
     my $self = shift;
+    confess "experimental feature - deprecated";
     $self->{_rename_elts} = {@_} if @_;
     return %{$self->{_rename_elts} || {}};
 }
@@ -444,23 +445,23 @@ sub perlify {
 sub start_event {
     my $self = shift;
     my $ev = shift;
-    my $node = $self->{node};
-    my $m = perlify("s_$ev");
+    my $m = 's_'.$ev;
+    $m =~ tr/\-\:/_/;
 
-    if ($self->can("catch_start")) {
-        $self->catch_start($ev);
-    }
     if ($self->can($m)) {
         $self->$m($ev);
+    }
+    elsif ($self->can("catch_start")) {
+        $self->catch_start($ev);
     }
     else {
     }
 
-    my $stack = $self->stack;
-    push(@$stack, $ev);
+    push(@{$self->{_stack}}, $ev);
 
     my $el = [$ev];
-    push(@$node, $el);
+    push(@{$self->{node}}, $el);
+    $el;
 }
 
 sub S {shift->start_event(@_)}
@@ -477,13 +478,6 @@ sub evbody {
             my $el = $node->[$#{$node}];
             confess unless $el;
 	    $el->[1] = $arg;
-#	    if (@$el == 1) {
-#		$el->[1] = $arg;
-#	    }
-#	    else {
-#		my $txt_elt_name = $el->[0] . "-text";
-#		push(@{$el->[1]}, [$txt_elt_name=>$arg]);
-#	    }
         }
     }
     return;
@@ -519,25 +513,22 @@ sub end_event {
     my $self = shift;
     my $ev = shift || '';
 
-    my $stack = $self->stack;
+    my $stack = $self->{_stack};
     pop(@$stack);
 
     my $node = $self->{node};   # array of (0..$indent)
     my $topnode = pop @$node;   # node we are closing now
-    my $path = join('/', @$stack);
 
-    my %rename = $self->rename_elts;
-    if ($rename{$ev}) {
-        $ev = $rename{$ev};
-        $topnode->[0] = $ev;
-    }
+#    my %rename = $self->rename_elts;
+#    if ($rename{$ev}) {
+#        $ev = $rename{$ev};
+#        $topnode->[0] = $ev;
+#    }
     
-    my $m = perlify("e_$ev");
     if (!ref($topnode)) {
 	confess("ASSERTION ERROR: $topnode not an array");
     }
-    my $check = scalar(@$topnode);
-    if ($check < 2) {
+    if (scalar(@$topnode) < 2) {
         # NULLs are treated the same as
         # empty strings
         # [if we have empty tags <abcde></abcde>
@@ -546,19 +537,13 @@ sub end_event {
 #        push(@$topnode, '');
         push(@$topnode, '');
     }
-#    elsif ($check < 2) {
-#        confess("ASSERTION ERROR: all events must be paired; @$topnode");
-#    }
-    else {
-        # all ok
-    }
     my $topnodeval = $topnode->[1];
 
     my @R = ($topnode);   # return
 
     # check for trapped events; trap_h is a hash keyed by node name
     # the value is a subroutine to be called at the end of that node
-    my $trap_h = $self->trap_h;
+    my $trap_h = $self->{_trap_h};
     if ($trap_h) {
 	my $trapped_ev = $ev;
 	my @P = @$stack;
@@ -578,27 +563,27 @@ sub end_event {
 	}
     }
 
+    my $m = 'e_'.$ev;
+    $m =~ tr/\-\:/_/;
 
     if ($self->can($m)) {
-#        my $tree = $self->$m($topnodeval);
         @R = $self->$m(Data::Stag::stag_nodify($topnode));
     }
-    else {
-        if ($self->can("catch_end")) {
-            @R = $self->catch_end($ev, Data::Stag::stag_nodify($topnode));
-        }
-        if ($self->catch_end_sub) {
-            @R = $self->catch_end_sub->($self, Data::Stag::stag_nodify($topnode));
-        }
+    elsif ($self->can("catch_end")) {
+        @R = $self->catch_end($ev, Data::Stag::stag_nodify($topnode));
     }
+    elsif ($self->catch_end_sub) {
+        @R = $self->catch_end_sub->($self, Data::Stag::stag_nodify($topnode));
+    }
+    else {
+        # do nothing
+    }
+
     if (@$node) {
 	my $el = $node->[-1]; # next node up
 	if (!$el->[1]) {
 	    $el->[1] = [];
 	}
-#	use Data::Dumper;
-#	print Dumper $el->[1];
-#	print Dumper \@R;
 	
 	if (scalar(@R) && !$R[0]) {
 	    @R = ();
@@ -608,6 +593,7 @@ sub end_event {
 
     $self->tree(Data::Stag::stag_nodify($topnode));
     if (!@$stack) {
+        # final event; call end_stag if required
         if ($self->can("end_stag")) {
             $self->end_stag($self->tree);
         }

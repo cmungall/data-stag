@@ -53,7 +53,7 @@ $s = Data::Stag->unhash(
 		       );
 print $s->xml;
 
-my %h = $s->hash;
+%h = $s->hash;
 #use Data::Dumper;
 #print Dumper \%h;
 $s = Data::Stag->unhash(%h);

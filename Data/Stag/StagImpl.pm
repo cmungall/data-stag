@@ -1,4 +1,4 @@
-# $Id: StagImpl.pm,v 1.52 2004/09/08 21:27:12 cmungall Exp $
+# $Id: StagImpl.pm,v 1.53 2004/10/27 22:10:44 cmungall Exp $
 #
 # Author: Chris Mungall <cjm@fruitfly.org>
 #
@@ -390,13 +390,27 @@ sub write {
     return;
 }
     
+sub makexslhandler {
+    my $tree = shift;
+    my $xslt_file = shift;
+    load_module("Data::Stag::XSLHandler");
+    my $handler = Data::Stag::XSLHandler->new;
+    $handler->xslt_file($xslt_file);
+    return $handler;
+}
+
 sub makehandler {
     my $tree = shift;
     my $handler;
     if (@_ == 1) {
 	my $module = shift;
-	load_module($module);
-	$handler = $module->new;
+        if ($module =~ /\.xsl/) {
+            $handler = makexslhandler($tree, $module);
+        }
+        else {
+            load_module($module);
+            $handler = $module->new;
+        }
     }
     else {
 	my %trap_h = @_;
@@ -1199,7 +1213,7 @@ sub get {
     my $tree = shift || confess;
     my ($node, @path) = splitpath(shift);
     my $replace = shift;
-    confess("problem: $tree not arr") unless ref($tree) && ref($tree) eq "ARRAY" || isastag($tree);
+#    confess("problem: $tree not arr") unless ref($tree) && (ref($tree) eq "ARRAY" || isastag($tree));
     if (!ref($tree->[1])) {
         # terminal node - always returns undef
         return;
@@ -2515,7 +2529,15 @@ sub AUTOLOAD {
 
 sub splitpath {
     my $node = shift;
-    return ref($node) ? (@$node) : (split(/\//, $node));
+    if (ref($node)) {
+        @$node;
+    }
+    elsif ($node =~ /\//) {
+        (split(/\//, $node));
+    }
+    else {
+        ($node);
+    }
 }
 
 sub test_eq {

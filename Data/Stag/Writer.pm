@@ -108,7 +108,6 @@ $VERSION="0.07";
 sub init {
     my $self = shift;
     $self->init_writer(@_);
-    $self->stack([]);
     $self->SUPER::init();
     return;
 }
