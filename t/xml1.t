@@ -1,4 +1,5 @@
 use lib 't';
+use lib '.';
 
 BEGIN {
     # to handle systems with no installed Test module
