@@ -1,4 +1,4 @@
-# $Id: StagImpl.pm,v 1.9 2003/01/07 23:45:43 cmungall Exp $
+# $Id: StagImpl.pm,v 1.10 2003/01/09 22:16:55 cmungall Exp $
 #
 # Author: Chris Mungall <cjm@fruitfly.org>
 #
@@ -95,10 +95,16 @@ sub parser {
         elsif ($str =~ /^\s*\(/) {
             $fmt = "sxpr";
         }
+        elsif ($str =~ /^\s*\;/) {
+            $fmt = "sxpr";
+        }
         elsif ($str =~ /^\s*\</) {
             $fmt = "xml";
         }
         elsif ($str =~ /^\s*\w+\:/) {
+            $fmt = "itext";
+        }
+        elsif ($str =~ /^\s*\#/) {
             $fmt = "itext";
         }
         else {
