@@ -1,4 +1,4 @@
-# $Id: BaseGenerator.pm,v 1.9 2003/07/03 00:39:10 cmungall Exp $
+# $Id: BaseGenerator.pm,v 1.10 2003/07/17 00:06:21 cmungall Exp $
 #
 # Copyright (C) 2002 Chris Mungall <cjm@fruitfly.org>
 #
@@ -172,6 +172,9 @@ sub handler {
             $h =~ s/^graph$/$base:GraphWriter/;
             $self->load_module($h);
             $h = $h->new;
+	    if ($h->can("fh")) {
+		$h->fh(\*STDOUT);
+	    }
         }
         $self->{handler} = $h;
     }
