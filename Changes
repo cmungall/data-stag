@@ -12,4 +12,15 @@ Version 0.02
 		- added stag-splitter.pl script
 		- fixed Makefile.PL
 
+Version 0.03
+============
+
+2003-??-??	- Fixed bug with empty XML tags being treated as nulls
+                - Fixed bug with XML parsing/export where zero-valued
+                  pcdata was treated as empty string
+                  (new test emptytag.t added for these)
+                - Modified behaviour of BaseHandler - now the whole
+                  stag object is passed. This can be manipulated by
+                  the intercepting code directly
+                - Added makehandler() to Data::Stag
 

@@ -1,4 +1,4 @@
-# $Id: BaseHandler.pm,v 1.4 2002/12/20 22:30:06 cmungall Exp $
+# $Id: BaseHandler.pm,v 1.5 2003/01/07 23:45:43 cmungall Exp $
 #
 # This  module is maintained by Chris Mungall <cjm@fruitfly.org>
 
@@ -134,6 +134,25 @@ sub new {
     $self;
 }
 
+sub trap_h {
+    my $self = shift;
+    $self->{_trap_h} = shift if @_;
+    return $self->{_trap_h};
+}
+
+
+sub elt_stack {
+    my $self = shift;
+    $self->{elt_stack} = shift if @_;
+    return $self->{elt_stack};
+}
+
+sub depth {
+    my $self = shift;
+    return scalar(@{$self->elt_stack});
+}
+
+
 sub node {
     my $self = shift;
     $self->{node} = shift if @_;
@@ -218,20 +237,37 @@ sub b {shift->evbody(@_)}
 sub end_event {
     my $self = shift;
     my $ev = shift;
-#    my $stack = $self->{evstack};
-#    my $last = pop @$stack;
     my $m = perlify("e_$ev");
-#    print STDERR "m=$m\n";
     my $node = $self->node;
     my $topnode = pop @$node;
+    my $check = scalar(@$topnode);
+    if ($check < 2) {
+        # NULLs are treated the same as
+        # empty strings
+        # [if we have empty tags <abcde></abcde>
+        #  then no evbody will be called - we have to
+        #  fill in the equivalent of a null evbody here]
+        push(@$topnode, '');
+    }
+    elsif ($check < 2) {
+        confess("ASSERTION ERROR: all events must be paired; @$topnode");
+    }
+    else {
+        # all ok
+    }
     my $topnodeval = $topnode->[1];
+
+    my $trap_h = $self->trap_h;
+    if ($trap_h && $trap_h->{$ev}) {
+        # call anonymous subroutine supplied in hash
+        $trap_h->{$ev}->($self, Data::Stag::stag_nodify($topnode));
+    }
 
     if ($self->can("flatten_elts") &&
         grep {$ev eq $_} $self->flatten_elts) {
 
         if (ref($topnodeval)) {
             my $el = $node->[$#{$node}];
-######      push(@{$el->[1]}, [$ev, $topnodeval->[0]->[1]]);
             my $subevent = $topnodeval->[0]->[0];
             foreach my $subtree (@$topnodeval) {
                 if ($subtree->[0] ne $subevent) {
@@ -272,32 +308,37 @@ sub end_event {
         if (ref($topnodeval)) {
             my $el = $node->[$#{$node}];
 
-#            push(@{$el->[1]}, [$ev, $topnodeval->[0]->[1]]);
             my $new =  [map {[$ev, [$_]]} @{$topnodeval}];
-#            use Data::Dumper;
-#            print Dumper $topnodeval;
-#            print Dumper $new;
             push(@{$el->[1]},@$new);
         }
 
     }
     elsif ($self->can($m)) {
-#        use Data::Dumper;
-#        print "EV:$ev  ";
-#        print Dumper $cv->[1];
-        my $tree = $self->$m($topnodeval);
-        my $el = $node->[$#{$node}];
-        push(@{$el->[1]}, $tree) if $tree;
+#        my $tree = $self->$m($topnodeval);
+        my $tree = $self->$m(Data::Stag::stag_nodify($topnode));
+
+# NO NEED FOR THESE LINES ANY MORE:
+# the intercepting code can manipulated the Stag
+# object directly
+#
+#        my $el = $node->[$#{$node}];
+#        push(@{$el->[1]}, $tree) if $tree;
     }
     else {
         if ($self->can("catch_end")) {
-            my $tree = $self->catch_end($ev, Data::Stag::stag_nodify($topnode));
-            my $el = $node->[$#{$node}];
-            push(@{$el->[1]}, $tree) if $tree;
+            $self->catch_end($ev, Data::Stag::stag_nodify($topnode));
+###            my $tree = $self->catch_end($ev, Data::Stag::stag_nodify($topnode));
+
+# NO NEED FOR THESE LINES ANY MORE:
+# the intercepting code can manipulated the Stag
+# object directly
+#
+#            my $el = $node->[$#{$node}];
+#            push(@{$el->[1]}, $tree) if $tree;
         }
         if (@$node) {
             my $el = $node->[$#{$node}];
-            if ($topnode) {
+            if ($topnode && @$topnode) {
                 push(@{$el->[1]}, $topnode);
                 #            $el->[1] = $topnode;
 
@@ -306,7 +347,6 @@ sub end_event {
     }
 #    if (!@$node) {
         #final event
-#        $self->tree($topnode);
         $self->tree(Data::Stag::stag_nodify($topnode));
 #    }
     return $ev;
@@ -389,7 +429,7 @@ sub characters {
     my ($self, $characters) = @_;
     my $char = $characters->{Data};
     my $str = $self->{__str};
-    if ($char) {
+    if (defined $char) {
         $str = "" if !defined $str;
         $str .= $char;
     }
@@ -408,7 +448,7 @@ sub end_element {
     if (defined $str) {
         $str =~ s/^\s*//;
         $str =~ s/\s*$//;
-        $self->evbody($str) if $str;
+        $self->evbody($str) if $str || $str eq '0';
     }
     $self->end_event($name);
     $self->{__str} = undef;

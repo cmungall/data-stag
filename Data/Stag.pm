@@ -1,4 +1,4 @@
-# $Id: Stag.pm,v 1.8 2002/12/20 22:30:06 cmungall Exp $
+# $Id: Stag.pm,v 1.9 2003/01/07 23:45:43 cmungall Exp $
 # -------------------------------------------------------
 #
 # Copyright (C) 2002 Chris Mungall <cjm@fruitfly.org>
@@ -62,6 +62,7 @@ $VERSION="0.02";
                   parser
                   parse parsefile
 		  generate gen write
+                  makehandler mh
                   xml   tree2xml
                   hash tree2hash
                   pairs tree2pairs
@@ -837,6 +838,20 @@ Instead of:
   ]
 
 The former gets converted into the latter for the internal representation
+
+
+=head3 makehandler
+
+       Title: makehandler
+
+        Args: hash of CODEREFs keyed by element name
+     Returns: Data::Stag::BaseHandler
+     Example: $h = Data::Stag->makehandler(%subs);
+
+  $h = Data::Stag->makehandler(
+                               a => sub { my ($self,$stag) = @_;
+                                          $stag->set_foo("bar");});
+  $stag = Data::Stag->parse(-str=>"(
 
   
 

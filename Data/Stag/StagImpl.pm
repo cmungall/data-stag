@@ -1,4 +1,4 @@
-# $Id: StagImpl.pm,v 1.8 2002/12/20 22:30:06 cmungall Exp $
+# $Id: StagImpl.pm,v 1.9 2003/01/07 23:45:43 cmungall Exp $
 #
 # Author: Chris Mungall <cjm@fruitfly.org>
 #
@@ -14,6 +14,10 @@ package Data::Stag::StagImpl;
 
   use Data::Stag qw(:all);
 
+=head1 DESCRIPTION
+
+This is the default implementation for Data::Stag - please see L<Data::Stag>
+
 =cut
 
 use Carp;
@@ -28,7 +32,8 @@ $VERSION="0.02";
 
 
 sub new {
-    my $class = shift;
+    my $proto = shift; 
+    my $class = ref($proto) || $proto;
     if (@_ == 2 || @_ == 0) {
         return bless [@_], $class;
     }
@@ -81,6 +86,26 @@ sub parser {
     my $tree = shift;
     my ($fn, $fmt, $h, $str, $fh) = 
       rearrange([qw(file format handler str fh)], @_);
+
+    # GUESS FORMAT BASED ON STR
+    if (!$fmt && $str) {
+        if ($str =~ /^\s*\'/) {
+            $fmt = "sxpr";
+        }
+        elsif ($str =~ /^\s*\(/) {
+            $fmt = "sxpr";
+        }
+        elsif ($str =~ /^\s*\</) {
+            $fmt = "xml";
+        }
+        elsif ($str =~ /^\s*\w+\:/) {
+            $fmt = "itext";
+        }
+        else {
+        }
+    }
+
+    # GUESS FORMAT BASED ON FILENAME
     if (!$fmt) {
 	if ($fn =~ /\.xml$/) {
             $fmt = "xml";
@@ -221,6 +246,16 @@ sub generate {
 *gen = \&generate;
 *write = \&generate;
 
+sub makehandler {
+    my $tree = shift;
+    my %trap_h = @_;
+    load_module("Data::Stag::BaseHandler");
+    my $handler = Data::Stag::BaseHandler->new;
+    $handler->trap_h(\%trap_h);
+    return $handler;
+}
+*mh = \&makehandler;
+
 sub hash {
     my $tree = shift;
     my ($ev, $subtree) = @$tree;
@@ -247,18 +282,21 @@ sub hash {
 # any non terminal node is flattened and lost
 # does not check for duplicates!
 sub pairs {
+    return @{(_pairs(@_))[1]};
+}
+*tree2pairs = \&pairs;
+sub _pairs {
     my $tree = shift;
     my ($ev, $subtree) = @$tree;
     if (ref($subtree)) {
-        my @pairs = map { tree2pairs($_) } @$subtree;
-        return (@pairs);
+        my @pairs = map { _pairs($_) } @$subtree;
+        return $ev=>[@pairs];
 #        return [map { tree2hash($_) } @$subtree];
     }
     else {
-        return ($ev=>$subtree);
+        return $ev=>$subtree;
     }
 }
-*tree2pairs = \&pairs;
 
 # PRIVATE
 sub tab {
@@ -280,8 +318,7 @@ sub xml {
                  );
     }
     else {
-	my $txt =
-		   xmlesc($subtree) || "";
+	my $txt = xmlesc($subtree);
 	if (length($txt) > 60 ||
 	    $txt =~ /\n/) {
 	    $txt .= "\n" unless $txt =~ /\n$/s;
@@ -383,7 +420,7 @@ sub events {
 
 sub xmlesc {
     my $word = shift;
-    return unless $word;
+    return '' unless defined $word;
     $word =~ s/\&/\&amp;/g;
     $word =~ s/\</\&lt;/g;
     $word =~ s/\>/\&gt;/g;
@@ -488,10 +525,16 @@ sub addkid {
 
 sub findnode {
     my $tree = shift;
-    my $node = shift;
+    my ($node, @path) = splitpath(shift);
 
     my $replace = shift;
     confess("problem: $tree not arr") unless ref($tree) && ref($tree) eq "ARRAY" || isaNode($tree);
+
+    if (@path) {
+        my @r = map { $_->findnode(\@path, $replace) } findnode($tree, $node);        
+        return @r;
+    }
+
     my ($ev, $subtree) = @$tree;
     if ($DEBUG) {
         print STDERR "$ev, $subtree;; replace = $replace\n";
@@ -530,10 +573,21 @@ sub findnode {
 
 sub set {
     my $tree = shift || confess;
-    my $node = shift;
+    my ($node, @path) = splitpath(shift);
     my @replace = @_;
+
+    if (@path) {
+        my $last = pop @path;
+        my @nodes = getnode($tree, [$node, @path]);
+        foreach (@nodes) {
+            set($_, $last, @replace);
+        }
+        return @replace;
+    }
+
     confess("problem: $tree not arr") unless ref($tree) && ref($tree) eq "ARRAY" || isaNode($tree);
     my ($ev, $subtree) = @$tree;
+    confess("$subtree not arr [$ev IS A TERMINAL NODE!!]") unless ref($subtree);
     my $is_set;
     my @nu = ();
     foreach my $st (@$subtree) {
@@ -572,7 +626,16 @@ sub setnode {
     my $tree = shift;
     my $elt = shift;
     my $nunode = shift;
-    set($tree, $elt, $nunode->data); 
+    set($tree, $elt, data($nunode)); 
+}
+*sn = \&setnode;
+*setn = \&setnode;
+*settree = \&setnode;
+
+# EXPERIMENTAL
+sub free {
+    my $tree = shift;
+    @$tree = ();
 }
 
 sub add {
@@ -608,6 +671,19 @@ sub add {
 }
 *a = \&add;
 *addSubTreeVal = \&add;
+
+sub addnode {
+    my $tree = shift;
+    my $elt = shift;
+    my $node = shift;
+    my $nodename = $node->name;
+    if ($nodename ne $elt) {
+        confess("$nodename ne $elt");
+    }
+    add($tree, $elt, $node->data);
+}
+*an = \&addnode;
+*addn = \&addnode;
 
 sub unset {
     my $tree = shift || confess;
@@ -835,7 +911,7 @@ sub iterate {
     my $code = shift;
     my $parent = shift;
     $code->($tree, $parent);
-    my @subnodes = $tree->subnodes;
+    my @subnodes = subnodes($tree);
     foreach (@subnodes) {
         iterate($_, $code, $tree);
     }
@@ -1447,6 +1523,7 @@ sub duplicate {
     return xmlstr2tree($xml);
 }
 *d = \&duplicate;
+*clone = \&duplicate;
 
 sub isanode {
     my $node = shift;
@@ -1544,9 +1621,18 @@ sub kids {
 
 sub subnodes {
     my $self = shift;
-    return grep {ref($_)} $self->kids;
+    return grep {ref($_)} kids($self);
 }
-*ntnodes = \&subnodes;
+
+# non-terminal nodes
+sub ntnodes {
+    my $self = shift;
+    my @subnodes = $self->subnodes;
+    return grep {!$_->isterminal} @subnodes;
+}
+
+*nonterminalnodes = \&ntnodes;
+*nonterminals = \&ntnodes;
 
 sub element {
     my $self = shift;
