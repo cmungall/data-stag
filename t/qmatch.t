@@ -6,7 +6,7 @@ BEGIN {
     # as a fallback
     eval { require Test; };
     use Test;    
-    plan tests => 8;
+    plan tests => 9;
 }
 use Data::Stag;
 use strict;
@@ -54,13 +54,19 @@ $s = Data::Stag->unflatten(c=>{
 				   id=>2
 				  }
 			      });
-print $s->xml;
+
+my @cs = $s->findnode('c');
+print $_->xml foreach @cs;
+ok(@cs==2);
+
+#print $s->xml;
 my @x = $s->qmatch('c', 'id', 2);
 print "\n\n";
-ok(@x==0);
+ok(@x==1);
 print $_->xml foreach @x;
 
 @x = $s->qmatch('c', 'id', 1);
 print "\n\n";
 ok(@x==1);
 print $_->xml foreach @x;
+

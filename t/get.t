@@ -41,6 +41,7 @@ my @gene = $stag->find_gene;
 ok(@gene == 2);
 map {print $_->xml} @gene;
 @symbols = $stag->find_symbol;
+print "S:@symbols\n";
 ok(@symbols == 6);
 ok("@symbols" eq "HGNC Hfe HGNC Hfe WNT3A Wnt3a");
 

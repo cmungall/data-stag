@@ -6,7 +6,7 @@ BEGIN {
     # as a fallback
     eval { require Test; };
     use Test;    
-    plan tests => 2;
+    plan tests => 3;
 }
 use Data::Stag;
 use strict;
@@ -67,3 +67,4 @@ print $x->xml;
 my ($b) = $x->findnode_b;
 $b->free;
 $x = Data::Stag->from('xmlstr',  $x->xml);
+ok(1);

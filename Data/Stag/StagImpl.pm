@@ -1,4 +1,4 @@
-# $Id: StagImpl.pm,v 1.27 2003/07/03 00:39:10 cmungall Exp $
+# $Id: StagImpl.pm,v 1.28 2003/07/03 01:27:10 cmungall Exp $
 #
 # Author: Chris Mungall <cjm@fruitfly.org>
 #
@@ -673,6 +673,7 @@ sub findnode {
     }
 
     my ($ev, $subtree) = @$tree;
+    my @r = ();
     if ($DEBUG) {
         print STDERR "$ev, $subtree;; replace = $replace\n";
     }
@@ -686,23 +687,26 @@ sub findnode {
             return Nodify([@old]);
         }
 #        return [$ev=>$subtree] ;
-        return Nodify($tree);
+#        return Nodify($tree);
+	@r = (Nodify($tree));
     }
-    return unless ref($subtree);
-    my @nextlevel =
-      map { 
-          map {
-              Nodify($_)
-          } findnode($_, $node, $replace);
-          
-      } @$subtree;
-    # get rid of empty nodes
-    # (can be caused by replacing)
-    @$subtree = map { ref($_) && !scalar(@$_) ? () : $_ } @$subtree;
+    my @nextlevel = ();
+    if ( ref($subtree)) {
+	@nextlevel =
+	  map { 
+	      map {
+		  Nodify($_)
+	      } findnode($_, $node, $replace);
+	      
+	  } @$subtree;
+	# get rid of empty nodes
+	# (can be caused by replacing)
+	@$subtree = map { ref($_) && !scalar(@$_) ? () : $_ } @$subtree;
+    }
 #    if (wantarray) {
 #        return $nextlevel[0];
 #    }
-    return @nextlevel;
+    return (@r, @nextlevel);
 }
 *fn = \&findnode;
 *findSubTree = \&findnode;
@@ -907,9 +911,10 @@ sub find {
                 }
             }
             return $is_nt ? Nodify($tree) : $subtree;
+#	    @r = ($is_nt ? Nodify($tree) : $subtree);
         }
         return unless ref($subtree);
-        @r = map { find($_, $node, $replace) } @$subtree;
+        push(@r, map { find($_, $node, $replace) } @$subtree);
     }
     if (wantarray) {
         return @r;
