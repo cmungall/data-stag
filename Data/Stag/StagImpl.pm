@@ -1,4 +1,4 @@
-# $Id: StagImpl.pm,v 1.42 2004/04/16 00:31:48 cmungall Exp $
+# $Id: StagImpl.pm,v 1.43 2004/04/16 05:43:46 cmungall Exp $
 #
 # Author: Chris Mungall <cjm@fruitfly.org>
 #
@@ -1140,10 +1140,19 @@ sub findval {
     else {
         my ($ev, $subtree) = @$tree;
         if (test_eq($ev, $node)) {
+	    my $dataref = \$tree->[1];
+	    if (ref($subtree)) {
+		# check if it is the data node of
+		# an element with attributes
+		my @kids = grep {$_->[0] eq '.'} @$subtree;
+		if (@kids == 1) {
+		    $dataref = \$kids[0]->[1];
+		}
+	    }
             if (defined $replace)  {
-                $tree->[1] = $replace;
+                $$dataref = $replace;
             }
-            return $subtree;
+            return $$dataref;
         }
         return unless ref($subtree);
         @r = map { findval($_, $node, $replace) } @$subtree;

@@ -6,7 +6,7 @@ BEGIN {
     # as a fallback
     eval { require Test; };
     use Test;
-    plan tests => 2;
+    plan tests => 4;
 }
 use Data::Stag qw(:all);
 
@@ -20,7 +20,13 @@ my $href = $doc->find('address/a/@/href');
 ok($href eq 'mailto:cjm@fruitfly.org');
 my $name = $doc->find('address/a/.');
 ok($name eq 'chris mungall');
-
+my $name2 = $doc->findval('address/a');
+ok($name eq $name);
+$doc->findval('address/a', 'fred');
+my $address = $doc->find_address;
+print $address->sxpr;
+my $name3 = $doc->findval('address/a');
+ok($name3 eq 'fred');
 
 sub trip {
     my ($in, $fmt) = @_;
