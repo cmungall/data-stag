@@ -1,4 +1,4 @@
-# $Id: StagImpl.pm,v 1.24 2003/05/28 23:52:10 cmungall Exp $
+# $Id: StagImpl.pm,v 1.25 2003/06/04 02:54:15 cmungall Exp $
 #
 # Author: Chris Mungall <cjm@fruitfly.org>
 #
@@ -2069,34 +2069,34 @@ sub _autoschema {
         my $elt = element($_);
 #        push(@{$data->{$elt}}, $_->data);
         my $in = $_->data;
-        my $d = $data->{$elt} || 'int';
+        my $d = $data->{$elt} || 'INT';
         if (!$in) {
         }
         elsif ($in =~ /^\d+$/ &&
-            ($d eq 'int')) {
-            $d = 'int';
+            ($d eq 'INT')) {
+            $d = 'INT';
 	    my $lin = length($in);
 	    if ($lin > 10) {
 		# too big for an int
 		# TODO: largeint?
-		$d = "varchar($lin)";
+		$d = "VARCHAR($lin)";
 	    }
         }
         elsif ($in =~ /^\d+\.\d+$/ &&
-            ($d eq 'int' || $d eq 'float')) {
-            $d = 'float';
+            ($d eq 'INT' || $d eq 'FLOAT')) {
+            $d = 'FLOAT';
         }
         else {
             my $lin = length($in) || 0;
-            if ($d =~ /varchar\((\d+)\)/) {
+            if ($d =~ /VARCHAR\((\d+)\)/) {
                 if ($lin > $1) {
-                    $d = "varchar($lin)";
+                    $d = "VARCHAR($lin)";
                 }
                 else {
                 }
             }
             else {
-                $d = "varchar($lin)";
+                $d = "VARCHAR($lin)";
             }
         }
         $data->{$elt} = $d;
