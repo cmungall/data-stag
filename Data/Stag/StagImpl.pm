@@ -1,4 +1,4 @@
-# $Id: StagImpl.pm,v 1.3 2002/12/06 23:57:21 cmungall Exp $
+# $Id: StagImpl.pm,v 1.4 2002/12/10 03:30:04 cmungall Exp $
 #
 # Author: Chris Mungall <cjm@fruitfly.org>
 #
@@ -285,6 +285,19 @@ sub xml {
     }
 }
 *tree2xml = \&xml;
+
+sub sxpr {
+    my $tree = shift;
+    my $fn = shift;
+    write($tree, $fn, @_);
+}
+
+sub as {
+    my $tree = shift;
+    my $fmt = shift;
+    my $fn = shift;
+    write($tree, $fn, $fmt, @_);
+}
 
 sub perldump {
     my $tree = shift;

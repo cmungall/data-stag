@@ -104,7 +104,7 @@ scalars or nodes.
 /sfindval sfv
 
 +args element str
-+returns ANY
++returns ANY[] or ANY
 -$name = narr_sfindval($struct, 'name');
 -$name = $struct->sfindval('name');
 
@@ -119,18 +119,16 @@ as findval, but returns the first value found
 
 recursively searches tree for all elements in the list
 
-DEPRECATED?
-
 # nonrecursive
 *DATA ACCESSOR METHODS
 
 these allow getting and setting of elements directly underneath the
 current one
 
-/get  g
+/get g
 
 +args element str
-+return ANY
++return ANY[] or ANY
 -$name = $person->get('name');
 -@phone_nos = $person->get('phone_no');
 

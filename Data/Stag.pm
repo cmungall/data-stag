@@ -1,4 +1,4 @@
-# $Id: Stag.pm,v 1.4 2002/12/06 23:42:01 cmungall Exp $
+# $Id: Stag.pm,v 1.5 2002/12/10 03:30:02 cmungall Exp $
 # -------------------------------------------------------
 #
 # Copyright (C) 2002 Chris Mungall <cjm@fruitfly.org>
@@ -309,7 +309,7 @@ This module is more suited to dealing with complex datamodels than
 dealing with marked up text
 
 It can also be used as part of a SAX-style event generation / handling
-framework - see L<XML::NestedArray::Base>
+framework - see L<Data::Stag::Base>
 
 Because nested arrays are native to perl, we can specify an XML
 datastructure directly in perl without going through multiple object
@@ -357,7 +357,7 @@ the same can be done in a more OO fashion
 =head2 IN A STREAM
 
   use Data::Stag::XMLParser;
-  use MyTransform;      # inherits from XML::NestedArray::Base
+  use MyTransform;      # inherits from Data::Stag::Base
   my $p = Data::Stag::XMLParser->new;
   my $h = MyTransform->new;   # create a handler
   $p->handler($h);
@@ -366,11 +366,11 @@ the same can be done in a more OO fashion
 The above can be simplified like this:
 
   use Data::Stag;
-  use MyTransform;      # inherits from XML::NestedArray::Base
+  use MyTransform;      # inherits from Data::Stag::Base
   my $h = MyTransform->new;
   Data::Stag->new->parse(-file=>$xmlfile, -handler=>$h);
 
-see L<XML::NestedArray::Base> for writing handlers
+see L<Data::Stag::Base> for writing handlers
 
 =head2 STRUCTURED TAGS TREE DATA STRUCTURE
 
@@ -864,9 +864,10 @@ returns all nodes found.
      Synonym: fv
 
         Args: element str
-     Returns: ANY
+     Returns: ANY[] or ANY
      Example: @names = stag_findval($struct, 'name');
      Example: @names = $struct->findval('name');
+     Example: $firstname = $struct->findval('name');
 
 recursively searches tree for all elements of the given type, and
 returns all data values found. the data values could be primitive
@@ -932,7 +933,8 @@ the examples above would work on a data structure like this:
 
 will return an array or single value depending on the context
 
-
+[equivalent to findval(), except that only direct children (as
+opposed to all descendents) are checked]
 
 =head3 sget (sg)
 
@@ -946,9 +948,11 @@ will return an array or single value depending on the context
 
 as B<get> but always returns a single value
 
+[equivalent to sfindval(), except that only direct children (as
+opposed to all descendents) are checked]
 
 
-=head3 gl (getl getlist)
+=head3 getl (gl getlist)
 
        Title: gl
      Synonym: getl
@@ -960,6 +964,8 @@ as B<get> but always returns a single value
 
 returns the data values for a list of sub-elements of a node
 
+[equivalent to findvallist(), except that only direct children (as
+opposed to all descendents) are checked]
 
 
 =head3 getn (gn getnode)
@@ -975,6 +981,8 @@ returns the data values for a list of sub-elements of a node
 
 as B<get> but returns the whole node rather than just the data valie
 
+[equivalent to findnode(), except that only direct children (as
+opposed to all descendents) are checked]
 
 
 =head3 set (s)
@@ -995,7 +1003,15 @@ ordering will be preserved, unless the element specified does not
 exist, in which case, the new tag/value pair will be placed at the
 end.
 
+note that if the datavalue is a non-terminal node as opposed to a
+primitive value, then you have to do it like this:
 
+  $address = Data::Stag->new(address=>[
+                                       [address_line=>"221B Baker Street"],
+                                       [city=>"London"],
+                                       [country=>"Great Britain"]]);
+  ($person) = $data->qmatch("name", "Sherlock Holmes");
+  $person->set("address", $address->data);
 
 =head3 unset (u)
 
@@ -1145,7 +1161,7 @@ returns true if the node matches a set of constraints, specified as hash
 
         Args: match node
       Return: bool
-     Example: @persons = grep {$_->tmatchhash([person=>[[name=>'fred'], [hair_colour=>'green']]])} @persons
+     Example: @persons = grep {$_->tmatchnode([person=>[[name=>'fred'], [hair_colour=>'green']]])} @persons
 
 returns true if the node matches a set of constraints, specified as node
 
