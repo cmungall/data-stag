@@ -22,7 +22,7 @@ map {
 ok(@species == 3);
 my @names = sort $stag->get('species_set/species/common_name');
 print "N=@names\n";
-ok("@names" eq 'fruit fly house mouse human');
+ok("@names" eq 'fruitfly house mouse human');
 $stag->set('species_set/species/common_name', 'foo');
 @names = $stag->get('species_set/species/common_name');
 ok(!grep{$_ ne 'foo'} @names);

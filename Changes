@@ -39,3 +39,7 @@ Version 0.04
 
 2003-??-??	- Fixed empty tag bug with free (was exported as <></>)
 		- Fixed qmatch documentation
+		- Added HashDB
+		- methods ->sxpr() ->itext() now return strings rather
+		  than printing to stdout be default
+		  (you can still pass in a filename)

@@ -1,4 +1,4 @@
-# $Id: Stag.pm,v 1.18 2003/07/03 00:39:10 cmungall Exp $
+# $Id: Stag.pm,v 1.19 2003/07/16 21:40:04 cmungall Exp $
 # -------------------------------------------------------
 #
 # Copyright (C) 2002 Chris Mungall <cjm@fruitfly.org>
@@ -27,7 +27,7 @@ $VERSION="0.03";
 @AUTOMETHODS = qw(
                   new
                   node
-                  nodify
+                  nodify stagify
                   unflatten
                   from
                   fn findnode

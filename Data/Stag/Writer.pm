@@ -31,7 +31,7 @@ sub init_writer {
 	$fh =
 	  FileHandle->new(">$fn") || die($fn);
     }
-    $fh = \*STDOUT unless $fh;
+#    $fh = \*STDOUT unless $fh;
     $self->fh($fh);
     return;
 }
@@ -39,7 +39,8 @@ sub init_writer {
 sub fh {
     my $self = shift;
     $self->{_fh} = shift if @_;
-    return $self->{_fh} || \*STDOUT;
+#    return $self->{_fh} || \*STDOUT;
+    return $self->{_fh};
 }
 
 
@@ -47,7 +48,24 @@ sub addtext {
     my $self = shift;
     my $msg = shift;
     my $fh = $self->fh;
-    print $fh $msg;
+    if ($fh) {
+	print $fh $msg;
+    }
+    else {
+	if (!$self->{_buffer}) {
+	    $self->{_buffer} = '';
+	}
+	$self->{_buffer} .= $msg;
+    }
+    return;
 }
+
+sub popbuffer {
+    my $self = shift;
+    my $b = $self->{_buffer};
+    $self->{_buffer} = '';
+    return $b;
+}
+
 
 1;

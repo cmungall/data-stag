@@ -1,4 +1,4 @@
-# $Id: StagImpl.pm,v 1.28 2003/07/03 01:27:10 cmungall Exp $
+# $Id: StagImpl.pm,v 1.29 2003/07/16 21:40:04 cmungall Exp $
 #
 # Author: Chris Mungall <cjm@fruitfly.org>
 #
@@ -21,6 +21,7 @@ This is the default implementation for Data::Stag - please see L<Data::Stag>
 =cut
 
 use FileHandle;
+use IO::String;
 use Carp;
 use strict;
 use vars qw($AUTOLOAD $DEBUG);
@@ -308,7 +309,7 @@ sub generate {
     my $tree = shift || [];
     my $w = _gethandlerobj($tree, @_);
     $w->event(@$tree);
-    return;
+    return $w->popbuffer || '';
 }
 *gen = \&generate;
 *write = \&generate;
@@ -1003,6 +1004,9 @@ sub get {
 
         my ($top_ev, $children) = @$tree;
         @v = ();
+	if (!ref($children)) {
+	    confess("problem with $node/$top_ev => $children");
+	}
         foreach my $child (@$children) {
             confess unless ref $child;
             my ($ev, $subtree) = @$child;

@@ -1,4 +1,4 @@
-# $Id: BaseHandler.pm,v 1.11 2003/07/03 00:39:10 cmungall Exp $
+# $Id: BaseHandler.pm,v 1.12 2003/07/16 21:40:04 cmungall Exp $
 #
 # This  module is maintained by Chris Mungall <cjm@fruitfly.org>
 
@@ -289,7 +289,6 @@ sub b {shift->evbody(@_)}
 sub end_event {
     my $self = shift;
     my $ev = shift;
-
     my $stack = $self->elt_stack;
     pop(@$stack);
 

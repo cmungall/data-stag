@@ -8,14 +8,14 @@ BEGIN {
     use Test;
     plan tests => 9;
 }
-use XML::NestArray qw(:all);
+use Data::Stag qw(:all);
 use FileHandle;
 
 my $fn = shift @ARGV || "t/data/eco.el";
-my $tree = XML::NestArray->parse($fn);
+my $tree = Data::Stag->parse($fn);
 my ($m) = $tree->getnode('mapping');
 if (1) {
-    my $p = XML::NestArray->parser($fn);
+    my $p = Data::Stag->parser($fn);
     $p->handler('graph');
     $p->handler->mapping($tree->getnode('mapping'));
     $p->parse($fn);

@@ -5,7 +5,7 @@ db:
       binomial: Mus musculus
       tax_id: 10090
     species:
-      common_name: fruit fly
+      common_name: fruitfly
       binomial: Drosophila melanogaster
       tax_id: 7227
     species:

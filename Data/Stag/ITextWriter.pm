@@ -49,16 +49,14 @@ sub indent_txt {
 sub o {
     my $self = shift;
     my @o = @_;
-    my $fh = $self->fh;
-    print $fh $self->indent_txt() . "@o"
+    $self->addtext($self->indent_txt() . "@o");
 }
 
 sub start_event {
     my $self = shift;
     my $ev = shift;
     my $stack = $self->stack;
-    my $fh = $self->fh;
-    print $fh "\n" . $self->indent_txt() . "$ev: ";
+    $self->addtext("\n" . $self->indent_txt() . "$ev: ");
     push(@$stack, $ev);
 }
 sub end_event {
@@ -73,9 +71,8 @@ sub end_event {
 sub evbody {
     my $self = shift;
     my $body = shift;
-    my $fh = $self->fh;
     my $str = itextesc($body);
-    print $fh $str;
+    $self->addtext($str);
     return;
 }
 
