@@ -1,4 +1,4 @@
-# $Id: StagImpl.pm,v 1.19 2003/03/29 23:33:58 cmungall Exp $
+# $Id: StagImpl.pm,v 1.20 2003/04/29 22:29:00 cmungall Exp $
 #
 # Author: Chris Mungall <cjm@fruitfly.org>
 #
@@ -20,6 +20,7 @@ This is the default implementation for Data::Stag - please see L<Data::Stag>
 
 =cut
 
+use FileHandle;
 use Carp;
 use strict;
 use vars qw($AUTOLOAD $DEBUG);
@@ -87,6 +88,41 @@ sub parser {
     my ($fn, $fmt, $h, $str, $fh) = 
       rearrange([qw(file format handler str fh)], @_);
 
+    # GUESS FORMAT BASED ON FILENAME
+    if (!$fmt && $fn) {
+	if ($fn =~ /\.xml$/) {
+            $fmt = "xml";
+        }
+        elsif ($fn =~ /\.ite?xt$/) {
+            $fmt = "itext";
+        }
+        elsif ($fn =~ /\.se?xpr$/) {
+            $fmt = "sxpr";
+        }
+        elsif ($fn =~ /\.el$/) {
+            $fmt = "sxpr";
+        }
+        elsif ($fn =~ /\.pl$/) {
+            $fmt = "perl";
+        }
+        elsif ($fn =~ /\.perl$/) {
+            $fmt = "perl";
+        }
+        else {
+            # default to xml
+	     if (!$str && $fn) {
+		 my $fh = FileHandle->new($fn);
+		 # get the first line
+		 $str = <$fh>;
+		 chomp $str;
+		 $fh->close;
+	     }
+	     else {
+		 $fmt = "xml";
+	     }
+        }
+    }
+
     # GUESS FORMAT BASED ON STR
     if (!$fmt && $str) {
         if ($str =~ /^\s*\'/) {
@@ -111,31 +147,6 @@ sub parser {
         }
     }
 
-    # GUESS FORMAT BASED ON FILENAME
-    if (!$fmt) {
-	if ($fn =~ /\.xml$/) {
-            $fmt = "xml";
-        }
-        elsif ($fn =~ /\.ite?xt$/) {
-            $fmt = "itext";
-        }
-        elsif ($fn =~ /\.se?xpr$/) {
-            $fmt = "sxpr";
-        }
-        elsif ($fn =~ /\.el$/) {
-            $fmt = "sxpr";
-        }
-        elsif ($fn =~ /\.pl$/) {
-            $fmt = "perl";
-        }
-        elsif ($fn =~ /\.perl$/) {
-            $fmt = "perl";
-        }
-        else {
-            # default to xml
-            $fmt = "xml";
-        }
-    }
     my $parser;
     if ($fmt =~ /::/) {
         load_module($fmt);

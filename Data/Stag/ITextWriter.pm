@@ -76,7 +76,10 @@ sub evbody {
 }
 
 sub itextesc {
-    my $w = shift || "";
+    my $w = shift;
+    if (!defined($w)) {
+	$w='';
+    }
     $w =~ s/:/\\:/g;
     return $w;
 }

@@ -1,4 +1,4 @@
-# $Id: ITextParser.pm,v 1.5 2002/12/20 22:30:06 cmungall Exp $
+# $Id: ITextParser.pm,v 1.6 2003/04/29 22:28:59 cmungall Exp $
 #
 # Copyright (C) 2002 Chris Mungall <cjm@fruitfly.org>
 #
@@ -73,7 +73,7 @@ sub parse_fh {
 
             $self->pop_to_level($indent, $txt, \@stack);
             $txt = undef;
-            if ($nu_txt) {
+            if ($nu_txt || length($nu_txt)) {
                 $txt = $nu_txt;
             }
             $self->start_event($elt);

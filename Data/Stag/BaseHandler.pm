@@ -1,4 +1,4 @@
-# $Id: BaseHandler.pm,v 1.7 2003/02/24 15:09:23 cmungall Exp $
+# $Id: BaseHandler.pm,v 1.8 2003/04/29 22:28:58 cmungall Exp $
 #
 # This  module is maintained by Chris Mungall <cjm@fruitfly.org>
 
@@ -255,13 +255,14 @@ sub evbody {
             my $node = $self->{node};
             my $el = $node->[$#{$node}];
             confess unless $el;
-	    if (@$el == 1) {
-		$el->[1] = $arg;
-	    }
-	    else {
-		my $txt_elt_name = $el->[0] . "-text";
-		push(@{$el->[1]}, [$txt_elt_name=>$arg]);
-	    }
+	    $el->[1] = $arg;
+#	    if (@$el == 1) {
+#		$el->[1] = $arg;
+#	    }
+#	    else {
+#		my $txt_elt_name = $el->[0] . "-text";
+#		push(@{$el->[1]}, [$txt_elt_name=>$arg]);
+#	    }
         }
     }
     return;
@@ -450,6 +451,10 @@ sub start_element {
 	$self->{sax_elt_stack} = [];
     }
     push(@{$self->{sax_elt_stack}}, $name);
+    push(@{$self->{is_nonterminal_stack}}, 0);
+    if (@{$self->{is_nonterminal_stack}} > 1) {
+	$self->{is_nonterminal_stack}->[-2] = 1;
+    }
 
     # check if we need an event
     # for any preceeding pcdata
@@ -467,6 +472,7 @@ sub start_element {
     $self->start_event($name);
     foreach my $k (keys %$atts) {
         $self->event("$name-$k", $atts->{$k});
+	$self->{is_nonterminal_stack}->[-1] = 1;
     }
 #    $self->{Handler}->start_element($element);
     
@@ -491,11 +497,21 @@ sub end_element {
     my ($self, $element) = @_;
     my $name = $element->{Name};
     my $str = $self->{__str};
-    pop(@{$self->{sax_elt_stack}});
+    my $parent = pop(@{$self->{sax_elt_stack}});
+    my $is_nt = pop(@{$self->{is_nonterminal_stack}});
     if (defined $str) {
         $str =~ s/^\s*//;
         $str =~ s/\s*$//;
-        $self->evbody($str) if $str || $str eq '0';
+	if ($str || $str eq '0') {
+	    if ($is_nt) {
+		$self->event($parent . "-text" =>
+			     $str);
+			     
+	    }
+	    else {
+		$self->evbody($str);
+	    }
+	}
     }
     $self->end_event($name);
     $self->{__str} = undef;
