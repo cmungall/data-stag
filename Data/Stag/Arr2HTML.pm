@@ -19,7 +19,7 @@ use strict;
 use base qw(Data::Stag::Base);
 
 use vars qw($VERSION);
-$VERSION="0.03";
+$VERSION="0.04";
 
 sub start_event {
     my $self = shift;

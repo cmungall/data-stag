@@ -1,4 +1,4 @@
-# $Id: BaseHandler.pm,v 1.18 2004/02/02 20:31:11 cmungall Exp $
+# $Id: BaseHandler.pm,v 1.19 2004/02/05 06:09:46 cmungall Exp $
 #
 # This  module is maintained by Chris Mungall <cjm@fruitfly.org>
 
@@ -243,7 +243,7 @@ use Carp;
 use Data::Stag;
 
 use vars qw($VERSION);
-$VERSION="0.03";
+$VERSION="0.04";
 
 
 sub tree {

@@ -25,7 +25,7 @@ use strict;
 use base qw(Data::Stag::BaseHandler);
 
 use vars qw($VERSION);
-$VERSION="0.03";
+$VERSION="0.04";
 use Graph;
 
 sub init {
