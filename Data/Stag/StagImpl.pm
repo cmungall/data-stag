@@ -1,4 +1,4 @@
-# $Id: StagImpl.pm,v 1.47 2004/06/10 18:30:53 cmungall Exp $
+# $Id: StagImpl.pm,v 1.48 2004/06/16 03:06:55 cmungall Exp $
 #
 # Author: Chris Mungall <cjm@fruitfly.org>
 #
@@ -2292,6 +2292,31 @@ sub autoschema {
 		     }
 		 });
     return $nu;
+}
+
+sub dtd {
+    my $tree = shift;
+    my ($name, $subtree) = @$tree;
+    $name =~ s/[\+\?\*]$//;
+    my $is_nt = ref($subtree);
+    my $s;
+    if ($is_nt) {
+        my $s2 = join('', map {dtd($_)} @$subtree);
+        my @subnames = map {$_->[0]} @$subtree;
+        my $S = "(".join('|',@subnames).")";
+        if (@subnames < 2) {
+            $S = "@subnames";
+            if (!@subnames) {
+                $S = 'EMPTY';
+            }
+        }
+
+        $s = "<!-- $name: (node) -->\n<!ELEMENT $name $S>\n$s2";
+    }
+    else {
+        $s = "<!-- $name: ($subtree) -->\n<!ELEMENT $name PCDATA>\n";
+    }
+    $s;
 }
 
 sub genschema {

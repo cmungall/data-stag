@@ -19,6 +19,7 @@ my $debug;
 my $help;
 my $name;
 my $defs;
+my $dtd;
 GetOptions(
            "help|h"=>\$help,
            "parser|format|p=s" => \$parser,
@@ -28,6 +29,7 @@ GetOptions(
            "debug"=>\$debug,
 	   "name|n=s"=>\$name,
 	   "defs"=>\$defs,
+           "dtd"=>\$dtd,
           );
 if ($help) {
     system("perldoc $0");
@@ -74,7 +76,12 @@ foreach my $fn (@files) {
 #				     @hdr,
 #				    ]);
 #    $top->set_nesting($s->data);
-    print $s->generate(-fmt=>$handler);
+    if ($dtd) {
+        print $s->dtd;
+    }
+    else {
+        print $s->generate(-fmt=>$handler);
+    }
 }
 
 __END__
