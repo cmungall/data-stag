@@ -1,4 +1,4 @@
-# $Id: StagImpl.pm,v 1.37 2003/12/11 05:04:23 cmungall Exp $
+# $Id: StagImpl.pm,v 1.38 2004/02/02 20:31:11 cmungall Exp $
 #
 # Author: Chris Mungall <cjm@fruitfly.org>
 #
@@ -74,6 +74,47 @@ sub unflatten {
     return $class->new($name=>[@uflist]);
 }
 
+sub unhash {
+    my $proto = shift; 
+    my $class = ref($proto) || $proto;
+    my %hash = @_;
+
+    my @tags = ();
+    foreach my $k (keys %hash) {
+	my $v = $hash{$k};
+	if (ref($v)) {
+	    if (ref($v) eq 'ARRAY') {
+		push(@tags, [$k=>$_]) foreach @$v;
+	    }
+	    elsif (ref($v) eq 'HASH') {
+		my $stag = unhash($class, %$v);
+		push(@tags, [$k=>$stag->data]);
+	    }
+	    else {
+		confess("cannot unhash $v");
+	    }
+	}
+	else {
+	    push(@tags, [$k=>$v]);
+	}
+    }
+    return $class->new(stag=>[@tags]);
+}
+
+sub unstone {
+    my $tree = shift; 
+    my $stone = shift;
+    my $xml = $stone->asXML;
+    from($tree, xmlstr=>$xml);
+}
+
+sub stone {
+    my $tree = shift;
+    my %h = hash($tree);
+    load_module("Stone");
+    Stone->new(%h);
+}
+
 sub load_module {
 
     my $classname = shift;
@@ -99,9 +140,13 @@ sub load_module {
 
 sub parser {
     my $tree = shift;
-    my ($fn, $fmt, $h, $str, $fh) = 
-      rearrange([qw(file format handler str fh)], @_);
+    my ($fn, $fmt, $h, $eh, $str, $fh) = 
+      rearrange([qw(file format handler errhandler str fh)], @_);
 
+    if ($fn && $fn eq '-') {
+	$fn = '';
+	$fh = \*STDIN;
+    }
     # GUESS FORMAT BASED ON FILENAME
     if (!$fmt && $fn) {
 	if ($fn =~ /\.xml$/) {
@@ -169,7 +214,6 @@ sub parser {
 
     if (ref($fmt)) {
         $parser = $fmt;
-	return $parser;
     }
     elsif ($fmt eq "xml") {
         $parser = "Data::Stag::XMLParser";
@@ -184,17 +228,21 @@ sub parser {
         $parser = "Data::Stag::SxprParser";
     }
     else {
+	confess("cannot guess parser from fmt=\"$fmt\" @_") unless $parser;
     }
-    confess("cannot guess parser from fmt=\"$fmt\" @_") unless $parser;
-    load_module($parser);
-    my $p = $parser->new;
-    return $p;
+    unless (ref($parser)) {
+	load_module($parser);
+	$parser = $parser->new;
+    }
+    $parser->file($fn) if $fn;
+#    $parser->fh($fh) if $fh;
+    return $parser;
 }
 
 sub parse {
     my $tree = shift;
-    my ($fn, $fmt, $h, $str, $fh) = 
-      rearrange([qw(file format handler str fh)], @_);
+    my ($fn, $fmt, $h, $eh, $str, $fh) = 
+      rearrange([qw(file format handler errhandler str fh)], @_);
 
     if (!$tree || !ref($tree)) {
         $tree = [];
@@ -202,7 +250,12 @@ sub parse {
 
     my $p = parser($tree, @_);
     $h = Data::Stag::Base->new unless $h;
+    if (!$eh) {
+	$eh = getformathandler($tree, 'xml');
+	$eh->fh(\*STDERR);
+    }
     $p->handler($h);
+    $p->errhandler($eh);
     $p->parse(
               -file=>$fn,
               -str=>$str,
@@ -217,12 +270,13 @@ sub parse {
 
 sub parsestr {
     my $tree = shift;
-    my ($str, $fmt, $h) = 
-      rearrange([qw(str format handler)], @_);
+    my ($str, $fmt, $h, $eh) = 
+      rearrange([qw(str format handler errhandler)], @_);
     return 
       $tree->parse(-str=>$str,
 		   -format=>$fmt,
-		   -handler=>$h);
+		   -handler=>$h,
+		   -errhandler=>$eh);
 		 
 }
 *parseStr = \&parsestr;
@@ -294,6 +348,7 @@ sub _gethandlerobj {
 	confess("unrecognised:$fmt");
     }
     load_module($writer);
+
     my $w = $writer->new(-file=>$fn, -fh=>$fh);
     return $w;
 }
@@ -317,18 +372,47 @@ sub generate {
 sub write {
     my $tree = shift || [];
     my $w = _gethandlerobj($tree, @_);
+
     $w->is_buffered(0);
     $w->event(@$tree);
-    $w->fh->close;
+    $w->close_fh;
     return;
 }
     
 sub makehandler {
     my $tree = shift;
-    my %trap_h = @_;
-    load_module("Data::Stag::BaseHandler");
-    my $handler = Data::Stag::BaseHandler->new;
-    $handler->trap_h(\%trap_h);
+    my $handler;
+    if (@_ == 1) {
+	my $module = shift;
+	load_module($module);
+	$handler = $module->new;
+    }
+    else {
+	my %trap_h = @_;
+	my %opt_h = ();
+	%trap_h =
+	  map {
+	      if ($_ =~ /^-(.*)/) {
+		  $opt_h{lc($1)} = $trap_h{$_};
+		  ();
+	      }
+	      else {
+		  ($_ => $trap_h{$_})
+	      }
+	  } keys %trap_h;
+	load_module("Data::Stag::BaseHandler");
+	$handler = Data::Stag::BaseHandler->new;
+	$handler->trap_h(\%trap_h);
+	
+	if ($opt_h{notree}) {
+	    load_module("Data::Stag::null");
+	    my $null = Data::Stag::null->new;
+	    my $ch = Data::Stag->chainhandlers([keys %trap_h],
+					       $handler,
+					       $null);
+	    return $ch;
+	}
+    }
     return $handler;
 }
 *mh = \&makehandler;
@@ -408,24 +492,51 @@ sub transform {
 }
 *t = \&transform;
 
+# transform stag into hash datastruct;
+# stag keys become hash keys (unordered)
+# single valued keys map to single value (itself a hash or primitive)
+# multivalued map to arrayrefs
 sub hash {
     my $tree = shift;
     my ($ev, $subtree) = @$tree;
+
+    # make sure we have non-terminal
     if (ref($subtree)) {
-        my @h = map { tree2hash($_) } @$subtree;
+	# make hash using stag keys
         my %h = ();
-        while (@h) {
-            my $k = shift @h;
-            my $v = shift @h;
-#            print STDERR "$k = $v;; [@h]\n";
-            $h{$k} = [] unless $h{$k};
-            push(@{$h{$k}}, @$v);
+	foreach my $subnode (@$subtree) {
+	    my $k = $subnode->[0];
+	    my $v;
+	    
+	    # terminals map to data value; non-terminals
+	    # get recursively mapped to hashes
+	    if (isterminal($subnode)) {
+		$v = $subnode->[1];
+	    }
+	    else {
+		$v = {hash($subnode)};
+	    }
+
+	    # determine if it is single-valued or multi-valued hash
+	    my $curr = $h{$k};
+	    if ($curr) {
+		if (ref($curr) && ref($curr) eq 'ARRAY') {
+		    push(@$curr, $v);
+		}
+		else {
+		    $h{$k} = [$curr, $v];
+		}
+	    }
+	    else {
+		# if there is only one value, don't use array -- yet
+		$h{$k} = $v;
+	    }
         }
-        return $ev => [{%h}];
-#        return [map { tree2hash($_) } @$subtree];
+	return %h;
     }
     else {
-        return $ev=>[$subtree];
+	warn("can't make a hash from a terminal");
+        return ();
     }
 }
 *tree2hash = \&hash;
@@ -443,7 +554,7 @@ sub _pairs {
     if (ref($subtree)) {
         my @pairs = map { _pairs($_) } @$subtree;
         return $ev=>[@pairs];
-#        return [map { tree2hash($_) } @$subtree];
+#        return [map { hash($_) } @$subtree];
     }
     else {
         return $ev=>$subtree;
@@ -875,7 +986,11 @@ sub add {
     my $node = shift;
     my @v = @_;
     if (ref($node)) {
-        ($node, @v) = ($node->[0], @{$node->[1]});
+	if ($node->isnull) {
+	    confess("cannot add null node");
+	}
+#        ($node, @v) = ($node->[0], @{$node->[1]});
+        ($node, @v) = ($node->[0], [$node->[1]]);
     }
     if (ref($v[0]) && !ref($v[0]->[0])) {
 	@v = map { $_->[1] } @v;
@@ -1199,6 +1314,23 @@ sub mapv {
     }
     return;
 }
+
+sub sgetmap {
+    my $tree = shift;
+    my %maph = @_;
+    my %vh = ();
+    foreach my $oldkey (keys %maph) {
+	# if 0 is supplied, use oldkey
+	my $newkey = $maph{$oldkey} || $oldkey;
+	my @v = get($tree, $oldkey);
+	if (@v > 1) {
+	    $tree->throw("multivalued key $oldkey");
+	}
+	$vh{$newkey} = $v[0];
+    }
+    return %vh;
+}
+*sgm = \&sgetmap;
 
 sub sfindval {
     my $tree = shift;
@@ -1934,6 +2066,14 @@ sub isastag {
 *isa_node = \&isanode;
 *isaNode = \&isanode;
 
+sub isnull {
+    my $node = shift;
+    if (@$node) {
+	return 0;
+    }
+    return 1;
+}
+
 sub node {
     return Data::Stag::StagImpl->new(@_);
 }
@@ -2078,7 +2218,7 @@ sub rename {
 
 sub isterminal {
     my $self = shift;
-    return !ref($self->data);
+    return !ref($self->[1]);
 }
 
 sub _min {

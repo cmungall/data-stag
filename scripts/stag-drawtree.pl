@@ -1,10 +1,12 @@
 #!/usr/local/bin/perl -w
 
+# POD docs at end
+
 use strict;
 
 use Data::Stag qw(:all);
 use Getopt::Long;
-use Data::Dumper;
+
 use FileHandle;
 use GD;
 
@@ -17,6 +19,7 @@ GetOptions("element|e=s"=>\$e,
 	   "out|o=s"=>\$out,
            "parser|format|p=s" => \$parser,
 	   "font=s"=>\$fontchoice,
+	   "help|h"=>sub { system("perldoc $0"); exit },
 	  );
 
 my $fn = shift @ARGV;
@@ -128,3 +131,41 @@ sub drawbox {
 	$im->line($ix, $iy, $jx, $iy, $linecol);
     }
 }
+
+exit 0;
+
+__END__
+
+=head1 NAME 
+
+stag-drawtree.pl - draws a stag file (xml, itext, sxpr) as a PNG diagram
+
+=head1 SYNOPSIS
+
+  stag-drawtree.pl -o my.png myfile.xml
+
+  stag-drawtree.pl -p My::MyFormatParser -o my.png myfile.myfmt
+
+=head1 DESCRIPTION
+
+requires GD library and GD perl module
+
+=head1 ARGUMENTS
+
+=over
+
+=item -p|parser FORMAT
+
+FORMAT is one of xml, sxpr or itext, or the name of a perl module
+
+xml assumed as default
+
+=back
+
+
+=head1 SEE ALSO
+
+L<Data::Stag>
+
+=cut
+

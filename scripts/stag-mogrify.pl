@@ -2,7 +2,7 @@
 
 =head1 NAME 
 
-stag-mogrify.pl
+stag-mogrify.pl  - mangle stag files
 
 =head1 SYNOPSIS
 

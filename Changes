@@ -37,7 +37,10 @@ Version 0.03
 Version 0.04
 ============
 
-2003-??-??	- Fixed empty tag bug with free (was exported as <></>)
+2004-01-28      - Mucho new documentation on handlers/parsers
+                - errorhandlers added
+
+2003-12-04	- Fixed empty tag bug with free (was exported as <></>)
 		- Fixed qmatch documentation
 		- Added HashDB
 		- methods ->sxpr() ->itext() now return strings rather

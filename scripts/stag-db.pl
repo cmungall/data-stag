@@ -119,7 +119,7 @@ if (@query) {
 
 =head1 NAME 
 
-  stag-db.pl - persistent storage and retrieval for stag data (xml, sxpr, itext)
+stag-db.pl - persistent storage and retrieval for stag data (xml, sxpr, itext)
 
 =head1 SYNOPSIS
 

@@ -10,6 +10,8 @@ use Getopt::Long;
 
 my $parser = "";
 my $handler = "";
+my $errhandler = "";
+my $errf;
 my $mapf;
 my $tosql;
 my $toxml;
@@ -17,10 +19,13 @@ my $toperl;
 my $debug;
 my $help;
 my $color;
+
 GetOptions(
            "help|h"=>\$help,
            "parser|format|p=s" => \$parser,
            "handler|writer|w=s" => \$handler,
+           "errhandler=s" => \$errhandler,
+           "errf|e=s" => \$errf,
            "xml"=>\$toxml,
            "perl"=>\$toperl,
            "debug"=>\$debug,
@@ -31,6 +36,7 @@ if ($help) {
     exit 0;
 }
 
+$errhandler =  Data::Stag->getformathandler($errhandler || 'xml');
 
 my @files = @ARGV;
 foreach my $fn (@files) {
@@ -40,15 +46,25 @@ foreach my $fn (@files) {
     if ($color) {
 	$handler->use_color(1);
     }
-    my @pargs = (-file=>$fn, -format=>$parser, -handler=>$handler);
+    if ($errf) {
+	$errhandler->file($errf);
+    }
+    else {
+	$errhandler->fh(\*STDERR);
+    }
+    my @pargs = (-file=>$fn, -format=>$parser, -handler=>$handler, -errhandler=>$errhandler);
     if ($fn eq '-') {
 	if (!$parser) {
 	    $parser = 'xml';
 	}
-	@pargs = (-format=>$parser, -handler=>$handler, -fh=>\*STDIN);
+	@pargs = (-format=>$parser, -handler=>$handler, 
+		  -fh=>\*STDIN, -errhandler=>$errhandler);
     }
     my $tree = 
       Data::Stag->parse(@pargs);
+    if ($errf) {
+	$errhandler->finish;
+    }
 
     if ($toxml) {
         print $tree->xml;
@@ -57,6 +73,7 @@ foreach my $fn (@files) {
         print tree2perldump($tree);
     }
 }
+$errhandler->finish;
 exit 0;
 
 __END__
@@ -93,6 +110,16 @@ xml assumed as default
 =item -w|writer FORMAT
 
 FORMAT is one of xml, sxpr or itext, or the name of a perl module
+
+=item -e|errf FILE
+
+file to store parse error handler output
+
+=item -errhandler FORMAT/MODULE
+
+FORMAT is one of xml, sxpr or itext, or the name of a perl module
+
+all parse error events go to this module
 
 =item -color
 

@@ -21,7 +21,7 @@ sub rearrange {
   # If we've got parameters, we need to check to see whether
   # they are named or simply listed. If they are listed, we
   # can just return them.
-  return @param unless (defined($param[0]) && $param[0]=~/^-/);
+  return @param unless (defined($param[0]) && $param[0]=~/^-\S/);
 
   # Now we've got to do some work on the named parameters.
   # The next few lines strip out the '-' characters which

@@ -25,26 +25,13 @@ all other elements treated as functions with list arguments
 =cut
 
 use strict;
-use base qw(Data::Stag::Base Data::Stag::Writer);
+use base qw(Data::Stag::Writer Data::Stag::Writer);
 
 use vars qw($VERSION);
 $VERSION="0.03";
 
 sub fmtstr {
     return 'sxpr';
-}
-
-sub init {
-    my $self = shift;
-    $self->init_writer(@_);
-    $self->stack([]);
-    return;
-}
-
-sub stack {
-    my $self = shift;
-    $self->{_stack} = shift if @_;
-    return $self->{_stack};
 }
 
 sub indent_txt {

@@ -1,10 +1,12 @@
 #!/usr/local/bin/perl -w
 
+# POD docs at end
+
 use strict;
 
 use Data::Stag qw(:all);
 use Getopt::Long;
-use Data::Dumper;
+
 
 my @cols = ();
 my $sep = "\t";
@@ -12,6 +14,7 @@ my $parser;
 GetOptions(
            "parser|format|p=s" => \$parser,
 	   "cols|c=s@"=>\@cols,
+	   "help|h"=>sub { system("perldoc $0"); exit },
 	  );
 
 my $fn = shift @ARGV;
@@ -70,7 +73,7 @@ __END__
 
 =head1 NAME 
 
-stag-flatten.pl
+stag-flatten.pl - turns stag data into a flat table
 
 =head1 SYNOPSIS
 

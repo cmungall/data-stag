@@ -16,21 +16,13 @@ package Data::Stag::ITextWriter;
 =cut
 
 use strict;
-use base qw(Data::Stag::Base Data::Stag::Writer);
+use base qw(Data::Stag::Writer);
 
 use vars qw($VERSION);
 $VERSION="0.03";
 
 sub fmtstr {
     return 'itext';
-}
-
-sub init {
-    my $self = shift;
-    my ($fn) = @_;
-    $self->stack([]);
-    $self->init_writer(@_);
-    return;
 }
 
 

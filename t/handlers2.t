@@ -6,7 +6,7 @@ BEGIN {
     # as a fallback
     eval { require Test; };
     use Test;    
-    plan tests => 2;
+    plan tests => 5;
 }
 use Data::Stag;
 use FileHandle;
@@ -37,6 +37,26 @@ print $stag->xml;
 print "remaining tree:\n";
 print $handler->stag->sxpr;
 
-ok(scalar($stag->kids) == 1);
+ok(scalar($stag->kids) == 1);  # check gene_set and similarity_set are removed
 my @sp = $stag->find_species;
 ok(@sp == 6);
+
+$sp[0]->add_foo(5);
+ok ($sp[1]->get_foo == 5);    # sp 0 and 1 should be the same node
+#print $handler->stag->sxpr;
+
+my %geneh = ();
+$handler =
+  Data::Stag->makehandler(-NOTREE=>1,
+			  gene=>sub {
+			      my ($self, $gene) = @_;
+			      $geneh{$gene->sget_symbol} = $gene;
+			      return;
+			  },
+			 );
+
+my $result_tree =
+  $stag->parse(-file=>$fn, -handler=>$handler);
+print $result_tree->sxpr;
+ok(keys %geneh == 2);
+ok($result_tree->isnull);

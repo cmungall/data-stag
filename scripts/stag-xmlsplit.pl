@@ -1,8 +1,11 @@
 #!/usr/local/bin/perl -w
 
+
+
 use Data::Stag qw(:all);
 use Data::Stag::XMLParser;
 use Getopt::Long;
+use strict;
 
 my $split;
 my $name;
@@ -10,9 +13,21 @@ my $dir;
 GetOptions("split|s=s"=>\$split,
 	   "name|n=s"=>\$name,
 	   "dir|d=s"=>\$dir,
+           "parser|format|p=s" => \$parser,
+           "errhandler=s" => \$errhandler,
 	  );
-my $p = Data::Stag::XMLParser->new;
+
+$errhandler =  Data::Stag->getformathandler($errhandler || 'xml');
 my $h = Splitter->new;
+my @pargs = (-file=>$fn, -format=>$parser, -handler=>$handler, -errhandler=>$errhandler);
+if ($fn eq '-') {
+    if (!$parser) {
+	$parser = 'xml';
+    }
+    @pargs = (-format=>$parser, -handler=>$handler, 
+	      -fh=>\*STDIN, -errhandler=>$errhandler);
+}
+
 $p->handler($h);
 $split = $split || shift @ARGV;
 $h->split_on_element($split);

@@ -1,4 +1,4 @@
-# $Id: BaseGenerator.pm,v 1.11 2003/12/18 20:56:27 cmungall Exp $
+# $Id: BaseGenerator.pm,v 1.12 2004/02/02 20:31:11 cmungall Exp $
 #
 # Copyright (C) 2002 Chris Mungall <cjm@fruitfly.org>
 #
@@ -11,15 +11,203 @@ package Data::Stag::BaseGenerator;
 
 =head1 NAME
 
-  Data::Stag::BaseGenerator     - base class for parsers
+  Data::Stag::BaseGenerator     - base class for parsers and other event generators
 
 =head1 SYNOPSIS
+
+  # writing the parser
+  package MyParser;
+  use base qw(Data::Stag::BaseGenerator);
+  
+  sub parse_fh {
+    my ($self, $fh) = shift;
+
+    my $lnum = 0;
+    $self->start_event('data');
+    while (<$fh>) {
+      ++$lnum;
+      $self->line_no($lnum);
+      # do stuff
+      $self->start_event('foo');
+
+      # ...
+      $self->event(blah=>5);
+
+      #
+      if (/incorrect_line/) {
+         $self->parse_err('line not in correct format');
+      }
+
+      # ...
+      $self->end_event('foo');
+    }
+    $self->pop_stack_to_depth(0);
+  }
+  1;
+
+  # using the parser
+  my $p = MyParser->new;
+  my $h = MyHandler->new; # see Data::Stag::BaseHandler
+  my $eh = Data::Stag->makehandler;
+  $p->handler($h);
+  $p->errhandler($eh);
+  $p->parse($file);
+
+  # result tree
+  print $h->stag->xml;
+
+  # write parse errs on standard err
+  printf \*STDERR $p->errhandler->stag->xml;
+
+  # using the parser from the command line
+  unix> stag-parse.pl -p MyParser -w xml -e err.xml > out.xml
+
+  # using the parser from the command line via intermediate handler
+  unix> stag-handle.pl -p MyParser -m MyHandler -w xml -e err.xml > out.xml
 
 =cut
 
 =head1 DESCRIPTION
 
-=head1 AUTHOR
+This is the base class for all parsers and event generators
+
+parsers/generators take some input (usually a filehandle, but a
+generator could be a socket listener, for example) and fire stag
+events
+
+stag events are
+
+=over
+
+=item start_event NODENAME
+
+=item evbody DATA
+
+=item end_event NODENAME {optional}
+
+=item event NODENAME DATA
+
+=back
+
+These events can be nested/hierarchical
+
+If uncaught, these events are stacked into a stag tree, which can be
+written as xml or one of the other stag formats
+
+specialised handlers can be written to catch the events your parser
+throws
+
+For example, you may wish to write a pod parser that generates nested
+events like this:
+
+  <pod>
+   <section>
+     <type>head1</type>
+     <name>NAME</name>
+     <text>Data::Stag - Structured Tags datastructures</text>
+   </section>
+   ...
+  </pod>
+
+(see the source for Data::Stag::PodParser for details)
+
+You can write handlers that take the pod-xml and generate something -
+for example HTML
+
+parsers may encounter unexpected things along the way - they may throw
+an exception, and fall over - or they may choose to fire an error
+event. by default, error event streams are diverted to STDERR. You can
+create your own error handlers
+
+=head1 PUBLIC METHODS
+
+=head3 new
+
+       Title: new
+
+        Args: 
+      Return: L<Data::Stag::BaseGenerator>
+     Example: 
+
+CONSTRUCTOR
+
+=head3 handler
+
+       Title: handler
+    Function: GET/SET ACCESSOR METHOD
+        Args: handler L<Data::Stag::BaseHandler> optional
+      Return: L<Data::Stag::BaseHandler>
+     Example: $p->handler(MyHandler->new);
+
+each parser has a handler - all events generated are passed onto the
+handler; the default handler simply sits there collecting events
+
+=head3 errhandler
+
+       Title: errhandler
+    Function: GET/SET ACCESSOR METHOD
+        Args: handler L<Data::Stag::BaseHandler> optional
+      Return: L<Data::Stag::BaseHandler>
+     Example: $p->errhandler(Data::Stag->makehandler);
+
+each parser has an error handler - if the parser encounters things it
+does not expect, it can pass errors to the errorhandler
+
+if no errorhandler is set, an XML event handler that writes to STDERR is used
+
+=head3 cache_errors
+
+       Title: cache_errors
+        Args: 
+      Return: 
+     Example: $p->cache_errors
+
+If this is called, all errors will be cached rather than written to STDERR
+
+The error list can be accessed like this
+
+  $p->parse($fn);
+  @errs = $p->errhandler->stag->get_error;
+
+=head2 parse
+
+  Example - $parser->parse($file1, $file2);
+  Returns - 
+  Args    - filenames str-LIST
+
+parses a file
+
+=head2 parse
+
+  Example - $parser->parse_fh($fh)
+  Returns - 
+  Args    - fh FILEHANDLE
+
+parses an open filehandle
+
+=cut
+
+=head1 PROTECTED METHODS
+
+These methods are only of interest if you are making your own
+parser/generator class
+
+=over
+
+=item start_event NODENAME
+
+=item evbody DATA
+
+=item end_event NODENAME {optional}
+
+=item event NODENAME DATA
+
+=back
+
+=head1 SEE ALSO
+
+L<Data::Stag>
+L<Data::Stag::BaseHandler>
 
 =cut
 
@@ -111,19 +299,6 @@ sub message {
 }
 
 
-# Constructor
-
-
-=head2 new
-
-  Usage   - my $parser = GO::Parser->new()
-  Usage   - my $parser = GO::Parser->new({})
-  Returns - GO::Parser
-  Args    - GO::Handler, [initialization hashref]
-
-creates a new parser
-
-=cut
 
 sub new {
     my ($class, $init_h) = @_;
@@ -151,12 +326,22 @@ sub load_module {
     }
 }
 
+sub modulemap {
+    my $self = shift;
+    $self->{_modulemap} = shift if @_;
+    return $self->{_modulemap};
+}
+
 sub handler {
     my $self = shift;
     if (@_) {
         my $h = shift;
         if ($h && !ref($h)) {
             my $base = "Data::Stag:";
+	    my $mm = $self->modulemap;
+	    if ($mm && $mm->{$h}) {
+		$h = $mm->{$h};
+	    }
             $h =~ s/^xml$/$base:XMLWriter/;
             $h =~ s/^perl$/$base:PerlWriter/;
             $h =~ s/^sxpr$/$base:SxprWriter/;
@@ -174,23 +359,92 @@ sub handler {
     return $self->{handler};
 }
 
+sub cache_errors {
+    my $self = shift;
+    return $self->errhandler(Data::Stag->makehandler);
+}
+
+sub errhandler {
+    my $self = shift;
+    if (@_) {
+        $self->{errhandler} = shift;
+    }
+    return $self->{errhandler};
+}
+
+sub err_event {
+    my $self = shift;
+    if (!$self->errhandler) {
+	$self->errhandler(Data::Stag->getformathandler('xml'));
+	$self->errhandler->fh(\*STDERR);
+	
+#	my $estag = Data::Stag->new(@_);
+#	eval {
+#	    confess;
+#	};
+#	$estag->set_stacktrace($@);
+#	print STDERR $estag->xml;
+#	exit 1;
+    }
+    if (!$self->errhandler->depth) {
+	$self->errhandler->start_event("error_eventset");
+    }
+    $self->errhandler->event(@_);
+    return;
+}
+
+sub err {
+    my $self = shift;
+    my $err = shift;
+    if (ref($err)) {
+	$self->throw("Bad error msg $err - must not by ref");
+    }
+    $self->err_event(message=>$err);
+    return;
+}
+
+sub parse_err {
+    my $self = shift;
+    my $err = shift || '';
+    if (ref($err)) {
+	$self->throw("Bad error msg $err - must not by ref");
+    }
+    my @tags = ([message=>$err],[file=>$self->file]);
+    my $line = $self->line;
+    push(@tags, [line=>$line]) if defined $line;
+    my $line_no = $self->line_no;
+    push(@tags, [line_no=>$line_no]) if $line_no;
+    my $pclass = ref($self);
+    push(@tags, [parse_class=>"$pclass"]);
+    $self->err_event(error=>[@tags]);
+    return;
+}
+
+
+sub line_no {
+    my $self = shift;
+    $self->{_line_no} = shift if @_;
+    return $self->{_line_no};
+}
+
+sub line {
+    my $self = shift;
+    $self->{_line} = shift if @_;
+    return $self->{_line};
+}
 sub file {
     my $self = shift;
     $self->{_file} = shift if @_;
     return $self->{_file};
 }
 
+sub finish {
+    my $self = shift;
+    if ($self->errhandler && $self->errhandler->depth) {
+	$self->errhandler->end_event;
+    }
+}
 
-
-=head2 parse
-
-  Usage   - $parser->parse($file1, $file2);
-  Returns - n/a
-  Args    - filename list
-
-delegates results to handler
-
-=cut
 
 sub parse {
     my $self = shift;
@@ -222,6 +476,22 @@ sub parse {
     return;
 }
 
+sub handler_err {
+    my $self = shift;
+    $self->err_event(error=>[[message=>'handler problem'],
+			     [stack=>shift]]);
+}
+
+sub errlist {
+    my $self = shift;
+    $self->finish;
+    my $eh = $self->errhandler;
+    if ($eh && $eh->stag && $eh->stag->data) {
+	return ($eh->stag->get_error);
+    }
+    return ();
+}
+
 sub start_event {
     my $self = shift;
     $self->push_stack($_[0]);
@@ -230,13 +500,23 @@ sub start_event {
         confess("attempting to start event:$_[0] illegally (in terminal node after body)");
     }
     $self->last_evcall_type('start_event');
-    $self->handler->start_event(@_);
+    eval {
+	$self->handler->start_event(@_);
+    };
+    if ($@) {
+	$self->handler_err($@);
+    }
     return;
 }
 sub end_event { 
     my $self = shift; 
     my $ev = shift || $self->stack->[-1];
-    $self->handler->end_event($ev);
+    eval {
+	$self->handler->end_event($ev);
+    };
+    if ($@) {
+	$self->handler_err($@);
+    }
 
     my $out = pop(@{$self->stack});
 #    my $out = $self->pop_stack();
@@ -253,7 +533,12 @@ sub event {
         confess("attempting to start event:$_[0] illegally (in terminal node after body)");
     }
 
-    $self->handler->event(@_);
+    eval {
+	$self->handler->event(@_);
+    };
+    if ($@) {
+	$self->handler_err($@);
+    }
     $self->last_evcall_type('end_event');
     return;
 }
@@ -264,7 +549,12 @@ sub evbody {
         confess("attempting to event_body illegally (body already defined)");
     }
 
-    $self->handler->evbody(@_);
+    eval {
+	$self->handler->evbody(@_);
+    };
+    if ($@) {
+	$self->handler_err($@);
+    }
     $self->last_evcall_type('evbody');
     return;
 }

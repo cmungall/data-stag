@@ -1,10 +1,12 @@
 #!/usr/local/bin/perl -w
 
+# POD docs at end
+
 use strict;
 
 use Data::Stag qw(:all);
 use Getopt::Long;
-use Data::Dumper;
+
 use FileHandle;
 
 my $exec;
@@ -13,17 +15,23 @@ my $parser = '';
 my $writer = '';
 my %trap = ();
 my $datafmt;
+my $module;
+my @units;
 GetOptions("codefile|c=s"=>\$codefile,
 	   "sub|s=s"=>\$exec,
 	   "trap|t=s%"=>\%trap,
            "parser|format|p=s" => \$parser,
 	   "writer|w=s"=>\$writer,
 	   "data|d=s"=>\$datafmt,
+	   "module|m=s"=>\$module,
+	   "units|u=s@"=>\@units,
+	   "help|h"=>sub {system("perldoc $0");exit 0},
 	  );
 
-if (!$codefile && !$exec) {
-    $codefile = shift @ARGV;
-    die unless $codefile;
+if (!$codefile && !$exec && !$module) {
+    $codefile = shift @ARGV if (@ARGV > 1);
+    die "you must supply -c or -m or -s, or provide codefile" 
+      unless $codefile;
 }
 my $fn = shift @ARGV;
 my $fh;
@@ -48,24 +56,36 @@ if ($exec) {
 if ($codefile) {
     $catch = do "$codefile";
     if ($@) {
+	print STDERR "\n\nstag-handle error:\n";
+	print STDERR "There was an error with the codefile \"$codefile\":\n\n";
 	die $@;
     }
 }
 if (%trap) {
-#    use Data::Dumper;
+#    
 #    die Dumper \%trap;
     %$catch = (%$catch, %trap);
 }
 use strict;
-my $meth = $exec ?  $exec : $codefile;
-if (!%$catch) {
-    die "$meth did not return handler";
+my @events;
+my $inner_handler;
+if ($module) {
+    $inner_handler = Data::Stag->makehandler($module);
 }
-if (!ref($catch) || ref($catch) ne "HASH") {
-    die("$meth must return hashref");
+else {
+    my $meth = $exec ?  $exec : $codefile;
+    if (!%$catch) {
+	die "method \"$meth\" did not return handler";
+    }
+    if (!ref($catch) || ref($catch) ne "HASH") {
+	die("$meth must return hashref");
+    }
+    $inner_handler = Data::Stag->makehandler(%$catch);
+    @events = keys %$catch;
 }
-my @events = keys %$catch;
-my $inner_handler = Data::Stag->makehandler(%$catch);
+if (@units) {
+    @events = @units;
+}
 my $h = Data::Stag->chainhandlers([@events],
 				 $inner_handler,
 				 $writer);
@@ -79,7 +99,7 @@ __END__
 
 =head1 NAME
 
-  stag-handle.pl
+stag-handle.pl - streams a stag file through a handler into a writer
 
 =head1 SYNOPSIS
 

@@ -1,7 +1,7 @@
-# $Id: Stag.pm,v 1.24 2003/12/04 04:27:24 cmungall Exp $
+# $Id: Stag.pm,v 1.25 2004/02/02 20:31:11 cmungall Exp $
 # -------------------------------------------------------
 #
-# Copyright (C) 2002 Chris Mungall <cjm@fruitfly.org>
+# Copyright (C) 2004 Chris Mungall <cjm@fruitfly.org>
 #
 # See also - http://stag.sourceforge.net
 #
@@ -40,6 +40,7 @@ $VERSION="0.03";
                   sg sget scalarget
                   gl getl getlist
                   gn getn getnode
+		  sgetmap sgm
                   s  set
                   u  unset
 		  free
@@ -197,9 +198,9 @@ __END__
     ;
   } 
 
-  # OO USAGE
+  # OBJECT-ORIENTED USAGE
   use Data::Stag;
-  $doc = Data::Stag->new->parse($file);
+  $doc = Data::Stag->parse($file);
   @persons = $doc->find("person");
   foreach $p (@person) {
     printf "%s, %s phone:%s\n",
@@ -213,7 +214,7 @@ __END__
 
 =head1 DESCRIPTION
 
-This module is for manipulating data as recursively nested tag/value
+This module is for manipulating data as hierarchical tag/value
 pairs (Structured TAGs or Simple Tree AGgreggates). These
 datastructures can be represented as nested arrays, which have the
 advantage of being native to perl. A simple example is shown below:
@@ -234,7 +235,18 @@ The above set of structured tags can be represented in XML as
     <phone_no>...</phone_no>
   </person>
 
-Querying is performed by passing functions, for example:
+This datastructure can be examined, manipulated and exported using
+Stag functions or methods:
+
+  $document = Data::Stag->parse($file);
+  @persons = $document->find('person');
+  foreach my $person (@person) {
+    $person->set('full_name',
+                 $person->sget('given_name') . ' ' .
+                 $person->sget('family_name'));
+  }
+
+Advanced querying is performed by passing functions, for example:
 
   # get all people in dataset with name starting 'A'
   @persons = 
@@ -242,20 +254,21 @@ Querying is performed by passing functions, for example:
                      sub {shift->sget('family_name') =~ /^A/});
 
 One of the things that marks this module out against other XML modules
-is this emphasis on a functional approach as opposed to an OO
-approach (it may appeal to Lisp programmers).
+is this emphasis on a B<functional> approach as an obect-oriented or
+procedural approach.
 
-=head2 PROCEDURAL VS OBJECT ORIENTED USAGE
+=head2 PROCEDURAL VS OBJECT-ORIENTED USAGE
 
 Depending on your preference, this module can be used a set of
 procedural subroutine calls, or as method calls upon Data::Stag
 objects, or both.
 
 In procedural mode, all the subroutine calls are prefixed "stag_" to
-avoid namespace clashes. The following two calls are equivalent:
+avoid namespace clashes. The following three calls are equivalent:
 
-  stag_findnode($doc, "person");
-  $doc->findnode("person");
+  $person = stag_find($doc, "person");
+  $person = $doc->find("person");
+  $person = $doc->find_person;
 
 In object mode, you can treat any tree element as if it is an object
 with automatically defined methods for getting/setting the tag values.
@@ -269,13 +282,13 @@ model can be used. Similarly, data can be exported all at once, or as
 a series of events.
 
 Although this module can be used as a general XML tool, it is intended
-primarily as a tool for manipulating complex data using nested
+primarily as a tool for manipulating hierarchical data using nested
 tag/value pairs.
 
-By using a simpler subset of XML that can be treated as equivalent to
-a basic data tree structure, we can write simpler, cleaner code. This
-simplicity comes at a price - this module is not very suitable for XML
-with attributes or mixed content.
+By using a simpler subset of XML equivalent to a basic data tree
+structure, we can write simpler, cleaner code. This simplicity comes
+at a price - this module is not very suitable for XML with attributes
+or mixed content.
 
 All attributes are turned into elements. This means that it will not
 round-trip a piece of xml with attributes in it. For some applications
@@ -299,11 +312,11 @@ gets parsed as if it were actually:
     <paragraph-text>content</paragraph-text>
   </paragraph>
 
-This module is more suited to dealing with complex datamodels than
-dealing with marked up text
+This module is more suited to dealing with data-oriented documents
+than text-oriented documents.
 
 It can also be used as part of a SAX-style event generation / handling
-framework - see L<Data::Stag::Base>
+framework - see L<Data::Stag::BaseHandler>
 
 Because nested arrays are native to perl, we can specify an XML
 datastructure directly in perl without going through multiple object
@@ -326,11 +339,10 @@ We can instead write
               [ field1 => 'foo'],
               [ field2 => 'bar']]];
 
-If this appeals to you, then maybe this module is for you.
+=head3 PARSING
 
-=head2 PARSING
-
-parsing out subsections of a tree and changing sub-elements
+The following example is for parsing out subsections of a tree and
+changing sub-elements
 
   use Data::Stag qw(:all);
   my $tree = stag_parse($xmlfile);
@@ -338,9 +350,9 @@ parsing out subsections of a tree and changing sub-elements
   stag_set($element, $sub_element, $new_val);
   print stag_xml($subtree);
 
-=head2 OBJECT ORIENTED
+=head3 OBJECT ORIENTED
 
-the same can be done in a more OO fashion
+The same can be done in a more OO fashion
 
   use Data::Stag qw(:all);
   my $tree = Data::Stag->parse($xmlfile);
@@ -348,7 +360,7 @@ the same can be done in a more OO fashion
   $element->set($sub_element, $new_val);
   print $subtree->xml;
 
-=head2 IN A STREAM
+=head3 IN A STREAM
 
 Rather than parsing in a whole file into memory all at once (which may
 not be suitable for very large files), you can take an B<event
@@ -437,7 +449,7 @@ advantages over others, eg hashes and mixed hash/array structures.
 
 =head2 MANIPULATION AND QUERYING
 
-The following example is taken from molecular biology; we have a list
+The following example is taken from biology; we have a list
 of species (mouse, human, fly) and a list of genes found in that
 species. These are cross-referenced by an identifier called
 B<tax_id>. We can do a relational-style inner join on this
@@ -478,17 +490,22 @@ identifier, as follows -
 
   # inner join of species and gene parts of tree,
   # based on 'tax_id' element
-  my ($gene_set) = $tree->find("gene_set");
-  my ($species_set) = $tree->find("species_set");
-  $gene_set->ijoin("gene", "tax_id", $species_set);
+  my $gene_set = $tree->find("gene_set");       # get <gene_set> element
+  my $species_set = $tree->find("species_set"); # get <species_set> element
+  $gene_set->ijoin("gene", "tax_id", $species_set);   # INNER JOIN
+
+  print "Reorganised data:\n";
   print $gene_set->xml;
 
-  # find all genes starting with H in human
+  # find all genes starting with letter 'H' in where species/common_name=human
   my @genes =
     $gene_set->where('gene',
                      sub { my $g = shift;
                            $g->get_symbol =~ /^H/ &&
                            $g->findval("common_name") eq ('human')});
+
+  print "Human genes beginning 'H'\n";
+  print $_->xml foreach @genes;
 
 =head2 S-Expression (Lisp) representation
 
@@ -497,9 +514,10 @@ Lisp-style S-Expressions.
 
 See L<Data::Stag::SxprParser> and  L<Data::Stag::SxprWriter>
 
-If we execute this line
+If we execute this code on the XML from the example above
 
-  print $tree->sxpr;
+  $stag = Data::Stag->parse($xmlfile);
+  print $stag->sxpr;
 
 The following S-Expression will be printed:
 
@@ -547,14 +565,10 @@ If you use emacs, you can save this as a file with the ".el" suffix
 and get syntax highlighting for editing this file. Quotes around the
 terminal node data items are optional.
 
-
 If you know emacs lisp or any other lisp, this also turns out to be a
 very nice language for manipulating these datastructures. Try copying
 and pasting the above s-expression to the emacs scratch buffer and
-playing with it!
-
-I think this module turns out to be a very nice way using my two
-favourite lnaguages, lisp and perl together.
+playing with it in lisp.
 
 =cut
 
@@ -604,7 +618,6 @@ written as follows -
         symbol: Wnt3a
 
 See L<Data::Stag::ITextParser> and  L<Data::Stag::ITextWriter>
-
 
 =head2 NESTED ARRAY SPECIFICATION II
 
@@ -703,17 +716,7 @@ For example, the following are equivalent.
 This is really just syntactic sugar. The autoloaded methods are not
 checked against any schema, although this may be added in future.
 
-One addition slated for a future release is the ability to give
-particular elements certain behaviour, and allow inheritance and all
-that kind of thing.
-
-  fullname: $obj->given_name . ' ' . $obj->family_name;
-
-Although it is the module authors preference to avoid this kind of OO
-paradigm, and instead enforce a cleaner seperation of code from data,
-utilising a more functional style of programming.
-
-=head1 METHODS
+=head1 STAG METHODS
 
 All method calls are also available as procedural subroutine calls;
 unless otherwise noted, the subroutine call is the same as the method
@@ -723,13 +726,17 @@ first argument should be a Data::Stag datastructure.
 To import all subroutines into the current namespace, use this idiom:
 
   use Data::Stag qw(:all);
+  $doc = stag_parse($file);
+  @persons = stag_find($doc, 'person');
 
 If you wish to use this module procedurally, and you are too lazy to
 prefix all calls with B<stag_>, use this idiom:
 
   use Data::Stag qw(:lazy);
+  $doc = parse($file);
+  @persons = find($doc, 'person');
 
-=head3 MNEMONICS
+But beware of clashes!
 
 Most method calls also have a handy short mnemonic. Use of these is
 optional. Software engineering types prefer longer names, in the
@@ -740,18 +747,28 @@ module, then its usage will be fairly ubiquitous within your code, and
 the mnemonics will become familiar, much like the qw and s/ operators
 in perl. As always with perl, the decision is yours.
 
+Some methods take a single parameter or list of parameters; some have
+large lists of parameters that can be passed in any order. If the
+documentation states:
+ 
+  Args: [x str], [y int], [z ANY]
 
-  
+Then the method can be called like this:
+
+  $stag->foo("this is x", 55, $ref);
+
+or like this:
+
+  $stag->foo(-z=>$ref, -x=>"this is x", -y=>55);
 
 =head2 INITIALIZATION METHODS
-
 
 
 =head3 new 
 
        Title: new
 
-        Args: element str, data ANY
+        Args: element str, data STAG-DATA
      Returns: Data::Stag node
      Example: $node = stag_new();
      Example: $node = Data::Stag->new;
@@ -764,7 +781,7 @@ creates a new instance of a Data::Stag node
 
        Title: stagify
      Synonym: nodify
-        Args: data array-reference
+        Args: data ARRAY-REF
      Returns: Data::Stag node
      Example: $node = stag_stagify([person => [[name=>$n], [phone=>$p]]]);
 
@@ -780,18 +797,24 @@ similar to B<new>
         Args: [file str], [format str], [handler obj], [fh FileHandle]
      Returns: Data::Stag node
      Example: $node = stag_parse($fn);
+     Example: $node = stag_parse(-fh=>$fh, -handler=>$h, -errhandler=>$eh);
      Example: $node = Data::Stag->parse(-file=>$fn, -handler=>$myhandler);
 
-slurps a file or string into a Data::Stag node structure. Will
-guess the format from the suffix if it is not given.
+slurps a file or string into a Data::Stag node structure. Will guess
+the format (xml, sxpr, itext) from the suffix if it is not given.
 
 The format can also be the name of a parsing module, or an actual
-parser object
+parser object; 
 
 The handler is any object that can take nested Stag events
 (start_event, end_event, evbody) which are generated from the
 parse. If the handler is omitted, all events will be cached and the
 resulting tree will be returned.
+
+See L<Data::Stag::BaseHandler> for writing your own handlers
+
+See L<Data::Stag::BaseGenerator> for details on parser classes, and
+error handling
 
 =head3 parsestr 
 
@@ -800,7 +823,7 @@ resulting tree will be returned.
         Args: [str str], [format str], [handler obj]
      Returns: Data::Stag node
      Example: $node = stag_parsestr('(a (b (c "1")))');
-     Example: $node = Data::Stag->parsestr(-str=>$fn, -handler=>$myhandler);
+     Example: $node = Data::Stag->parsestr(-str=>$str, -handler=>$myhandler);
 
 Similar to parse(), except the first argument is a string
 
@@ -859,16 +882,35 @@ The former gets converted into the latter for the internal representation
        Title: makehandler
 
         Args: hash of CODEREFs keyed by element name
+              OR a string containing the name of a module
      Returns: L<Data::Stag::BaseHandler>
      Example: $h = Data::Stag->makehandler(%subs);
+     Example: $h = Data::Stag->makehandler("My::FooHandler");
 
-This creates a Stag event handler
+This creates a Stag event handler. The argument is a hash of
+subroutines keyed by element/node name. After each node is fired by
+the parser/generator, the subroutine is called, passing the handler
+object and the stag node as arguments. whatever the subroutine returns
+is placed back into the tree
+
+For example, for a a parser/generator that fires events with the
+following tree form
+
+  <person>
+    <name>foo</name>
+    ...
+  </person>
+
+we can create a handler that writes person/name like this:
 
   $h = Data::Stag->makehandler(
-                               a => sub { my ($self,$stag) = @_;
-                                          $stag->set_foo("bar");});
+                               person => sub { my ($self,$stag) = @_;
+                                               print $stag->name;
+                                               return $stag; # dont change tree
+                                             });
   $stag = Data::Stag->parse(-str=>"(...)", -handler=>$h)
 
+See L<Data::Stag::BaseHandler> for details on handlers
   
 =head3 getformathandler
 
@@ -877,6 +919,8 @@ This creates a Stag event handler
         Args: format str OR L<Data::Stag::BaseHandler>
      Returns: L<Data::Stag::BaseHandler>
      Example: $h = Data::Stag->getformathandler('xml');
+              $h->file("my.xml");
+              Data::Stag->parse(-fn=>$fn, -handler=>$h);
 
 Creates a Stag event handler - this handler can be passed to an event
 generator / parser. Built in handlers include:
@@ -897,6 +941,8 @@ Generates indented text from events
 
 =back
 
+All the above are kinds of L<Data::Stag::Writer>
+
 =head3 chainhandler
 
        Title: chainhandler
@@ -907,13 +953,24 @@ Generates indented text from events
      Returns: 
      Example: $h = Data::Stag->chainhandler('foo', $processor, 'xml')
 
+chains handlers together - for example, you may want to make
+transforms on an event stream, and then pass the event stream to
+another handler - for example, and xml handler
+
   $processor = Data::Stag->makehandler(
 				       a => sub { my ($self,$stag) = @_;
-						  $stag->set_foo("bar");});
+						  $stag->set_foo("bar");
+                                                  return $stag
+                                                },
+				       b => sub { my ($self,$stag) = @_;
+						  $stag->set_blah("eek");
+                                                  return $stag
+                                                },
+                                       );
   $chainh = Data::Stag->chainhandler(['a', 'b'], $processor, 'xml');
   $stag = Data::Stag->parse(-str=>"(...)", -handler=>$chainh)
 
-chains together two handlers (see stag-handle.pl)
+chains together two handlers (see also the script B<stag-handle.pl>)
 
 
 =head2  RECURSIVE SEARCHING
@@ -1089,10 +1146,28 @@ opposed to all descendents) are checked]
      Example: $namestruct = $person->getn('name');
      Example: @pstructs = $person->getn('phone_no');
 
-as B<get> but returns the whole node rather than just the data valie
+as B<get> but returns the whole node rather than just the data value
 
 [equivalent to findnode(), except that only direct children (as
 opposed to all descendents) are checked]
+
+=head3 sgetmap (sgm)
+
+       Title: sgetmap
+     Synonym: sgm
+
+        Args: hash
+      Return: hash
+     Example: %h = $person->sgetmap('social-security-no'=>'id', 
+                                    'name'              =>'label',
+                                    'job'               =>0,
+                                    'address'           =>'location');
+
+returns a hash of key/val pairs based on the values of the data values
+of the subnodes in the current element; keys are mapped according to
+the hash passed (a value of '' or 0 will map an identical key/val).
+
+no multivalued data elements are allowed
 
 
 =head3 set (s)
@@ -1219,14 +1294,19 @@ then the person node would look like this:
        Title: add
      Synonym: a
 
-        Args: element str, datavalue ANY[]
+        Args: element str, datavalues ANY[]
+              OR
+              Data::Stag
       Return: ANY
      Example: $person->add('phone_no', $cellphone, $homephone);
+     Example: $person->add_phone_no('1-555-555-5555');
+     Example: $dataset->add($person)
 
 adds a datavalue or list of datavalues. appends if already existing,
 creates new element value pairs if not already existing.
 
-
+if the argument is a stag node, it will add this node under the
+current one
 
 =head3 element (e name)
 
@@ -1596,6 +1676,82 @@ turns a tree into a series of SAX events
       Return: Node[]
      Example: @nodes = $node->xqp($xpathquerystr);
 
+=head1 STAG SCRIPTS
+
+The following scripts come with the stag module
+
+=over
+
+=item stag-autoschema.pl
+
+writes the implicit stag-schema for a stag file
+
+=item stag-db.pl
+
+persistent storage and retrieval for stag data (xml, sxpr, itext)
+
+=item stag-diff.pl
+
+finds the difference between two stag files
+
+=item stag-drawtree.pl
+
+draws a stag file (xml, itext, sxpr) as a PNG diagram
+
+=item stag-filter.pl
+
+filters a stag file (xml, itext, sxpr) for nodes of interest
+
+=item stag-findsubtree.pl
+
+finds nodes in a stag file
+
+=item stag-flatten.pl
+
+turns stag data into a flat table
+
+=item stag-grep.pl
+
+filters a stag file (xml, itext, sxpr) for nodes of interest
+
+=item stag-handle.pl
+
+streams a stag file through a handler into a writer
+
+=item stag-join.pl
+
+joins two stag files together based around common key
+
+=item stag-mogrify.pl
+
+mangle stag files
+
+=item stag-parse.pl
+
+parses a file and fires events (e.g. sxpr to xml)
+
+=item stag-query.pl
+
+aggregare queries
+
+=item stag-split.pl
+
+splits a stag file (xml, itext, sxpr) into multiple files
+
+=item stag-splitter.pl
+
+splits a stag file into multiple files
+
+=item stag-view.pl
+
+draws an expandable Tk tree diagram showing stag data
+
+=back
+
+To get more documentation, type
+
+  stag_<script> -h
+
 =head1 BUGS
 
 none known so far, possibly quite a few undocumented features!
@@ -1615,11 +1771,11 @@ http://stag.sourceforge.net
 
 =head1 AUTHOR
 
-Chris Mungall <F<cjm@fruitfly.org>>
+Chris Mungall <F<cjm AT fruitfly DOT org>>
 
 =head1 COPYRIGHT
 
-Copyright (c) 2002 Chris Mungall
+Copyright (c) 2004 Chris Mungall
 
 This module is free software.
 You may distribute this module under the same terms as perl itself

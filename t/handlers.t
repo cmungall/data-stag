@@ -79,6 +79,7 @@ $handler->{species_h} = {};
 $handler->{gene_h} = {};
 
 $stag->parse(-file=>$fn, -handler=>$handler);
+
 print $stag->xml;
 print "remaining tree:\n";
 print $handler->stag->sxpr;
@@ -104,7 +105,7 @@ ok(grep { $_->tm("binomial", "Homo sapiens") } @g);
                          $g->get("symbol") =~ /^H/ &&
                            $g->findval("common_name") ne ('human')});
 ok(@g == 1);
-ok(grep { $_->tm("binomial", "Mus musculus") } @g);
+ok(grep {print $_->sxpr; $_->tm("binomial", "Mus musculus") } @g);
 
 
 sub q_gene_by_phenotype {

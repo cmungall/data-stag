@@ -16,7 +16,7 @@ package Data::Stag::XMLWriter;
 =cut
 
 use strict;
-use base qw(Data::Stag::Base Data::Stag::Writer);
+use base qw(Data::Stag::Writer);
 use Data::Stag::Util qw(rearrange);
 
 use vars qw($VERSION);
@@ -25,19 +25,6 @@ $VERSION="0.03";
 
 sub fmtstr {
     return 'xml';
-}
-
-sub init {
-    my $self = shift;
-    $self->init_writer(@_);
-    $self->stack([]);
-    return;
-}
-
-sub stack {
-    my $self = shift;
-    $self->{_stack} = shift if @_;
-    return $self->{_stack};
 }
 
 sub indent_txt {
@@ -78,6 +65,9 @@ sub end_event {
     my $popped = pop(@$stack);
     if ($ev && $popped ne $ev) {
         warn("uh oh; $ev ne $popped");
+    }
+    if (!$ev) {
+	$ev = $popped;
     }
     if ($self->{_nl}) {
 	$self->o("\n" . $self->indent_txt)
