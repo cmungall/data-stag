@@ -1,4 +1,4 @@
-# $Id: StagImpl.pm,v 1.55 2005/01/30 03:17:52 cmungall Exp $
+# $Id: StagImpl.pm,v 1.56 2005/01/30 03:27:11 cmungall Exp $
 #
 # Author: Chris Mungall <cjm@fruitfly.org>
 #
@@ -355,6 +355,12 @@ sub _gethandlerobj {
     }
     elsif ($fmt =~ /sxpr/i) {
         $writer = "Data::Stag::SxprWriter";
+    }
+    elsif ($fmt =~ /yaml/i) {
+        $writer = "Data::Stag::YAMLWriter";
+    }
+    elsif ($fmt =~ /perl/i) {
+        $writer = "Data::Stag::PerlWriter";
     }
     elsif ($fmt =~ /dtd/i) {
         $writer = "Data::Stag::DTDWriter";
