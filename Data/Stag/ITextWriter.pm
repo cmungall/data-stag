@@ -56,7 +56,11 @@ sub start_event {
     my $self = shift;
     my $ev = shift;
     my $stack = $self->stack;
-    $self->addtext("\n" . $self->indent_txt() . "$ev: ");
+    my $tag = "$ev: ";
+    if ($self->use_color) {
+	$tag = color('red').$ev.color('reset').':';
+    }
+    $self->addtext("\n" . $self->indent_txt() . $tag);
     push(@$stack, $ev);
 }
 sub end_event {
@@ -72,6 +76,9 @@ sub evbody {
     my $self = shift;
     my $body = shift;
     my $str = itextesc($body);
+    if ($self->use_color) {
+	$str = color('white').$str;
+    }    
     $self->addtext($str);
     return;
 }
@@ -84,5 +91,11 @@ sub itextesc {
     $w =~ s/:/\\:/g;
     return $w;
 }
+
+# this should already be require'd in Writer.pm
+sub color {
+    Term::ANSIColor::color(@_);
+}
+
 
 1;

@@ -31,7 +31,7 @@ sub init_writer {
 	$fh =
 	  FileHandle->new(">$fn") || die($fn);
     }
-#    $fh = \*STDOUT unless $fh;
+    $fh = \*STDOUT unless $fh;
     $self->fh($fh);
     return;
 }
@@ -43,12 +43,18 @@ sub fh {
     return $self->{_fh};
 }
 
+sub is_buffered {
+    my $self = shift;
+    $self->{_is_buffered} = shift if @_;
+    return $self->{_is_buffered};
+}
+
 
 sub addtext {
     my $self = shift;
     my $msg = shift;
     my $fh = $self->fh;
-    if ($fh) {
+    if ($fh && !$self->is_buffered) {
 	print $fh $msg;
     }
     else {
@@ -66,6 +72,27 @@ sub popbuffer {
     $self->{_buffer} = '';
     return $b;
 }
+
+
+=head2 use_color
+
+  Usage   -
+  Returns -
+  Args    -
+
+=cut
+
+sub use_color {
+    my $self = shift;
+    if (@_) {
+	$self->{_use_color} = shift;
+	if ($self->{_use_color}) {
+	    require "Term/ANSIColor.pm";
+	}
+    }
+    return $self->{_use_color};
+}
+
 
 
 1;

@@ -37,6 +37,7 @@ my $toxml;
 my $toperl;
 my $debug;
 my $help;
+my $color;
 GetOptions(
            "help|h"=>\$help,
            "parser|format|p=s" => \$parser,
@@ -44,6 +45,7 @@ GetOptions(
            "xml"=>\$toxml,
            "perl"=>\$toperl,
            "debug"=>\$debug,
+           "colour|color"=>\$color,
           );
 if ($help) {
     system("perldoc $0");
@@ -54,10 +56,20 @@ if ($help) {
 my @files = @ARGV;
 foreach my $fn (@files) {
 
+    $handler = Data::Stag->getformathandler($handler);
+    $handler->fh(\*STDOUT) if $handler->can("fh");
+    if ($color) {
+	$handler->use_color(1);
+    }
+    my @pargs = (-file=>$fn, -format=>$parser, -handler=>$handler);
+    if ($fn eq '-') {
+	if (!$parser) {
+	    $parser = 'xml';
+	}
+	@pargs = (-format=>$parser, -handler=>$handler, -fh=>\*STDIN);
+    }
     my $tree = 
-      Data::Stag->parse($fn, 
-			$parser, 
-			$handler);
+      Data::Stag->parse(@pargs);
 
     if ($toxml) {
         print $tree->xml;

@@ -19,7 +19,7 @@ $hdb->record_type("species");
 my $obj = {};
 $hdb->index_hash($obj);
 Data::Stag->parse(-file=>$fn, -handler=>$hdb);
-my $sp = $obj->{7227};
+my $sp = $obj->{7227}->[0];
 print $sp->sxpr;
 ok($sp->get_common_name eq 'fruitfly');
 
@@ -29,7 +29,7 @@ $hdb->unique_key("symbol");
 $hdb->record_type("gene");
 $set->sax($hdb);
 
-my $gene = $obj->{'HGNC'};
+my $gene = $obj->{'HGNC'}->[0];
 my $itext = $gene->itext;
 print $itext, "\n";
 ok($gene->get_tax_id == 9606)

@@ -94,7 +94,13 @@ sub start_event {
 	$ev = '';
     }
     my $stack = $self->stack;
-    $self->o("($ev");
+    if ($self->use_color) {
+	$self->o(color('white'));
+	$self->o('('.color('red').$ev);
+    }
+    else {
+	$self->o("($ev");
+    }
     push(@$stack, $ev);
 }
 sub end_event {
@@ -105,7 +111,13 @@ sub end_event {
     if ($ev && $popped ne $ev) {
         warn("uh oh; $ev ne $popped");
     }
-    $self->o(")");
+    if ($self->use_color) {
+#	$self->o(color('white'));
+	$self->o(')');
+    }
+    else {
+	$self->o(')');
+    }
     if (!@$stack) {
 	$self->o("\n");
     }
@@ -114,7 +126,25 @@ sub end_event {
 sub evbody {
     my $self = shift;
     my $body = shift;
-    $self->o(lispesc($body));
+    my $str;
+    if ($self->use_color) {
+	if (!defined($body)) {
+	    $str = color('white').'""';
+	}
+	elsif ($body eq '0') {
+	    $str = color('white').'"'.color('green').'0'.color('white').'"';
+	}
+	else {
+	    $body =~ s/\(/\\\(/g;
+	    $body =~ s/\)/\\\)/g;
+	    $body =~ s/\"/\\\"/g;
+	    $str = color('white').'"'.color('green').$body.color('white').'"';
+	}
+    }
+    else {
+	$str = lispesc($body);
+    }
+    $self->o($str);
     return;
 }
 
@@ -127,5 +157,10 @@ sub lispesc {
     $w =~ s/\"/\\\"/g;
     return '"'.$w.'"';
 }
+
+sub color {
+    Term::ANSIColor::color(@_);
+}
+
 
 1;

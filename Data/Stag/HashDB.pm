@@ -114,6 +114,9 @@ sub unique_key {
 sub index_hash {
     my $self = shift;
     $self->{_index_hash} = shift if @_;
+    if (!$self->{_index_hash}) {
+	$self->{_index_hash} = {};
+    }
     return $self->{_index_hash};
 }
 
@@ -135,20 +138,59 @@ sub end_event {
     my $ev = shift;
     if ($ev eq $self->record_type) {
 	my $topnode = $self->popnode;
-	my $name_elt = $self->unique_key;
-	my $name;
-	if ($name_elt) {
-	    $name = stag_get($topnode, $name_elt);
-	}
-	if (!$name) {
-	    $name = $ev."_".$self->nextid;
-	}
-	$self->index_hash->{$name} = stag_stagify($topnode);
+	$self->add_record(stag_stagify($topnode));
+#	my $name_elt = $self->unique_key;
+#	my $name;
+#	if ($name_elt) {
+#	    $name = stag_get($topnode, $name_elt);
+#	}
+#	if (!$name) {
+#	    $name = $ev."_".$self->nextid;
+#	}
+#	$self->index_hash->{$name} = stag_stagify($topnode);
 	return [];
     }
     else {
 	return $self->SUPER::end_event($ev, @_);
     }
+}
+
+sub add_record {
+    my $self = shift;
+    my $record = shift;
+    
+    my $idx = $self->index_hash;
+    my $ukey = $self->unique_key;
+    my $keyval;
+    if ($ukey) {
+	$keyval = stag_get($record, $ukey);
+    }
+    if (!$keyval) {
+	$keyval = $record->name."_".$self->nextid;
+    }
+    $idx->{$keyval} = [] unless $idx->{$keyval};
+    my $vals = $idx->{$keyval};
+    push(@$vals, $record);
+    $idx->{$keyval} = $vals;
+    return;
+}
+
+sub get_record {
+    my $self = shift;
+    my $keyval = shift;
+    my $records = $self->index_hash->{$keyval} || [];
+    if (wantarray) {
+	return @$records;
+    }
+    else {
+	return $records->[0];
+    }
+}
+
+sub reset {
+    my $self = shift;
+    %{$self->index_hash} = ();
+    return;
 }
 
 1;

@@ -1,4 +1,4 @@
-# $Id: StagImpl.pm,v 1.29 2003/07/16 21:40:04 cmungall Exp $
+# $Id: StagImpl.pm,v 1.30 2003/07/23 04:46:57 cmungall Exp $
 #
 # Author: Chris Mungall <cjm@fruitfly.org>
 #
@@ -185,7 +185,7 @@ sub parser {
     }
     else {
     }
-    confess("cannot guess parser from @_") unless $parser;
+    confess("cannot guess parser from fmt=\"$fmt\" @_") unless $parser;
     load_module($parser);
     my $p = $parser->new;
     return $p;
@@ -308,6 +308,7 @@ sub getformathandler {
 sub generate {
     my $tree = shift || [];
     my $w = _gethandlerobj($tree, @_);
+    $w->is_buffered(1);
     $w->event(@$tree);
     return $w->popbuffer || '';
 }
@@ -869,8 +870,14 @@ sub addnode {
 
 sub unset {
     my $tree = shift || confess;
-    my $node = shift;
+    my ($node, @path) = splitpath(shift);
     confess("problem: $tree not arr") unless ref($tree) && ref($tree) eq "ARRAY" || isaNode($tree);
+
+    if (@path) {
+	$_->unset(\@path) foreach findnode($tree, $node);
+	return;
+    }
+
     my ($ev, $subtree) = @$tree;
     my @nu_tree = ();
     foreach my $st (@$subtree) {
@@ -1933,7 +1940,7 @@ sub grammarparser {
 sub kids {
     my $self = shift;
     if (@_) {
-        @$self = $self->[0], map {Node($_)} @_;
+        @$self = ($self->[0], [map {Nodify($_)} @_]);
     }
     my ($name, $kids) = @$self;
     if (!ref($kids)) {
