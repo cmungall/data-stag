@@ -1,4 +1,4 @@
-# $Id: StagImpl.pm,v 1.10 2003/01/09 22:16:55 cmungall Exp $
+# $Id: StagImpl.pm,v 1.11 2003/01/09 22:57:37 cmungall Exp $
 #
 # Author: Chris Mungall <cjm@fruitfly.org>
 #
@@ -742,7 +742,7 @@ sub findval {
 *findSubTreeVal = \&findval;
 
 # WANTARRAY
-sub get {
+sub getdata {
     my $tree = shift || confess;
     my ($node, @path) = splitpath(shift);
     my $replace = shift;
@@ -751,7 +751,7 @@ sub get {
 
     my @v = ();
     if (@path) {
-        @v = map { $_->get(\@path, $replace) } getnode($tree, $node)
+        @v = map { $_->getdata(\@path, $replace) } getnode($tree, $node)
     }
     else {
 
@@ -773,6 +773,57 @@ sub get {
     }
     $v[0];
 }
+*gd = \&getdata;
+
+sub get {
+    my $tree = shift || confess;
+    my ($node, @path) = splitpath(shift);
+    my $replace = shift;
+    confess("problem: $tree not arr") unless ref($tree) && ref($tree) eq "ARRAY" || isaNode($tree);
+
+    my @v = ();
+    if (@path) {
+        @v = map { $_->get(\@path, $replace) } getnode($tree, $node)
+    }
+    else {
+
+        my ($top_ev, $children) = @$tree;
+        @v = ();
+        foreach my $child (@$children) {
+            confess unless ref $child;
+            my ($ev, $subtree) = @$child;
+            if (test_eq($ev, $node)) {
+                my $is_nt = 0;
+                if (ref($subtree)) {
+                    $is_nt = 1;
+                }
+                if (defined $replace)  {
+#                    $tree->[1] = $replace;
+                    if ($is_nt) {
+                        if (!ref($replace)) {
+                            confess("use getdata instead");
+                        }
+                        @$child = @$replace;
+                    }
+                    else {
+                        $child->[1] = $replace;
+                    }
+                }
+                if ($is_nt) {
+                    push(@v, $child);
+                }
+                else {
+                    push(@v, $subtree);
+                }
+            }
+        }
+    }
+    if (wantarray) {
+        return @v;
+    }
+    $v[0];
+}
+
 *g = \&get;
 
 # WANTARRAY
@@ -830,9 +881,10 @@ sub getl {
     my @v = ();
     foreach my $child (@$children) {
         my ($ev, $subtree) = @$child;
+        my $is_nt = ref($subtree);
         if ($elth{$ev}) {
             # warn if dupl?
-            $valh{$ev} = $subtree;
+            $valh{$ev} = $is_nt ? $child : $subtree;
         }
     }
     return map {$valh{$_}} @elts;
