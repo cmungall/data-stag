@@ -35,8 +35,29 @@ sub subhandlers {
 
 sub blocked_event {
     my $self = shift;
-    $self->{_blocked_event} = shift if @_;
+    if (@_) {
+        my $e = shift;
+        $self->{_blocked_event} = $e;
+        unless (ref($e)) {
+            $e = [$e];
+        }
+        my %h = map {$_=>1} @$e;
+        $self->blocked_event_h(\%h);
+    }
     return $self->{_blocked_event};
+}
+
+sub blocked_event_h {
+    my $self = shift;
+    $self->{_blocked_event_h} = shift if @_;
+    return $self->{_blocked_event_h};
+}
+
+sub is_blocked {
+    my $self = shift;
+    my $e = shift;
+    my $is = $self->blocked_event_h->{$e};
+    return $is;
 }
 
 sub start_event {
@@ -46,8 +67,7 @@ sub start_event {
     push(@$stack, $ev);
 
     my $sh = $self->subhandlers;
-    my $b = $self->blocked_event;
-    if (grep {$_ eq $b} @$stack) {
+    if (grep {$self->is_blocked($_)} @$stack) {
         $sh->[0]->start_event($ev);
     }
     else {
@@ -65,8 +85,7 @@ sub evbody {
     my $stack = $self->elt_stack;
 
     my $sh = $self->subhandlers;
-    my $b = $self->blocked_event;
-    if (grep {$_ eq $b} @$stack) {
+    if (grep {$self->is_blocked($_)} @$stack) {
         $sh->[0]->evbody($ev, @args);
     }
     else {
@@ -74,6 +93,8 @@ sub evbody {
             $_->evbody($ev, @args);
         }
     }
+    
+    return;
 }
 
 sub event {
@@ -83,9 +104,8 @@ sub event {
     my $stack = $self->elt_stack;
 
     my $sh = $self->subhandlers;
-    my $b = $self->blocked_event;
 
-    if (grep {$_ eq $b} @$stack) {
+    if (grep {$self->is_blocked($_)} @$stack) {
         $sh->[0]->event($ev, @args);
     }
     else {
@@ -95,7 +115,7 @@ sub event {
     }
 }
 
-sub chain_event {
+sub zzzchain_event {
     my $self = shift;
     my $type = shift;
     my $ev = shift;
@@ -104,8 +124,7 @@ sub chain_event {
     push(@$stack, $ev);
 
     my $sh = $self->subhandlers;
-    my $b = $self->blocked_event;
-    if (grep {$_ eq $b} @$stack) {
+    if (grep {$self->is_blocked($_)} @$stack) {
         $sh->[0]->event($ev, @args);
     }
     else {
@@ -123,19 +142,28 @@ sub end_event {
     pop @$stack;
 
     my $sh = $self->subhandlers;
-    my $b = $self->blocked_event;
 
-    if ($ev eq $b) {
+    if ($self->is_blocked($ev)) {
         my ($h, @rest) = @$sh;
+#        my $node = $h->node;
+#        my $topnode = pop @$node;
+
         $h->end_event($ev);
         foreach (@rest) {
             my $tree = $h->tree;
             $_->event(@$tree);
         }
+#        use Data::Dumper;
+#        print Dumper $node->[-1];
+#        die;
+#        @$topnode = ();
+        my $tree = $h->tree;
+        $tree->free;
+#        $h->tree([]);
     }
     else {
 
-        if (grep {$_ eq $b} @$stack) {
+        if (grep {$self->is_blocked($_)} @$stack) {
             $sh->[0]->end_event($ev);
         }
         else {

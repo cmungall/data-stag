@@ -1,4 +1,4 @@
-# $Id: Stag.pm,v 1.11 2003/02/05 15:09:01 cmungall Exp $
+# $Id: Stag.pm,v 1.12 2003/02/24 15:09:22 cmungall Exp $
 # -------------------------------------------------------
 #
 # Copyright (C) 2002 Chris Mungall <cjm@fruitfly.org>
@@ -64,6 +64,7 @@ $VERSION="0.02";
 		  generate gen write
                   makehandler mh
                   findhandler 
+                  getformathandler 
                   xml   tree2xml
                   hash tree2hash
                   pairs tree2pairs
@@ -849,7 +850,16 @@ The former gets converted into the latter for the internal representation
   $h = Data::Stag->makehandler(
                                a => sub { my ($self,$stag) = @_;
                                           $stag->set_foo("bar");});
-  $stag = Data::Stag->parse(-str=>"(
+  $stag = Data::Stag->parse(-str=>"(...)")
+
+  
+=head3 getformathandler
+
+       Title: getformathandler
+
+        Args: format str
+     Returns: handler class
+     Example: $h = Data::Stag->getformathandler('xml');
 
   
 

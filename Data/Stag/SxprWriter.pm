@@ -110,6 +110,7 @@ sub evbody {
 
 sub lispesc {
     my $w = shift;
+    return '""' unless $w;
     $w =~ s/\(/\\\(/g;
     $w =~ s/\)/\\\)/g;
     $w =~ s/\"/\\\"/g;

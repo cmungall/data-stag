@@ -1,4 +1,4 @@
-# $Id: BaseGenerator.pm,v 1.3 2002/12/06 23:42:01 cmungall Exp $
+# $Id: BaseGenerator.pm,v 1.4 2003/02/24 15:09:23 cmungall Exp $
 #
 # Copyright (C) 2002 Chris Mungall <cjm@fruitfly.org>
 #
@@ -50,6 +50,14 @@ sub messages {
     $self->{_messages} = [] unless $self->{_messages};
     return $self->{_messages};
 }
+
+
+sub last_evcall_type {
+    my $self = shift;
+    $self->{_last_evcall_type} = shift if @_;
+    return $self->{_last_evcall_type};
+}
+
 
 sub stack {
     my $self = shift;
@@ -218,6 +226,11 @@ sub parse {
 sub start_event {
     my $self = shift;
     $self->push_stack($_[0]);
+    my $lc = $self->last_evcall_type;
+    if ($lc && $lc eq 'evbody') {
+        confess("attempting to start event:$_[0] illegally (in terminal node after body)");
+    }
+    $self->last_evcall_type('start_event');
     $self->handler->start_event(@_);
     $self->check_handler_messages;
 }
@@ -225,17 +238,35 @@ sub end_event {
     my $self = shift; 
     my $ev = shift || $self->stack->[-1];
     $self->handler->end_event($ev);
-    $self->pop_stack();
+
+    my $out = $self->pop_stack();
+    if ($ev ne $out) {
+        confess("MISMATCH: $ev ne $out");
+    }
+    $self->last_evcall_type('end_event');
     $self->check_handler_messages;
 }
 sub event {
     my $self = shift;
+    my $lc = $self->last_evcall_type;
+    if ($lc && $lc eq 'evbody') {
+        confess("attempting to start event:$_[0] illegally (in terminal node after body)");
+    }
+
     $self->handler->event(@_);
+    $self->last_evcall_type('end_event');
     $self->check_handler_messages;
 }
 sub evbody {
     my $self = shift;
+    my $lc = $self->last_evcall_type;
+    if ($lc && $lc eq 'evbody') {
+        confess("attempting to event_body illegally (body already defined)");
+    }
+
     $self->handler->evbody(@_);
+    $self->last_evcall_type('evbody');
+
     $self->check_handler_messages;
 }
 

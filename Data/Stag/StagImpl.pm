@@ -1,4 +1,4 @@
-# $Id: StagImpl.pm,v 1.14 2003/02/05 15:09:05 cmungall Exp $
+# $Id: StagImpl.pm,v 1.15 2003/02/24 15:09:24 cmungall Exp $
 #
 # Author: Chris Mungall <cjm@fruitfly.org>
 #
@@ -254,6 +254,12 @@ sub _gethandlerobj {
 }
 *findhandler = \&_gethandlerobj;
 
+sub getformathandler {
+    my $tree = shift;
+    my $fmt = shift;
+    return findhandler($tree, -fmt=>$fmt);
+}
+
 sub generate {
     my $tree = shift || [];
     my $w = _gethandlerobj($tree, @_);
@@ -283,8 +289,20 @@ sub chainhandlers {
     $handler->blocked_event($block);
     $handler->subhandlers([
                            map {
-                               ref($_) ? $_ :
-                                 _gethandlerobj($tree, -fmt=>$_)
+                               if (ref($_)) {
+                                   if (ref($_) eq 'HASH') {
+                                       # make a new handler
+                                       makehandler($tree, %$_);
+                                   }
+                                   else {
+                                       # assume it is an object
+                                       $_;
+                                   }
+                               }
+                               else {
+                                   # assume it is string specifying format
+                                   _gethandlerobj($tree, -fmt=>$_)
+                               }
                              } @sh
                           ]);
     return $handler;
@@ -372,6 +390,12 @@ sub sxpr {
     my $tree = shift;
     my $fn = shift;
     generate($tree, $fn, 'sxpr', @_);
+}
+
+sub itext {
+    my $tree = shift;
+    my $fn = shift;
+    generate($tree, $fn, 'itext', @_);
 }
 
 sub as {

@@ -1,4 +1,4 @@
-# $Id: BaseHandler.pm,v 1.6 2003/02/05 15:09:02 cmungall Exp $
+# $Id: BaseHandler.pm,v 1.7 2003/02/24 15:09:23 cmungall Exp $
 #
 # This  module is maintained by Chris Mungall <cjm@fruitfly.org>
 
@@ -140,11 +140,23 @@ sub trap_h {
     return $self->{_trap_h};
 }
 
+sub catch_end_sub {
+    my $self = shift;
+    $self->{_catch_end_sub} = shift if @_;
+    return $self->{_catch_end_sub};
+}
+
 
 sub elt_stack {
     my $self = shift;
     $self->{elt_stack} = shift if @_;
     return $self->{elt_stack};
+}
+
+sub in {
+    my $self = shift;
+    my $in = shift;
+    return 1 if grep {$in eq $_} @{$self->elt_stack};
 }
 
 sub depth {
@@ -218,6 +230,10 @@ sub start_event {
     my $ev = shift;
     my $node = $self->{node};
     my $m = perlify("s_$ev");
+
+    my $stack = $self->elt_stack;
+    push(@$stack, $ev);
+
     if ($self->can($m)) {
         $self->$m;
     }
@@ -262,6 +278,9 @@ sub b {shift->evbody(@_)}
 sub end_event {
     my $self = shift;
     my $ev = shift;
+
+    my $stack = $self->elt_stack;
+    pop(@$stack);
 
     my $node = $self->node;
     my $topnode = pop @$node;
@@ -350,36 +369,26 @@ sub end_event {
 #        my $tree = $self->$m($topnodeval);
         my $tree = $self->$m(Data::Stag::stag_nodify($topnode));
 
-# NO NEED FOR THESE LINES ANY MORE:
-# the intercepting code can manipulated the Stag
-# object directly
-#
-#        my $el = $node->[$#{$node}];
-#        push(@{$el->[1]}, $tree) if $tree;
     }
     else {
         if ($self->can("catch_end")) {
             $self->catch_end($ev, Data::Stag::stag_nodify($topnode));
-###            my $tree = $self->catch_end($ev, Data::Stag::stag_nodify($topnode));
-
-# NO NEED FOR THESE LINES ANY MORE:
-# the intercepting code can manipulated the Stag
-# object directly
-#
-#            my $el = $node->[$#{$node}];
-#            push(@{$el->[1]}, $tree) if $tree;
+        }
+        if ($self->catch_end_sub) {
+            $self->catch_end_sub->($self, Data::Stag::stag_nodify($topnode));
         }
         if (@$node) {
             my $el = $node->[$#{$node}];
-#            if ($topnode && !ref($topnode)) {
-#                confess $topnode;
-#            }
-
-            if ($topnode && @$topnode) {
-#                confess $el->[1] unless ref($el->[1]);
-                push(@{$el->[1]}, $topnode);
-                #            $el->[1] = $topnode;
-
+            if ($topnode) {
+                if (@$topnode) {
+                    if (!$el->[1]) {
+#                        print STDERR "*** adding el to $el->[0]...\n";
+#                        use Data::Dumper;
+#                        print Dumper $node;
+                        $el->[1] = [];
+                    }
+                    push(@{$el->[1]}, $topnode);
+                }
             }
         }
     }
@@ -437,10 +446,10 @@ sub start_element {
     my $name = $element->{Name};
     my $atts = $element->{Attributes};
 
-    if (!$self->{elt_stack}) {
-	$self->{elt_stack} = [];
+    if (!$self->{sax_elt_stack}) {
+	$self->{sax_elt_stack} = [];
     }
-    push(@{$self->{elt_stack}}, $name);
+    push(@{$self->{sax_elt_stack}}, $name);
 
     # check if we need an event
     # for any preceeding pcdata
@@ -449,7 +458,7 @@ sub start_element {
         $str =~ s/^\s*//;
         $str =~ s/\s*$//;
 	if ($str) {
-	    my $parent = $self->{elt_stack}->[-2];
+	    my $parent = $self->{sax_elt_stack}->[-2];
 	    $self->event("$parent-text", $str) if $str;
 	}
 	$self->{__str} = undef;
@@ -482,7 +491,7 @@ sub end_element {
     my ($self, $element) = @_;
     my $name = $element->{Name};
     my $str = $self->{__str};
-    pop(@{$self->{elt_stack}});
+    pop(@{$self->{sax_elt_stack}});
     if (defined $str) {
         $str =~ s/^\s*//;
         $str =~ s/\s*$//;

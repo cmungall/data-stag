@@ -49,7 +49,7 @@ $stag->get('species_set/species/common_name', 'foo');
 my @foo = $stag->get('species_set/species/common_name');
 ok(@foo == 3);
 ok(!grep {$_ ne 'foo'} @foo);
-$stag->get('species_set/species', Data::Stag->new(foo=>bar));
+$stag->get('species_set/species', Data::Stag->new(foo=>'bar'));
 #print $stag->xml;
 @foo = $stag->get('species_set/foo');
 ok(@foo == 3);
