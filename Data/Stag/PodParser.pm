@@ -1,4 +1,4 @@
-# $Id: PodParser.pm,v 1.1 2003/12/11 07:22:44 cmungall Exp $
+# $Id: PodParser.pm,v 1.2 2004/01/29 00:50:51 cmungall Exp $
 #
 # Copyright (C) 2002 Chris Mungall <cjm@fruitfly.org>
 #
@@ -48,18 +48,20 @@ sub parse_fh {
     my $txt;
 
     my $in_pod = 0;
+    my $tt = 'text';
     $self->start_event("pod");
     my $buf;
     my $section;
     while(<$fh>) {
         chomp;
         if (/^=(\S+)\s*(.*)/) {
+            $tt = 'text';
             my ($ev, $data) = ($1, $2);
             $in_pod = $ev eq 'cut' ? 0 : 1;
             $data =~ s/\s*$//;
             $section = $data;
             if ($buf) {
-                $self->event(text=>trim($buf));
+                $self->event($tt=>trim($buf));
                 $buf = undef;
             }
             $self->pop_stack_to_depth(1);
@@ -71,13 +73,22 @@ sub parse_fh {
             }
         }
         else {
+            if (/^\s\s\s*(.*)/) {
+                if ($tt eq 'text') {
+                    $tt = 'code';
+                    if ($buf) {
+                        $self->event(text=>trim($buf));
+                        $buf = undef;
+                    }
+                }        
+            } 
             if ($in_pod) {
                 $buf .= "$_\n";
             }
-        }
+       }
     }
     if ($buf) {
-        $self->event(text=>trim($buf));
+        $self->event($tt=>trim($buf));
     }
     $fh->close;
     $self->pop_stack_to_depth(0);
