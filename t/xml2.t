@@ -11,10 +11,19 @@ BEGIN {
 use Data::Stag qw(:all);
 use Data::Stag::Arr2HTML;
 use Data::Stag::null;
-use XML::Handler::XMLWriter;
 use FileHandle;
 use strict;
 use Data::Dumper;
+
+eval {
+    require "XML/Parser/PerlSAX.pm";
+};
+if ($@) {
+    for (1..4) {
+        skip("XML::Parser::PerlSAX not installed",1);
+    }
+    exit 0;
+}
 
 my $tree =
   Node(top=>[

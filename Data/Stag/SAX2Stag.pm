@@ -24,7 +24,7 @@ use strict;
 use base qw(Data::Stag::Base);
 
 use vars qw($VERSION);
-$VERSION="0.07";
+$VERSION="0.08";
 
 my (%mail_args, $current_element, $message_count, $sent_count);
 

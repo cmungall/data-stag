@@ -1,4 +1,4 @@
-# $Id: BaseGenerator.pm,v 1.14 2004/10/27 22:10:43 cmungall Exp $
+# $Id: BaseGenerator.pm,v 1.15 2004/12/21 02:26:25 cmungall Exp $
 #
 # Copyright (C) 2002 Chris Mungall <cjm@fruitfly.org>
 #
@@ -505,17 +505,6 @@ sub errlist {
 sub start_event {
     my $self = shift;
     push(@{$self->{_stack}}, $_[0]);
-#    my $lc = $self->last_evcall_type;
-#    if ($lc && $lc eq 'evbody') {
-#        confess("attempting to start event:$_[0] illegally (in terminal node after body)");
-#    }
-#    $self->last_evcall_type('start_event');
-#    eval {
-#	$self->handler->start_event(@_);
-#    };
-#    if ($@) {
-#	$self->handler_err($@);
-#    }
     $self->{_handler}->start_event(@_);
     return;
 }
@@ -523,36 +512,13 @@ sub end_event {
     my $self = shift; 
     my $ev = shift || $self->{_stack}->[-1];
     $self->{_handler}->end_event($ev);
-#    eval {
-#	$self->handler->end_event($ev);
-#    };
-#    if ($@) {
-#	$self->handler_err($@);
-#    }
 
     my $out = pop(@{$self->{_stack}});
-##    my $out = $self->pop_stack();
-#    if ($ev ne $out) {
-#        confess("MISMATCH: '$ev' ne '$out'");
-#    }
-#    $self->last_evcall_type('end_event');
     return;
 }
 
 sub event {
     my $self = shift;
-#    my $lc = $self->last_evcall_type;
-#    if ($lc && $lc eq 'evbody') {
-#        confess("attempting to start event:$_[0] illegally (in terminal node after body)");
-#    }
-
-#    eval {
-#	$self->handler->event(@_);
-#    };
-#    if ($@) {
-#	$self->handler_err($@);
-#    }
-#    $self->last_evcall_type('end_event');
     $self->{_handler}->event(@_);
     return;
 }

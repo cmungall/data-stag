@@ -1,4 +1,4 @@
-# $Id: BaseHandler.pm,v 1.28 2004/10/27 22:10:44 cmungall Exp $
+# $Id: BaseHandler.pm,v 1.29 2004/12/21 02:26:25 cmungall Exp $
 #
 # This  module is maintained by Chris Mungall <cjm@fruitfly.org>
 
@@ -269,7 +269,7 @@ use Carp;
 use Data::Stag;
 
 use vars qw($VERSION);
-$VERSION="0.07";
+$VERSION="0.08";
 
 sub EMITS    { () }
 sub CONSUMES { () }
@@ -464,6 +464,7 @@ sub start_event {
     $el;
 }
 
+# deprecated
 sub S {shift->start_event(@_)}
 
 
@@ -482,6 +483,8 @@ sub evbody {
     }
     return;
 }
+
+# deprecated
 sub B {shift->evbody(@_)}
 sub b {shift->evbody(@_)}
 
@@ -572,8 +575,8 @@ sub end_event {
     elsif ($self->can("catch_end")) {
         @R = $self->catch_end($ev, Data::Stag::stag_nodify($topnode));
     }
-    elsif ($self->catch_end_sub) {
-        @R = $self->catch_end_sub->($self, Data::Stag::stag_nodify($topnode));
+    elsif ($self->{_catch_end_sub}) {
+        @R = $self->{_catch_end_sub}->($self, Data::Stag::stag_nodify($topnode));
     }
     else {
         # do nothing
@@ -620,8 +623,6 @@ sub event {
     if (ref($st)) {
         if (ref($st) ne "ARRAY") {confess($st)}
 	foreach (@$st) { 
-#	    use Data::Dumper;
-#	    print Dumper $st;
 	    confess("$ev $st $_") unless ref($_);
 	    $self->event(@$_) 
 	}

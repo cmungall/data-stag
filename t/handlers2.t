@@ -76,9 +76,19 @@ $handler =
 			      return;
 			  },
 			 );
-%geneh = ();
-# check handler doesn't barf for null nodes
-$result_tree =
-  $stag->parse(-str=>"<set><gene></gene></set>", -handler=>$handler);
-print $result_tree->sxpr;
-ok(!%geneh);
+eval {
+    require "XML/Parser/PerlSAX.pm";
+};
+if ($@) {
+    skip("XML::Parser::PerlSAX not installed",1);
+}
+else {
+
+    %geneh = ();
+    # check handler doesn't barf for null nodes
+    $result_tree =
+      $stag->parse(-str=>"<set><gene></gene></set>", -handler=>$handler);
+    print $result_tree->sxpr;
+    ok(!%geneh);
+}
+

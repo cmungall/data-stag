@@ -64,5 +64,9 @@ Version 0.06
 Version 0.07
 ============
 
-2004-XX-XX      - Added DTDWriter
+2004-10-29      - Added DTDWriter
                 - Efficiency improvements
+
+Version 0.08
+============
+2004-12-20      - Removed dependency on PerlSAX, now optional

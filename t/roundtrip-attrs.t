@@ -10,6 +10,16 @@ BEGIN {
 }
 use Data::Stag qw(:all);
 
+eval {
+    require "XML/Parser/PerlSAX.pm";
+};
+if ($@) {
+    for (1..5) {
+        skip("XML::Parser::PerlSAX not installed",1);
+    }
+    exit 0;
+}
+
 my $fn = shift @ARGV || "t/data/attrs.xml";
 my $sxpr = trip($fn,'sxpr');
 my $xml = trip($sxpr, 'xml');

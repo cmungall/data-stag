@@ -1,4 +1,4 @@
-# $Id: Makefile.PL,v 1.7 2004/04/26 16:02:18 cmungall Exp $
+# $Id: Makefile.PL,v 1.8 2004/12/21 02:26:20 cmungall Exp $
 
 use ExtUtils::MakeMaker;
 require 5.005;
@@ -12,7 +12,8 @@ require 5.005;
    'Storable'          => '0.0/storage of data structures/storing stag trees/Data::Stag::StagDB',
    'MLDBM'          => '0.0/multilevel hash store/indexing stag nodes/Data::Stag::StagDB',
    'Graph::Directed'          => '0.0/Generic Graph data stucture and algorithms/transforming stag trees to graphs/Data::Stag::GraphHandler',
-   
+   'XML::Parser::PerlSAX'  => '0.0/SAX Handler/parsing XML/Data::Stag::XMLParser', 
+   'IO::String'         => '0.0/String handling/parsing strings containing stag data/Data::Stag',
 
   );
 
@@ -49,6 +50,19 @@ Information:
 QQ_ERROR_QQ
 }
 
+eval {
+    require "IO/String.pm";
+};
+if ($@) {
+    print <<FAIL;
+
+** Missing vital module: IO::Scalar **
+
+This module is required by Data::Stag. Please install this module from CPAN
+
+FAIL
+}
+
 WriteMakefile(
 	      'NAME'         => "Data",
 	      'DISTNAME'         => "Data-Stag",
@@ -56,9 +70,7 @@ WriteMakefile(
 	      'AUTHOR'       => 'Chris Mungall <cjm AT fruitfly DOT org>',
 	      'VERSION_FROM' => "Data/Stag.pm",
 	      'PREREQ_PM'    => {
-				 'XML::Parser::PerlSAX'  => 0, 
-				 'Pod::Usage'         => 0,
-				 'IO::String'         => 0,
+                                 'IO::String'=>0,
 				},
 	      'EXE_FILES'    => [
                                  qw(

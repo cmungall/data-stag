@@ -1,4 +1,4 @@
-# $Id: StagImpl.pm,v 1.53 2004/10/27 22:10:44 cmungall Exp $
+# $Id: StagImpl.pm,v 1.54 2004/12/21 02:26:26 cmungall Exp $
 #
 # Author: Chris Mungall <cjm@fruitfly.org>
 #
@@ -30,7 +30,7 @@ use Data::Stag::Util qw(rearrange);
 use base qw(Data::Stag::StagI);
 
 use vars qw($VERSION);
-$VERSION="0.07";
+$VERSION="0.08";
 
 
 sub new {
@@ -768,6 +768,7 @@ sub xmlesc {
 sub xml2tree {
     my $file = shift;
     my $handler = Data::Stag::Base->new;
+    load_module("XML::Parser::PerlSAX");
     my $parser = XML::Parser::PerlSAX->new();
     my %parser_args = (Source => {SystemId => $file},
                        Handler => $handler);
@@ -778,6 +779,7 @@ sub xml2tree {
 sub xmlstr2tree {
     my $str = shift;
     my $handler = Data::Stag::Base->new;
+    load_module("XML::Parser::PerlSAX");
     my $parser = XML::Parser::PerlSAX->new();
     my %parser_args = (Source => {String => $str},
                        Handler => $handler);

@@ -11,6 +11,17 @@ BEGIN {
 use Data::Stag;
 use strict;
 
+
+eval {
+    require "XML/Parser/PerlSAX.pm";
+};
+if ($@) {
+    for (1..6) {
+        skip("XML::Parser::PerlSAX not installed",1);
+    }
+    exit 0;
+}
+
 my $h = Data::Stag->makehandler(
                                 a => sub { my ($self,$stag) = @_;
                                            $stag->set_foo("bar");$stag});

@@ -11,6 +11,16 @@ BEGIN {
 use Data::Stag;
 use strict;
 
+eval {
+    require "XML/Parser/PerlSAX.pm";
+};
+if ($@) {
+    for (1..3) {
+        skip("XML::Parser::PerlSAX not installed",1);
+    }
+    exit 0;
+}
+
 
 my $xml =<<EOM
 <a>
