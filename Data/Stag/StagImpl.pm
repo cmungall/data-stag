@@ -1,4 +1,4 @@
-# $Id: StagImpl.pm,v 1.20 2003/04/29 22:29:00 cmungall Exp $
+# $Id: StagImpl.pm,v 1.21 2003/04/30 05:46:08 cmungall Exp $
 #
 # Author: Chris Mungall <cjm@fruitfly.org>
 #
@@ -264,6 +264,12 @@ sub _gethandlerobj {
     }
     elsif ($fmt eq "sxpr") {
         $writer = "Data::Stag::SxprWriter";
+    }
+    elsif ($fmt eq "simple") {
+        $writer = "Data::Stag::Simple";
+    }
+    elsif ($fmt =~ /::/) {
+        $writer = $fmt;
     }
     elsif (!$fmt) {
 	confess("no format/writer!");
@@ -1767,10 +1773,11 @@ sub duplicate {
 *d = \&duplicate;
 *clone = \&duplicate;
 
-sub isanode {
+sub isastag {
     my $node = shift;
     return UNIVERSAL::isa($node, "Data::Stag::StagI");
 }
+*isanode = \&isastag;
 *isa_node = \&isanode;
 *isaNode = \&isanode;
 
@@ -1779,7 +1786,7 @@ sub node {
 }
 *Node = \&node;
 
-sub nodify {
+sub stagify {
     my $tree = shift;
     if (!ref($tree)) {
         # allow static or nonstatic usage
@@ -1789,7 +1796,8 @@ sub nodify {
     my $class = "Data::Stag::StagImpl";
     bless $tree, $class
 }
-*Nodify = \&nodify;
+*nodify = \&stagify;
+*Nodify = \&stagify;
 
 sub xpath {
     my $tree = shift;

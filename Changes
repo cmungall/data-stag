@@ -15,7 +15,7 @@ Version 0.02
 Version 0.03
 ============
 
-2003-??-??	- Fixed bug with empty XML tags being treated as nulls
+2003-04-29	- Fixed bug with empty XML tags being treated as nulls
                 - Fixed bug with XML parsing/export where zero-valued
                   pcdata was treated as empty string
                   (new test emptytag.t added for these)

@@ -1,1 +1,1 @@
-find  README INSTALL MANIFEST Makefile.PL Data scripts t elisp -type f | grep -v CVS > MANIFEST
+cvs status | perl -ne 'print "$1\n" if m@Repository revision.*/cvsroot/stag/data-stag/(.*),v@' > MANIFEST

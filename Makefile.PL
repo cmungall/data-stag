@@ -16,7 +16,21 @@ WriteMakefile(
 				 'Pod::Usage'         => 0,
 				},
 	      'EXE_FILES'    => [
-				 'scripts/stag-parse.pl',
+                                 qw(
+                                    scripts/stag-splitter.pl
+                                    scripts/stag-parse.pl
+                                    scripts/stag-view.pl
+                                    scripts/stag-itext2xml.pl
+                                    scripts/stag-xmlsplit.pl
+                                    scripts/stag-itext2simple.pl
+                                    scripts/stag-autoschema.pl
+                                    scripts/stag-findsubtree.pl
+                                    scripts/stag-itext2sxpr.pl
+                                    scripts/stag-mogrify.pl
+                                    scripts/stag-xml2itext.pl
+                                    scripts/stag-handle.pl
+                                    scripts/stag-flatten.pl
+                                   )
 				],
 	      'dist'         => { 
 				 'SUFFIX'       => ".gz",

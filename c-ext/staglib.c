@@ -7,50 +7,73 @@
 #include <glib.h>
 #include "staglib.h"
 
+#define q2s g_quark_to_string
+#define s2q g_quark_from_string
+
+void* stag_throw(gchar *msg) {
+  printf "EXCEPTION:%s\n", msg);
+}
+
 stag* stag_new() {
-    stag *stag = malloc(sizeof(stag));
-    stag->name = "";
+    stag *stag = g_malloc(sizeof(stag));
+    stag->nameq = s2q("");
     stag->data = g_slist_alloc();
+    stag->isterminal = FALSE;
     return stag;
 }
 
-char* stag_name(stag *node, char *name) {
-  if (name != void) {
-    node->name = name;
+G_CONST_RETURN gchar* stag_name(stag *node, gchar *name) {
+  GQuark q;
+  if (name != NULL) {
+    node->nameq = s2q(name);
   }
-  return node->name;
+
+  q = node->nameq;
+  return g_quark_to_string(q);
 }
 
-char* stag_data(stag *node, void *data, bool is_terminal) {
-  if (data != void) {
+G_CONST_RETURN gchar* stag_getname(stag *node) {
+  return q2s(node->nameq);
+}
+
+char* stag_data(stag *node, void *data, gboolean isterminal) {
+  if (data != NULL) {
     node->data = data;
-    node->is_terminal = is_terminal;
+    node->isterminal = isterminal;
   }
   return node->data;
 }
 
-void* stag_kids(stag *node) {
-  return node->data;
+GSList* stag_kids(stag *node) {
+  if (node->isterminal) {
+    stag_throw(stag, "terminal");
+  }
+  return (GSList*)node->data;
 }
+
+/*
 
 GSList* stag_findnode(stag *node, 
-		      char *name, 
-		      stag *replacement_node) {
+                     gchar *name, 
+                     stag *replacement_node) {
 
+  int i;
+  GQuark nameq = s2q(name);
   GSList* matchlist = g_slist_alloc();
 
-  if (stag_testeq(node->name, name)) {
+  if (node->nameq == nameq) {
     g_slist_append(matchlist, node);
   }
-  else if (node->is_terminal) {
+  else if (node->isterminal) {
     return;
   }
   else {
     for (i=0; i < g_slist_length_foreach(node->data); i++) {
-      stag *subnode = g_slist_nth(node->data, i);
+      stag* subnode = (stag*)g_slist_nth(node->data, i);
       GSList* sublist = stag_findnode(subnode, name, replacement_node);
       g_slist_concat(matchlist, sublist);
     }
   }
   return matchlist;
 }
+*/

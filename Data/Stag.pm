@@ -1,4 +1,4 @@
-# $Id: Stag.pm,v 1.15 2003/03/29 23:33:56 cmungall Exp $
+# $Id: Stag.pm,v 1.16 2003/04/30 05:46:07 cmungall Exp $
 # -------------------------------------------------------
 #
 # Copyright (C) 2002 Chris Mungall <cjm@fruitfly.org>
@@ -762,19 +762,17 @@ in perl. As always with perl, the decision is yours.
 creates a new instance of a Data::Stag node
 
 
+=head3 stagify (nodify)
 
-=head3 nodify 
-
-       Title: nodify
-
+       Title: stagify
+     Synonym: nodify
         Args: data array-reference
      Returns: Data::Stag node
-     Example: $node = stag_nodify([person => [[name=>$n], [phone=>$p]]]);
+     Example: $node = stag_stagify([person => [[name=>$n], [phone=>$p]]]);
 
 turns a perl array reference into a Data::Stag node.
 
 similar to B<new>
-
 
 
 =head3 parse 
@@ -792,6 +790,10 @@ guess the format from the suffix if it is not given.
 The format can also be the name of a parsing module, or an actual
 parser object
 
+The handler is any object that can take nested Stag events
+(start_event, end_event, evbody) which are generated from the
+parse. If the handler is omitted, all events will be cached and the
+resulting tree will be returned.
 
 =head3 parsestr 
 
@@ -859,8 +861,10 @@ The former gets converted into the latter for the internal representation
        Title: makehandler
 
         Args: hash of CODEREFs keyed by element name
-     Returns: Data::Stag::BaseHandler
+     Returns: L<Data::Stag::BaseHandler>
      Example: $h = Data::Stag->makehandler(%subs);
+
+This creates a Stag event handler
 
   $h = Data::Stag->makehandler(
                                a => sub { my ($self,$stag) = @_;
@@ -872,9 +876,28 @@ The former gets converted into the latter for the internal representation
 
        Title: getformathandler
 
-        Args: format str
-     Returns: handler class
+        Args: format str OR L<Data::Stag::BaseHandler>
+     Returns: L<Data::Stag::BaseHandler>
      Example: $h = Data::Stag->getformathandler('xml');
+
+Creates a Stag event handler - this handler can be passed to an event
+generator / parser. Built in handlers include:
+
+=over
+
+=item xml
+
+Generates xml tags from events
+
+=item sxpr
+
+Generates S-Expressions from events
+
+=item itext
+
+Generates indented text from events
+
+=back
 
 =head3 chainhandler
 
@@ -914,6 +937,16 @@ returns all nodes or data elements found.
 if the element found is a non-terminal node, will return the node
 if the element found is a terminal (leaf) node, will return the data value
 
+the element argument can be a path
+
+  @names = $struct->find('department/person/name');
+
+will find name in the nested structure below:
+
+  (department
+   (person
+    (name "foo")))
+
 
 =head3 findnode (fn)
 
@@ -928,7 +961,7 @@ if the element found is a terminal (leaf) node, will return the data value
 recursively searches tree for all elements of the given type, and
 returns all nodes found.
 
-
+paths can also be used (see B<find>)
 
 =head3 findval (fv)
 
@@ -945,7 +978,7 @@ recursively searches tree for all elements of the given type, and
 returns all data values found. the data values could be primitive
 scalars or nodes.
 
-
+paths can also be used (see B<find>)
 
 =head3 sfindval (sfv)
 
@@ -959,7 +992,7 @@ scalars or nodes.
 
 as findval, but returns the first value found
 
-
+paths can also be used (see B<find>)
 
 =head3 findvallist (fvl)
 
@@ -973,9 +1006,8 @@ as findval, but returns the first value found
 
 recursively searches tree for all elements in the list
 
-DEPRECATED?
+DEPRECATED
 
-  
 
 =head2 DATA ACCESSOR METHODS
 
@@ -1011,6 +1043,10 @@ will return an array or single value depending on the context
 [equivalent to findval(), except that only direct children (as
 opposed to all descendents) are checked]
 
+paths can also be used, like this:
+
+ @phones_nos = $struct->get('person/phone_no')
+
 =head3 sget (sg)
 
        Title: sget
@@ -1018,8 +1054,9 @@ opposed to all descendents) are checked]
 
         Args: element str
       Return: ANY
-     Example: $name = $person->get('name');
-     Example: $phone = $person->get('phone_no');
+     Example: $name = $person->sget('name');
+     Example: $phone = $person->sget('phone_no');
+     Example: $phone = $person->sget('department/person/name');
 
 as B<get> but always returns a single value
 
@@ -1035,7 +1072,7 @@ opposed to all descendents) are checked]
 
         Args: element str[]
       Return: node[] or ANY[]
-     Example: ($name, @phone) = $person->get('name', 'phone_no');
+     Example: ($name, @phone) = $person->getl('name', 'phone_no');
 
 returns the data values for a list of sub-elements of a node
 
@@ -1123,7 +1160,7 @@ for instance, if we had the data below:
 
 and called
 
-  $person->free
+  $person->get_address->free
 
 then the person node would look like this:
 
@@ -1155,9 +1192,51 @@ creates new element value pairs if not already existing.
       Return: element str
      Example: $element = $struct->element
 
-returns the element name of the current node
+returns the B<element name> of the current node.
 
+This is illustrated in the different representation formats below
 
+=over
+
+=item sxpr
+
+  (element "data")
+
+or
+
+  (element
+   (sub_element "..."))
+
+=item xml
+
+  <element>data</element>
+
+or
+
+  <element>
+    <sub_element>...</sub_element>
+  </element>
+
+=item perl
+
+  [element => $data ]
+
+or
+
+  [element => [
+                [sub_element => "..." ]]]
+
+=item itext
+
+  element: data
+
+or
+
+  element:
+    sub_element: ...
+
+=back
+ 
 
 =head3 kids (k children)
 
@@ -1227,7 +1306,8 @@ does a relational style natural join - see previous example in this doc
       Return: node[]
      Example: @persons = $s->qmatch('name', 'fred');
 
-queries the node tree for all elements that satisfy the specified key=val match
+queries the node tree for all elements that satisfy the specified
+key=val match - see previous example in this doc
 
 
 
@@ -1241,7 +1321,8 @@ queries the node tree for all elements that satisfy the specified key=val match
       Return: bool
      Example: @persons = grep {$_->tmatch('name', 'fred')} @persons
 
-returns true if the the value of the specified element matches
+returns true if the the value of the specified element matches - see
+previous example in this doc
 
 
 
@@ -1254,7 +1335,8 @@ returns true if the the value of the specified element matches
       Return: bool
      Example: @persons = grep {$_->tmatchhash({name=>'fred', hair_colour=>'green'})} @persons
 
-returns true if the node matches a set of constraints, specified as hash
+returns true if the node matches a set of constraints, specified as
+hash.
 
 
 
@@ -1322,7 +1404,25 @@ satisfy the coderef (must return a boolean)
 				 }
 			     });
 
+iterates through whole tree calling the specified subroutine.
 
+the first arg passed to the subroutine is the stag node representing
+the tree at that point; the second arg is for the parent.
+
+for instance, the example code above would turn this
+
+  (person
+   (name "jim")
+   (pet
+    (name "fluffy")))
+
+into this
+
+  (person
+   (name "jim")
+   (pet_name "fluffy")
+   (pet
+    (name "fluffy")))
 
 =head2 MISCELLANEOUS METHODS
 
@@ -1337,7 +1437,7 @@ satisfy the coderef (must return a boolean)
       Return: Node
      Example: $node2 = $node->duplicate;
 
-
+does a deep copy of a stag structure
 
 =head3 isanode
 
@@ -1346,8 +1446,6 @@ satisfy the coderef (must return a boolean)
         Args:
       Return: bool
      Example: if (stag_isanode($node)) { ... }
-
-really only useful in non OO mode...
 
 
 
