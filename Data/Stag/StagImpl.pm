@@ -1,4 +1,4 @@
-# $Id: StagImpl.pm,v 1.36 2003/12/04 04:26:24 cmungall Exp $
+# $Id: StagImpl.pm,v 1.37 2003/12/11 05:04:23 cmungall Exp $
 #
 # Author: Chris Mungall <cjm@fruitfly.org>
 #
@@ -2280,6 +2280,8 @@ sub splitpath {
 
 sub test_eq {
     my ($ev, $node) = @_;
+    $ev = '' unless defined $ev;
+    $node = '' unless defined $node;
     return $ev eq $node || $node eq '*';
 }
 

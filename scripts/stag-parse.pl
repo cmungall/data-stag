@@ -106,6 +106,9 @@ Works only if the output handler is able to provide ASCII-colors
 
 L<Data::Stag>
 
+This script is a wrapper for the method
+
+  Data::Stag->parse
 
 =cut
 

@@ -28,6 +28,7 @@ push(@cols, @ARGV);
 my $np = scalar @cols;
 my %idx = map {$cols[$_]=>$_} (0..$#cols);
 my @vals = map {undef} @cols;
+my @level_idx = ();
 
 sub writerel {
     print join("\t", map {defined($_) ? $_ : 'NULL'} @vals), 
