@@ -1,4 +1,4 @@
-# $Id: Stag.pm,v 1.33 2004/09/08 21:27:12 cmungall Exp $
+# $Id: Stag.pm,v 1.34 2004/10/29 17:03:46 cmungall Exp $
 # -------------------------------------------------------
 #
 # Copyright (C) 2004 Chris Mungall <cjm@fruitfly.org>
@@ -49,6 +49,8 @@ $VERSION="0.07";
                   k kids children
                   ak addkid addchild
                   subnodes
+                  tnodes
+                  ntnodes
                   isterminal
                   j ij ijoin nj njoin
                   paste
@@ -1453,7 +1455,27 @@ adds a new child node to a non-terminal node, after all the existing child nodes
       Return: ANY[]
      Example: @nodes = $person->subnodes
 
-returns the non-terminal data value(s) of the current node;
+returns the child nodes; returns empty list if this is a terminal node
+
+=head3 ntnodes
+
+       Title: ntnodes
+
+        Args: 
+      Return: ANY[]
+     Example: @nodes = $person->ntnodes
+
+returns all non-terminal children of current node
+
+=head3 tnodes
+
+       Title: tnodes
+
+        Args: 
+      Return: ANY[]
+     Example: @nodes = $person->tnodes
+
+returns all terminal children of current node
 
   
 
