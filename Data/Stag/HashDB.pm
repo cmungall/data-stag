@@ -64,7 +64,7 @@ use base qw(Data::Stag::BaseHandler);
 use Data::Stag qw(:all);
 
 use vars qw($VERSION);
-$VERSION="0.05";
+$VERSION="0.07";
 
 sub init {
     my $self = shift;

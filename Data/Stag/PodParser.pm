@@ -1,4 +1,4 @@
-# $Id: PodParser.pm,v 1.5 2004/04/26 16:02:23 cmungall Exp $
+# $Id: PodParser.pm,v 1.6 2004/07/21 18:36:49 cmungall Exp $
 #
 # Copyright (C) 2002 Chris Mungall <cjm@fruitfly.org>
 #
@@ -31,7 +31,7 @@ use strict;
 use base qw(Data::Stag::BaseGenerator Exporter);
 
 use vars qw($VERSION);
-$VERSION="0.05";
+$VERSION="0.07";
 
 sub trim {
     my $w = shift;
