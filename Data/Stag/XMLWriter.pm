@@ -24,6 +24,9 @@ $VERSION="0.03";
 
 use XML::Handler::XMLWriter;
 
+sub fmtstr {
+    return 'xml';
+}
 
 sub writer {
     my $self = shift;

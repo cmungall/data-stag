@@ -26,7 +26,7 @@ use Carp;
 use Data::Stag qw(:all);
 use Getopt::Long;
 
-my $parser = "";
+my $parserf = "";
 my $out = "";
 my $mapf;
 my $tosql;
@@ -35,14 +35,18 @@ my $toperl;
 my $debug;
 my $help;
 my $count;
+my $ff;
+my @queryl = ();
 GetOptions(
            "help|h"=>\$help,
-           "parser|format|p=s" => \$parser,
+           "parser|format|p=s" => \$parserf,
            "handler|writer|w=s" => \$out,
 	   "count|c" => \$count,
            "xml"=>\$toxml,
            "perl"=>\$toperl,
            "debug"=>\$debug,
+	   "filterfile|f=s"=>\$ff,
+	   "query|q=s@"=>\@queryl,
           );
 if ($help) {
     system("perldoc $0");
@@ -50,8 +54,34 @@ if ($help) {
 }
 
 my $w = shift;
-my $sub = shift;
-$sub = eval $sub;
+my $sub;
+if ($ff) {
+    $sub = do $ff;
+}
+elsif (@queryl) {
+
+    my $ev = 
+      'sub { my $s=shift; '.
+	join(' && ',
+	     map {
+		 if (/(\w+)\s*(==|<=|>=|<|>|eq|ne|lt|gt|=)\s*(.*)/) {
+		     "\$s->get('$1') $2 $3"
+		 }
+		 else {
+		     die($_);
+		 }
+	     } @queryl).
+	       '}';
+    $sub = eval $ev;
+    if ($@) {
+	die $@;
+    }
+}
+else {
+    $sub = shift;
+    $sub = eval $sub;
+
+}
 if ($@) {
     print $@;
     exit 1;
@@ -76,7 +106,13 @@ foreach my $fn (@files) {
     if ($count) {
 	$out = 'Data::Stag::null';
     }
+    
+    my $parser = Data::Stag->parser($fn, $parserf);
+    if (!$out) {
+	$out = $parser->fmtstr;
+    }
     my $ch = Data::Stag->chainhandlers($w, $handler, $out);
+
     my $tree = 
       Data::Stag->parse($fn, 
 			$parser, 

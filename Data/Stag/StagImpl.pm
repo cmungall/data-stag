@@ -1,4 +1,4 @@
-# $Id: StagImpl.pm,v 1.23 2003/05/27 06:49:31 cmungall Exp $
+# $Id: StagImpl.pm,v 1.24 2003/05/28 23:52:10 cmungall Exp $
 #
 # Author: Chris Mungall <cjm@fruitfly.org>
 #
@@ -157,12 +157,14 @@ sub parser {
     }
 
     my $parser;
-    if ($fmt =~ /::/) {
+    if (!ref($fmt) && $fmt =~ /::/) {
         load_module($fmt);
         $fmt = $fmt->new;
     }
-    if (ref $fmt) {
+
+    if (ref($fmt)) {
         $parser = $fmt;
+	return $parser;
     }
     elsif ($fmt eq "xml") {
         $parser = "Data::Stag::XMLParser";
@@ -1562,7 +1564,7 @@ sub cmatch {
 *countSubTreeMatch = \&cmatch;
 
 
-sub where {
+sub OLDwhere {
     my $tree = shift;
     my $node = shift;
     my $testcode = shift;
@@ -1572,6 +1574,30 @@ sub where {
       grep {
           $testcode->($_);
       } @subtrees;
+    if (defined $replace) {
+        map {
+            @$_ = @$replace;
+        } @match;
+    }
+    return @match;
+}
+sub where {
+    my $tree = shift;
+    my $node = shift;
+    my $testcode = shift;
+    my $replace = shift;
+
+    my @match = ();
+    iterate($tree,
+	    sub {
+		my $stag = shift;
+		if (name($stag) eq $node) {
+		    if ($testcode->($stag)) {
+			push(@match, $stag);
+		    }
+		}
+	    });
+
     if (defined $replace) {
         map {
             @$_ = @$replace;
