@@ -50,7 +50,7 @@ my %h =
        foreach (@symbols) {
            my $gene =  $gene_h->{$_};
            if ($gene) {
-               $stag->addnode_gene($gene);
+               $stag->add_gene($gene);
            }
            else {
                $stag->add_comment("Dunno what symbol $_ is");

@@ -67,7 +67,8 @@ sub start_event {
     push(@$stack, $ev);
 
     my $sh = $self->subhandlers;
-    if (grep {$self->is_blocked($_)} @$stack) {
+    my $is_blocked = grep {$self->is_blocked($_)} @$stack;
+    if ($is_blocked) {
         $sh->[0]->start_event($ev);
     }
     else {
@@ -105,7 +106,8 @@ sub event {
 
     my $sh = $self->subhandlers;
 
-    if (grep {$self->is_blocked($_)} @$stack) {
+    my $is_blocked = grep {$self->is_blocked($_)} @$stack;
+    if ($is_blocked) {
         $sh->[0]->event($ev, @args);
     }
     else {
@@ -143,10 +145,14 @@ sub end_event {
 
     my $sh = $self->subhandlers;
 
-    if ($self->is_blocked($ev)) {
+    my $is_blocked = grep {$self->is_blocked($_)} @$stack;
+    if ($self->is_blocked($ev) &&
+	!$is_blocked) {
+
+	# condition:
+	# end of a blocked event, and we are 
+	# not inside another blocked event
         my ($h, @rest) = @$sh;
-#        my $node = $h->node;
-#        my $topnode = pop @$node;
 
         $h->end_event($ev);
         foreach (@rest) {

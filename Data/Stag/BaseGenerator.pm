@@ -1,4 +1,4 @@
-# $Id: BaseGenerator.pm,v 1.4 2003/02/24 15:09:23 cmungall Exp $
+# $Id: BaseGenerator.pm,v 1.5 2003/02/27 02:40:02 cmungall Exp $
 #
 # Copyright (C) 2002 Chris Mungall <cjm@fruitfly.org>
 #
@@ -64,6 +64,11 @@ sub stack {
     $self->{_stack} = shift if @_;
     $self->{_stack} = [] unless $self->{_stack};
     return $self->{_stack};
+}
+
+sub stack_top {
+    my $self = shift;
+    $self->stack->[-1];
 }
 
 sub push_stack {

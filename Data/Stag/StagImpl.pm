@@ -1,4 +1,4 @@
-# $Id: StagImpl.pm,v 1.15 2003/02/24 15:09:24 cmungall Exp $
+# $Id: StagImpl.pm,v 1.16 2003/02/27 02:40:03 cmungall Exp $
 #
 # Author: Chris Mungall <cjm@fruitfly.org>
 #
@@ -703,6 +703,9 @@ sub add {
     if (ref($node)) {
         ($node, @v) = ($node->[0], @{$node->[1]});
     }
+    if (ref($v[0]) && !ref($v[0]->[0])) {
+	@v = map { $_->[1] } @v;
+    }
     confess("problem: $tree not arr") unless ref($tree) && ref($tree) eq "ARRAY" || isaNode($tree);
     my ($ev, $subtree) = @$tree;
 
@@ -722,9 +725,7 @@ sub add {
 	}
     }
     if (!$has_been_set) {
-	map {
-	    addkid($tree, [$node=>$_]); 
-	} @v;
+	addkid($tree, [$node=>$_]) foreach @v; 
     }
     else {
 	@$subtree = @nu_subtree;

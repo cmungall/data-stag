@@ -1,4 +1,4 @@
-# $Id: Stag.pm,v 1.12 2003/02/24 15:09:22 cmungall Exp $
+# $Id: Stag.pm,v 1.13 2003/02/27 02:40:02 cmungall Exp $
 # -------------------------------------------------------
 #
 # Copyright (C) 2002 Chris Mungall <cjm@fruitfly.org>
@@ -41,6 +41,7 @@ $VERSION="0.02";
                   gn getn getnode
                   s  set
                   u  unset
+		  free
                   a  add
                   e element name
                   k kids children
@@ -65,6 +66,7 @@ $VERSION="0.02";
                   makehandler mh
                   findhandler 
                   getformathandler 
+		  chainhandlers
                   xml   tree2xml
                   hash tree2hash
                   pairs tree2pairs
@@ -850,7 +852,7 @@ The former gets converted into the latter for the internal representation
   $h = Data::Stag->makehandler(
                                a => sub { my ($self,$stag) = @_;
                                           $stag->set_foo("bar");});
-  $stag = Data::Stag->parse(-str=>"(...)")
+  $stag = Data::Stag->parse(-str=>"(...)", -handler=>$h)
 
   
 =head3 getformathandler
@@ -861,11 +863,26 @@ The former gets converted into the latter for the internal representation
      Returns: handler class
      Example: $h = Data::Stag->getformathandler('xml');
 
-  
+=head3 chainhandler
+
+       Title: chainhandler
+
+        Args: blocked events - str or str[]
+              initial handler - handler object
+              final handler - handler object
+     Returns: 
+     Example: $h = Data::Stag->chainhandler('foo', $processor, 'xml')
+
+  $processor = Data::Stag->makehandler(
+				       a => sub { my ($self,$stag) = @_;
+						  $stag->set_foo("bar");});
+  $chainh = Data::Stag->chainhandler(['a', 'b'], $processor, 'xml');
+  $stag = Data::Stag->parse(-str=>"(...)", -handler=>$chainh)
+
+chains together two handlers (see stag-handle.pl)
+
 
 =head2  RECURSIVE SEARCHING
-
-
 
 
 =head3 find (f)
@@ -1070,7 +1087,36 @@ primitive value, then you have to do it like this:
 
 prunes all nodes of the specified element from the current node
 
+=head3 free 
 
+       Title: free
+     Synonym: u
+
+        Args: 
+      Return: 
+     Example: $person->free;
+
+removes all data from a node. If that node is a subnode of another
+node, it is removed altogether
+
+for instance, if we had the data below:
+
+  <person>
+    <name>fred</name>
+    <address>
+    ..
+    </address>
+  </person>
+
+and called
+
+  $person->free
+
+then the person node would look like this:
+
+  <person>
+    <name>fred</name>
+  </person>
 
 =head3 add (a)
 
