@@ -1,4 +1,4 @@
-# $Id: Stag.pm,v 1.9 2003/01/07 23:45:43 cmungall Exp $
+# $Id: Stag.pm,v 1.10 2003/01/11 00:27:13 cmungall Exp $
 # -------------------------------------------------------
 #
 # Copyright (C) 2002 Chris Mungall <cjm@fruitfly.org>
@@ -195,7 +195,7 @@ __END__
   # PROCEDURAL USAGE
   use Data::Stag qw(:all);
   $doc = stag_parse($file);
-  @persons = stag_findnode($doc, "person");
+  @persons = stag_find($doc, "person");
   foreach $p (@persons) {
     printf "%s, %s phone: %s\n",
       stag_sget($p, "family_name"),
@@ -207,7 +207,7 @@ __END__
   # OO USAGE
   use Data::Stag;
   $doc = Data::Stag->new->parse($file);
-  @persons = $doc->findnode("person");
+  @persons = $doc->find("person");
   foreach $p (@person) {
     printf "%s, %s phone:%s\n",
       $p->sget("family_name"),
@@ -357,19 +357,16 @@ the same can be done in a more OO fashion
 
 =head2 IN A STREAM
 
-  use Data::Stag::XMLParser;
-  use MyTransform;      # inherits from Data::Stag::Base
-  my $p = Data::Stag::XMLParser->new;
-  my $h = MyTransform->new;   # create a handler
-  $p->handler($h);
-  $p->parse($xmlfile);
-
-The above can be simplified like this:
-
   use Data::Stag;
-  use MyTransform;      # inherits from Data::Stag::Base
-  my $h = MyTransform->new;
-  Data::Stag->new->parse(-file=>$xmlfile, -handler=>$h);
+  # catch the end of 'person' elements
+  my $h = Data::Stag->makehandler( person=> sub {
+                                               my ($self, $person) = @_;
+                                               printf "name:%s phone:%s\n",
+                                                 $person->get_name,
+                                                 $person->get_phone;
+                                                });
+  Data::Stag->parse(-handler=>$h,
+                    -file=>$f);
 
 see L<Data::Stag::Base> for writing handlers
 
@@ -670,7 +667,7 @@ like this:
      );
 
   # find all people
-  my @persons = stag_findnode($tree, 'person');
+  my @persons = stag_find($tree, 'person');
 
   # write xml for all red haired people
   foreach my $p (@persons) {
@@ -860,6 +857,23 @@ The former gets converted into the latter for the internal representation
 
 
 
+=head3 find (f)
+
+       Title: find
+     Synonym: f
+
+        Args: element str
+     Returns: node[] or ANY
+     Example: @persons = stag_find($struct, 'person');
+     Example: @persons = $struct->find('person');
+
+recursively searches tree for all elements of the given type, and
+returns all nodes or data elements found.
+
+if the element found is a non-terminal node, will return the node
+if the element found is a terminal (leaf) node, will return the data value
+
+
 =head3 findnode (fn)
 
        Title: findnode
@@ -936,11 +950,14 @@ current one
      Synonym: g
 
         Args: element str
-      Return: ANY
+      Return: node[] or ANY
      Example: $name = $person->get('name');
      Example: @phone_nos = $person->get('phone_no');
 
-gets the data value of an element for any node
+gets the value of the named sub-element
+
+if the sub-element is a non-terminal, will return a node(s)
+if the sub-element is a terminal (leaf) it will return the data value(s)
 
 the examples above would work on a data structure like this:
 
@@ -976,7 +993,7 @@ opposed to all descendents) are checked]
      Synonym: getlist
 
         Args: element str[]
-      Return: ANY[]
+      Return: node[] or ANY[]
      Example: ($name, @phone) = $person->get('name', 'phone_no');
 
 returns the data values for a list of sub-elements of a node

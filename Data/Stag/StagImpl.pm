@@ -1,4 +1,4 @@
-# $Id: StagImpl.pm,v 1.11 2003/01/09 22:57:37 cmungall Exp $
+# $Id: StagImpl.pm,v 1.12 2003/01/11 00:27:14 cmungall Exp $
 #
 # Author: Chris Mungall <cjm@fruitfly.org>
 #
@@ -711,6 +711,42 @@ sub unset {
 
 
 # WANTARRAY
+sub find {
+    my $tree = shift || confess;
+    my ($node, @path) = splitpath(shift);
+    my $replace = shift;
+
+    confess("problem: $tree not arr") unless ref($tree) && ref($tree) eq "ARRAY" || isaNode($tree);
+
+    my @r = ();
+    if (@path) {
+        @r = map { $_->find(\@path, $replace) } findnode($tree, $node)
+    }
+    else {
+        my ($ev, $subtree) = @$tree;
+        if (test_eq($ev, $node)) {
+            my $is_nt = ref($subtree);
+            if (defined $replace)  {
+                if ($is_nt) {
+                    confess("use findval") unless ref($replace);
+                    @$tree = @$replace;
+                }
+                else {
+                    $tree->[1] = $replace;
+                }
+            }
+            return $is_nt ? $tree : $subtree;
+        }
+        return unless ref($subtree);
+        @r = map { find($_, $node, $replace) } @$subtree;
+    }
+    if (wantarray) {
+        return @r;
+    }
+    $r[0];
+}
+*f = \&find;
+
 sub findval {
     my $tree = shift || confess;
     my ($node, @path) = splitpath(shift);
@@ -739,6 +775,8 @@ sub findval {
     $r[0];
 }
 *fv = \&findval;
+*finddata = \&findval;
+*fd = \&findval;
 *findSubTreeVal = \&findval;
 
 # WANTARRAY
@@ -762,7 +800,7 @@ sub getdata {
             my ($ev, $subtree) = @$child;
             if (test_eq($ev, $node)) {
                 if (defined $replace)  {
-                    $tree->[1] = $replace;
+                    $child->[1] = $replace;
                 }
                 push(@v, $subtree);
             }
@@ -823,7 +861,6 @@ sub get {
     }
     $v[0];
 }
-
 *g = \&get;
 
 # WANTARRAY
@@ -899,6 +936,14 @@ sub sget {
     return $v[0];
 }
 *sg = \&sget;
+
+sub sgetdata {
+    my $tree = shift;
+    my @v = getdata($tree, @_);
+    # warn if multivalued?
+    return $v[0];
+}
+*sgd = \&sgetdata;
 
 sub sfindval {
     my $tree = shift;

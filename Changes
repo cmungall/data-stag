@@ -24,3 +24,10 @@ Version 0.03
                   the intercepting code directly
                 - Added makehandler() to Data::Stag
 
+                - BIG CHANGE: behaviour of 'get' now different;
+                  if the value 'got' is a terminal, will return
+                  the node data; if it is non-terminal, it will
+                  return the node itself (like getnode()).
+                  there is a new method 'getdata' for explicitly
+                  getting the data value in all cases
+
