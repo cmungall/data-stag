@@ -21,7 +21,6 @@ GetOptions(
 	   "verbose|v"=>\$verbose,
           );
 
-our %IGNORE = map {$_=>1} @ignore;
 our %REPORT = map {$_=>1} @report;
 
 if ($help) {
@@ -94,10 +93,6 @@ sub match {
     my @kids1 = $stag1->kids;
     my @kids2 = $stag2->kids;
 
-    if (%IGNORE) {
-	@kids1 = grep {!$IGNORE{$_->name}} @kids1;
-	@kids2 = grep {!$IGNORE{$_->name}} @kids2;
-    }
     # must match exactly
     if (@kids1 != @kids2) {
 	return(0, mismatch(sprintf("subelement_count_mismatch [%s <=VS=> %s]",
@@ -207,12 +202,13 @@ And you wish to ignore the ID attribute, then you would use the switch
 
   -ignore foo-ID
 
-Currently you cannot specify a path, just an element or attribute; if
-you require this capability you should preprocess the document.
-
 You can specify multiple elements to ignore like this
 
   -i foo -i bar -i baz
+
+You can also specify paths
+
+  -i foo/bar/bar-id
 
 =item -parser|p FORMAT
 

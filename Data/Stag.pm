@@ -1,4 +1,4 @@
-# $Id: Stag.pm,v 1.19 2003/07/16 21:40:04 cmungall Exp $
+# $Id: Stag.pm,v 1.20 2003/08/02 20:10:06 cmungall Exp $
 # -------------------------------------------------------
 #
 # Copyright (C) 2002 Chris Mungall <cjm@fruitfly.org>
@@ -347,7 +347,7 @@ If this appeals to you, then maybe this module is for you.
 parsing out subsections of a tree and changing sub-elements
 
   use Data::Stag qw(:all);
-  my $tree = stag_from('xml', $xmlfile);
+  my $tree = stag_parse($xmlfile);
   my ($subtree) = stag_findnode($tree, $element);
   stag_set($element, $sub_element, $new_val);
   print stag_xml($subtree);
@@ -357,7 +357,7 @@ parsing out subsections of a tree and changing sub-elements
 the same can be done in a more OO fashion
 
   use Data::Stag qw(:all);
-  my $tree = Data::Stag->from('xml', $xmlfile);
+  my $tree = Data::Stag->parse($xmlfile);
   my ($subtree) = $tree->findnode($element);
   $element->set($sub_element, $new_val);
   print $subtree->xml;
@@ -375,7 +375,7 @@ the same can be done in a more OO fashion
   Data::Stag->parse(-handler=>$h,
                     -file=>$f);
 
-see L<Data::Stag::Base> for writing handlers
+see L<Data::Stag::BaseHandler> for writing handlers
 
 See the Stag website at L<http://stag.sourceforge.net> for more examples.
 
@@ -449,7 +449,8 @@ identifier, as follows -
 
   use Data::Stag qw(:all);
   my $tree =
-  [ 'db' => [
+  Data::Stag->new(
+    'db' => [
     [ 'species_set' => [
       [ 'species' => [
         [ 'common_name' => 'house mouse' ],
@@ -476,7 +477,8 @@ identifier, as follows -
         [ 'synonym' => 'MR2' ],
         [ 'tax_id' => '10090' ],
         [ 'GO_term' => 'integral membrane protein' ],
-        [ 'map' => '13 A2-A4' ]]]]]]];
+        [ 'map' => '13 A2-A4' ]]]]]]
+   );
 
   # natural join of species and gene parts of tree,
   # based on 'tax_id' element
