@@ -1,4 +1,4 @@
-# $Id: StagImpl.pm,v 1.33 2003/08/04 00:27:27 cmungall Exp $
+# $Id: StagImpl.pm,v 1.34 2003/08/12 03:39:39 cmungall Exp $
 #
 # Author: Chris Mungall <cjm@fruitfly.org>
 #
@@ -313,8 +313,16 @@ sub generate {
     return $w->popbuffer || '';
 }
 *gen = \&generate;
-*write = \&generate;
 
+sub write {
+    my $tree = shift || [];
+    my $w = _gethandlerobj($tree, @_);
+    $w->is_buffered(0);
+    $w->event(@$tree);
+    $w->fh->close;
+    return;
+}
+    
 sub makehandler {
     my $tree = shift;
     my %trap_h = @_;

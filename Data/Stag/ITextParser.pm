@@ -1,4 +1,4 @@
-# $Id: ITextParser.pm,v 1.8 2003/05/28 23:52:10 cmungall Exp $
+# $Id: ITextParser.pm,v 1.9 2003/08/12 03:39:39 cmungall Exp $
 #
 # Copyright (C) 2002 Chris Mungall <cjm@fruitfly.org>
 #
@@ -101,6 +101,9 @@ sub pop_to_level {
 
     # if buffered pcdata, export it
     if (defined $txt) {
+	# unescape :s
+	$txt =~ s/^\\:/:/g;
+	$txt =~ s/([^\\])\\:/$1:/g;
         $self->evbody($txt);
     }
     while (scalar(@$stack) &&

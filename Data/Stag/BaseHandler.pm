@@ -1,4 +1,4 @@
-# $Id: BaseHandler.pm,v 1.13 2003/08/03 08:39:39 cmungall Exp $
+# $Id: BaseHandler.pm,v 1.14 2003/08/12 03:39:39 cmungall Exp $
 #
 # This  module is maintained by Chris Mungall <cjm@fruitfly.org>
 
@@ -310,6 +310,8 @@ sub end_event {
     my $stack = $self->elt_stack;
     pop(@$stack);
 
+    my $path = join('/', @$stack);
+
     my $node = $self->node;
     my $topnode = pop @$node;
 
@@ -341,18 +343,28 @@ sub end_event {
     my $topnodeval = $topnode->[1];
 
     my $trap_h = $self->trap_h;
-    if ($trap_h && $trap_h->{$ev}) {
-        # call anonymous subroutine supplied in hash
-        my @trees = $trap_h->{$ev}->($self, Data::Stag::stag_nodify($topnode));
-	if (@trees) {
-	    if (@trees == 1 && !$trees[0]) {
-	    }
-	    else {
-		my $el = $node->[$#{$node}];
-		foreach my $tree (@trees) {
-		    push(@{$el->[1]}, $tree) if $tree && $tree->[0];
+    if ($trap_h) {
+	my $trapped_ev = $ev;
+	my @P = @$stack;
+	while (!$trap_h->{$trapped_ev} && scalar(@P)) {
+	    my $next = pop @P;
+	    $trapped_ev = "$next/$trapped_ev";
+	}
+
+	if ($trap_h->{$trapped_ev}) {
+	    # call anonymous subroutine supplied in hash
+	    my @trees = $trap_h->{$trapped_ev}->($self, Data::Stag::stag_nodify($topnode));
+	    if (@trees) {
+		if (@trees == 1 && !$trees[0]) {
+#		    return;
 		}
-		return;
+		else {
+		    my $el = $node->[$#{$node}];
+		    foreach my $tree (@trees) {
+			push(@{$el->[1]}, $tree) if $tree && $tree->[0];
+		    }
+		    return;
+		}
 	    }
 	}
     }

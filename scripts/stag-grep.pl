@@ -16,6 +16,14 @@ filters an input file
 
 =head1 ARGUMENTS
 
+=over
+
+=item -writer|w WRITER
+
+writer is xml, sxpr or itext, or the name of a perl module
+
+=back
+
 =cut
 
 
@@ -97,9 +105,11 @@ foreach my $fn (@files) {
 					      my $ok = $sub->($stag);
 					      if ($ok) {
 						  $c++;
+						  return;
 					      }
 					      else {
-						  $stag->free;
+						  $stag->data([]);
+						  return [];
 					      }
 					      return;
 					    });
