@@ -1,4 +1,4 @@
-# $Id: Stag.pm,v 1.23 2003/12/04 04:26:23 cmungall Exp $
+# $Id: Stag.pm,v 1.24 2003/12/04 04:27:24 cmungall Exp $
 # -------------------------------------------------------
 #
 # Copyright (C) 2002 Chris Mungall <cjm@fruitfly.org>
@@ -350,6 +350,15 @@ the same can be done in a more OO fashion
 
 =head2 IN A STREAM
 
+Rather than parsing in a whole file into memory all at once (which may
+not be suitable for very large files), you can take an B<event
+handling> approach. The easiest way to do this to register which nodes
+in the file you are interested in using the B<makehandler> method. The
+parser will sweep through the file, building objects as it goes, and
+handing the object to a subroutine that you specify.
+
+For example:
+
   use Data::Stag;
   # catch the end of 'person' elements
   my $h = Data::Stag->makehandler( person=> sub {
@@ -357,6 +366,7 @@ the same can be done in a more OO fashion
                                                printf "name:%s phone:%s\n",
                                                  $person->get_name,
                                                  $person->get_phone;
+                                               return;   # clear node
                                                 });
   Data::Stag->parse(-handler=>$h,
                     -file=>$f);
