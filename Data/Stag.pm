@@ -1,7 +1,9 @@
-# $Id: Stag.pm,v 1.3 2002/12/06 22:58:09 cmungall Exp $
+# $Id: Stag.pm,v 1.4 2002/12/06 23:42:01 cmungall Exp $
 # -------------------------------------------------------
 #
 # Copyright (C) 2002 Chris Mungall <cjm@fruitfly.org>
+#
+# See also - http://stag.sourceforge.net
 #
 # This module is free software.
 # You may distribute this module under the same terms as perl itself
@@ -14,10 +16,12 @@ package Data::Stag;
 
 
 use strict;
-use vars qw($VERSION @ISA @EXPORT_OK %EXPORT_TAGS $DEBUG $AUTOLOAD @AUTOMETHODS @OLD);
+use vars qw(@ISA @EXPORT_OK %EXPORT_TAGS $DEBUG $AUTOLOAD @AUTOMETHODS @OLD);
 use Carp;
 use Data::Stag::Base;
 use XML::Parser::PerlSAX;
+
+use vars qw($VERSION);
 $VERSION = '0.01';
 
 @AUTOMETHODS = qw(

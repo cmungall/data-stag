@@ -1,9 +1,10 @@
-# $Id: ITextParser.pm,v 1.2 2002/12/05 04:33:49 cmungall Exp $
+# $Id: ITextParser.pm,v 1.3 2002/12/06 23:42:02 cmungall Exp $
 #
+# Copyright (C) 2002 Chris Mungall <cjm@fruitfly.org>
 #
-# see also - http://www.geneontology.org
-#          - http://www.fruitfly.org/annot/go
+# See also - http://stag.sourceforge.net
 #
+# This module is free software.
 # You may distribute this module under the same terms as perl itself
 
 package Data::Stag::ITextParser;
