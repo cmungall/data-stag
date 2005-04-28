@@ -1,4 +1,4 @@
-# $Id: StagImpl.pm,v 1.57 2005/03/05 19:38:50 cmungall Exp $
+# $Id: StagImpl.pm,v 1.58 2005/04/28 17:17:18 cmungall Exp $
 #
 # Author: Chris Mungall <cjm@fruitfly.org>
 #
@@ -179,7 +179,8 @@ sub parser {
         else {
             # default to xml
 	     if (!$str && $fn) {
-		 my $fh = FileHandle->new($fn);
+		 my $fh = FileHandle->new($fn) || 
+                   confess("no such file $fn");
 		 # get the first line
 		 $str = <$fh>;
 		 chomp $str;
