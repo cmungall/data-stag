@@ -1,4 +1,4 @@
-# $Id: XMLParser.pm,v 1.13 2004/12/21 02:26:26 cmungall Exp $
+# $Id: XMLParser.pm,v 1.14 2005/10/20 18:33:26 cmungall Exp $
 #
 # Copyright (C) 2002 Chris Mungall <cjm@fruitfly.org>
 #
@@ -33,7 +33,7 @@ use Data::Stag::Util qw(rearrange);
 use base qw(Data::Stag::BaseGenerator Exporter);
 
 use vars qw($VERSION);
-$VERSION="0.08";
+$VERSION="0.09";
 
 sub fmtstr {
     return 'xml';

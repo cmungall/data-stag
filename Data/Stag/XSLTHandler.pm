@@ -1,4 +1,4 @@
-# $Id: XSLTHandler.pm,v 1.2 2004/04/26 16:02:23 cmungall Exp $
+# $Id: XSLTHandler.pm,v 1.3 2005/10/20 18:33:26 cmungall Exp $
 #
 # This GO module is maintained by Chris Mungall <cjm@fruitfly.org>
 #
@@ -26,15 +26,14 @@
 # makes objects from parser events
 
 package Data::Stag::XSLTHandler;
-use base qw(Data::Stag::base);
-use XML::LibXML;
-use XML::LibXSLT;
+use base qw(Data::Stag::Base);
 
 use strict;
 
 sub end_stag {
     my $self = shift;
     my $stag = shift;
+    $self->SUPER::end_stag($stag);
     my $results = $stag->xsltstr($self->xslt_file);
     $self->addtext($results);
     return;

@@ -14,6 +14,8 @@ Data/Stag/GraphHandler.pm
 Data/Stag/HashDB.pm
 Data/Stag/ITextParser.pm
 Data/Stag/ITextWriter.pm
+Data/Stag/IndentParser.pm
+Data/Stag/IndentWriter.pm
 Data/Stag/PerlWriter.pm
 Data/Stag/PodParser.pm
 Data/Stag/SAX2Stag.pm
@@ -131,6 +133,7 @@ t/path.x
 t/path2.x
 t/qmatch.t
 t/roundtrip-attrs.t
+t/set-attrs.t
 t/set.t
 t/unhash.t
 t/unset.t

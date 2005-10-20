@@ -79,3 +79,6 @@ Version 0.09
                   Added IndentParser and IndentWriter
 
 2005-02-10      - setting @ will always place @ node at start of subnode list
+
+2005-10-22      - fixed typo in XSLTHandler - applied patch from
+                  https://rt.cpan.org/Ticket/Display.html?id=15154

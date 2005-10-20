@@ -1,4 +1,4 @@
-# $Id: Stag.pm,v 1.37 2005/03/05 19:38:50 cmungall Exp $
+# $Id: Stag.pm,v 1.38 2005/10/20 18:33:26 cmungall Exp $
 # -------------------------------------------------------
 #
 # Copyright (C) 2004 Chris Mungall <cjm@fruitfly.org>
@@ -21,7 +21,7 @@ use Carp;
 use Data::Stag::Base;
 
 use vars qw($VERSION);
-$VERSION="0.08";
+$VERSION="0.09";
 
 @AUTOMETHODS = qw(
                   new
