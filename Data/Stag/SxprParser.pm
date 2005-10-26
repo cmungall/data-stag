@@ -1,4 +1,4 @@
-# $Id: SxprParser.pm,v 1.18 2005/10/20 18:33:26 cmungall Exp $
+# $Id: SxprParser.pm,v 1.19 2005/10/26 23:25:14 cmungall Exp $
 #
 # Copyright (C) 2002 Chris Mungall <cjm@fruitfly.org>
 #
@@ -24,8 +24,6 @@ package Data::Stag::SxprParser;
 
 =cut
 
-# TODO - rewrite using Text::Balanced
-
 use Exporter;
 use Carp;
 use FileHandle;
@@ -43,90 +41,127 @@ sub fmtstr {
 sub parse_fh {
     my $self = shift;
     my $fh = shift;
+    my $line_no = 0;
+    my $state = "init";
+    my $txt = '';
 
-#    my $sxpr = join("", <$fh>);
-#    $self->sxpr2tree($sxpr);
+    # c: comment ;
+    # q: quote (double quote only)
+    # o: opening tag - after round bracket, before whitespace or ()
+    # 0: body, or awaiting open or close
+    while (my $line = <$fh>) {
+        $line_no++;
 
-    my $parsing_has_started;
-
-    my $OPEN = '^\s*\(([\w\-\*\?\+\@\.\:\;\,]+)\s*';
-    my $CLOSE = '(.*)(.)\){1}';
-    my $txt;
-    my $in;
-    while (<$fh>) {
-#        chomp;
-        s/\;\;.*//;
-        while ($_) {
-
-	    # we allow an optional leading quote;
-	    # this is a lisp list constructor
-	    if (/^\s*\'/ && !$parsing_has_started) {
-		s/^\s*\'//;
-	    }
-	    $parsing_has_started = 1;
-#            print ";;; $_\n";
-            if (/^\)/) {
-                $_ = " $_";
-            }
-            if (/$OPEN(.*)/) {
-#                print "S:$1\n";
-                $self->start_event($1);
-                s/$OPEN//;
-                $txt = undef;
-                $in = 1;
-            }
-            elsif (/$CLOSE/ && $2 ne "\\") {
-                my $line = "$1$2";
-                my $n_close = 1;
-                while ($line =~ /$CLOSE/ && $2 ne "\\") {
-                    $line = "$1$2";
+        while (length($line)) {
+            my $c = substr($line,0,1,'');
+            if ($state eq 'init') {
+                if ($c eq '(') {
+                    # at start - do nothing
+                    $state = 0;
                 }
-                my $slice_dist = length($line) +1;
-#                print "+++ $line\n";
-                while ($line =~ /\)\s*$/) {
-                    $n_close++;
-                    $line =~ s/\)\s*$//;
+                elsif ($c eq "'") {
+                    # leading quote is allowed [list constructor in lisp]
+                    # (good for editing in emacs)
+                    next;
+                    $state = 0;
                 }
-                if ($in) {
-                    $txt = '' unless defined $txt;
-		    if ($line eq ' ') {
-			$line = '';
-		    }
-                    $txt .= $line;
-                    if (defined($txt)) {
-                        $txt =~ s/^\s*\"//;
-                        $txt =~ s/\"\s*$//;
-                        $self->evbody($txt);
-#                        print "T:$txt\n";
-                    }
+                elsif ($c =~ /\s/) {
+                    next;
+                }
+                elsif ($c eq ';') {
+                    $state = 'c';
                 }
                 else {
-                    # after a ')'...
-                    $line =~ s/\s*//g;
-                    if ($line) {
-                        $self->throw("TEXT BETWEEN CLOSING BRACKETS: $line\n");
+                    $self->throw("Line: $line_no\n$line\nExpected \"(\" at start of file");
+                }
+            }
+            $state ne 'init' || $self->throw("assertion error: state=$state");
+            
+            if ($state eq 'c') { # comment
+                # newline is the only char that can break out of comments
+                if ($c eq "\n") {
+                    $state = 0;
+                }
+                next;
+            }
+            $state ne 'c' || $self->throw("assertion error: state=$state");
+            
+            if ($state eq 'q') {
+                if ($c eq '"') {
+                    $state = 0;
+                }
+                else {
+                    $txt .= $c;
+                }
+                next;
+            }
+            $state ne 'q' || $self->throw("assertion error: state=$state");
+            
+            if ($c eq '"') {
+                $state = 'q';
+                next;
+            }
+            $state ne 'q' || $self->throw("assertion error: state=$state");
+            
+            if ($c eq ';') {
+                # can only open comments when NOT in quotes
+                $state = 'c';
+                next;
+            }
+            
+            if ($c eq '(') {
+                if ($state eq 'o') {
+                    if (!$txt) {
+                        $self->throw("Line: $line_no\b$line\ndouble open brackets (( not allowed!");
                     }
+                    $self->start_event($txt);
+                    $txt = '';
                 }
-                $txt = undef;
-                while ($n_close) {
-                    $self->end_event();
-                    $n_close--;
+                $state = 'o';
+                next;
+            }
+            if ($c eq ')') {
+                if ($state eq 'o') {
+                    if (!$txt) {
+                        $self->throw("Line: $line_no\b$line\n () not allowed!");
+                    }
+                    $self->start_event($txt);
+                    $txt = '';
+                    $self->end_event;
                 }
-#                print "E:\n";
-#                s/$CLOSE//;
-                $_ = substr($_, $slice_dist);
-                $in = 0;
+                else {
+                    if ($txt) {
+                        $self->evbody($txt);
+                    }
+                    $txt = '';
+                    $self->end_event;
+                }
+                next;
             }
-            else {
-                $txt = '' unless defined $txt;
-                $txt .= $_;
-                $_ = '';
+            if ($state eq 'o') {
+                if ($c =~ /\s/) {
+                    # reached last char of start event name
+                    $self->start_event($txt);
+                    $txt = '';
+                    $state = 0;
+                    next;
+                }
+                else {
+                    $txt .= $c;
+                    next;
+                }
             }
+            $state == 0 || $self->throw("assertion error: state=$state");
+            if ($c =~ /\s/) {
+                next;
+            }
+            $txt .= $c;
+            next;
         }
     }
-
-    return;
+    if ($txt =~ /\S/) {
+        $self->throw("text at end: $txt");
+    }
 }
-
 
 1;
