@@ -56,6 +56,9 @@ sub blocked_event_h {
 sub is_blocked {
     my $self = shift;
     my $e = shift;
+    if (!$e) {
+        $self->throw("must pass arg to is_blocked");
+    }
     my $is = $self->blocked_event_h->{$e};
     return $is;
 }
@@ -103,7 +106,10 @@ sub end_event {
     my $ev = shift;
 
     my $stack = $self->elt_stack;
-    pop @$stack;
+    $ev = pop @$stack;
+    if (!$ev) {
+        $self->throw("no event name on stack");
+    }
 
     my $sh = $self->subhandlers;
 

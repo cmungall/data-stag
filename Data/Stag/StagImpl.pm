@@ -1,4 +1,4 @@
-# $Id: StagImpl.pm,v 1.59 2005/10/20 18:33:26 cmungall Exp $
+# $Id: StagImpl.pm,v 1.60 2005/11/03 01:09:04 cmungall Exp $
 #
 # Author: Chris Mungall <cjm@fruitfly.org>
 #
@@ -421,8 +421,8 @@ sub write {
 sub makexslhandler {
     my $tree = shift;
     my $xslt_file = shift;
-    load_module("Data::Stag::XSLHandler");
-    my $handler = Data::Stag::XSLHandler->new;
+    load_module("Data::Stag::XSLTHandler");
+    my $handler = Data::Stag::XSLTHandler->new;
     $handler->xslt_file($xslt_file);
     return $handler;
 }
@@ -758,14 +758,14 @@ sub _tree2sax {
 }
 
 sub xslt {
-    my $xsltstr = xsltstr(@_);
-    return parse([], 
-                 -str=>$xsltstr,
-                 -format=>'xml');
+    my $tree = shift;
+    my $xsltstr = xsltstr($tree,@_);
+    return parsestr($tree,
+                    -str=>$xsltstr,
+                    -format=>'xml');
 }
 
 sub xsltstr {
-    my $tree = shift;
     my $stag = shift;
     my $xslt_file = shift;
     
@@ -779,7 +779,7 @@ sub xsltstr {
     my $stylesheet = $xslt->parse_stylesheet($styledoc);
 
     my $results = $stylesheet->transform($source);
-    return $results;
+    return $results->toString;
 }
 
 

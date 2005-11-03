@@ -1,4 +1,4 @@
-# $Id: BaseHandler.pm,v 1.30 2005/10/20 18:33:26 cmungall Exp $
+# $Id: BaseHandler.pm,v 1.31 2005/11/03 01:09:04 cmungall Exp $
 #
 # This  module is maintained by Chris Mungall <cjm@fruitfly.org>
 
@@ -336,6 +336,11 @@ sub err_event {
     }
     $self->errhandler->event(@_);
     return;
+}
+
+sub throw {
+    my $self = shift;
+    confess("@_");
 }
 
 sub err {
