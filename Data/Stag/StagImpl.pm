@@ -1,4 +1,4 @@
-# $Id: StagImpl.pm,v 1.60 2005/11/03 01:09:04 cmungall Exp $
+# $Id: StagImpl.pm,v 1.61 2005/11/10 08:17:54 cmungall Exp $
 #
 # Author: Chris Mungall <cjm@fruitfly.org>
 #
@@ -1058,12 +1058,14 @@ sub free {
 sub add {
     my $tree = shift || confess;
     my $node = shift;
-    my @v = @_;
+    # usage1: stag_add($tree, $name, @nodes)
+    my @v = @_; # nodes to be added
     if (ref($node)) {
+        # usage2: stag_add($tree, $node)
 	if ($node->isnull) {
 	    confess("cannot add null node");
 	}
-#        ($node, @v) = ($node->[0], @{$node->[1]});
+        # split node into name and data
         ($node, @v) = ($node->[0], [$node->[1]]);
     }
     if (ref($v[0]) && !ref($v[0]->[0])) {
@@ -1079,7 +1081,8 @@ sub add {
 	my $next_st = $subtree->[$i+1];
         my ($ev, $subtree) = @$st;
 	push(@nu_subtree, $st);
-        if (test_eq($ev, $node) &&
+        if (!$has_been_set &&
+            test_eq($ev, $node) &&
 	    (!$next_st ||
 	     $next_st->[0] ne $ev)) {
 	    push(@nu_subtree, 

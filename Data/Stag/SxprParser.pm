@@ -1,4 +1,4 @@
-# $Id: SxprParser.pm,v 1.19 2005/10/26 23:25:14 cmungall Exp $
+# $Id: SxprParser.pm,v 1.20 2005/11/10 08:17:54 cmungall Exp $
 #
 # Copyright (C) 2002 Chris Mungall <cjm@fruitfly.org>
 #
@@ -136,6 +136,7 @@ sub parse_fh {
                     $txt = '';
                     $self->end_event;
                 }
+                $state=0;
                 next;
             }
             if ($state eq 'o') {

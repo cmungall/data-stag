@@ -82,3 +82,5 @@ Version 0.09
 
 2005-10-22      - fixed typo in XSLTHandler - applied patch from
                   https://rt.cpan.org/Ticket/Display.html?id=15154
+
+2005-11-01      - changed xslt method behaviour, returns string
