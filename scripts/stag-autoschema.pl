@@ -44,46 +44,48 @@ $dtd = 1 if $handler eq 'dtd';
 #}
 
 my @files = @ARGV;
+my $tree = Data::Stag->new(null=>[]);
 foreach my $fn (@files) {
 
-    my $tree = 
+    my $curr_tree = 
       Data::Stag->parse($fn, 
                         $parser);
-    my $s = $tree->autoschema;
-    if ($defs) {
-	my @sdefs = ();
-	my %u = ();
-	$s->iterate(sub {
-			my $stag = shift;
-			my $n = $stag->name;
-			$n =~ s/[\+\?\*]$//;
-			return if $u{$n};
-			$u{$n}=1;
-			push(@sdefs, ($n=>''));
-			return;
-		    });
-	$s = Data::Stag->unflatten(schemadefs=>[@sdefs]);
-    }
-    else {
-	$s->iterate(sub {
-			my $stag = shift;
-			my $d = $stag->data;
-			if (!ref $d) {
-			    $stag->data($d =~ /INT/ ? "i" : "s");
-			}
-		    });
-    }
+    $tree->name($curr_tree->name);
+    $tree->addkid($_) foreach $curr_tree->subnodes;
+}
+
+my $s = $tree->autoschema;
+if ($defs) {
+    my @sdefs = ();
+    my %u = ();
+    $s->iterate(sub {
+                    my $stag = shift;
+                    my $n = $stag->name;
+                    $n =~ s/[\+\?\*]$//;
+                    return if $u{$n};
+                    $u{$n}=1;
+                    push(@sdefs, ($n=>''));
+                    return;
+                });
+    $s = Data::Stag->unflatten(schemadefs=>[@sdefs]);
+} else {
+    $s->iterate(sub {
+                    my $stag = shift;
+                    my $d = $stag->data;
+                    if (!ref $d) {
+                        $stag->data($d =~ /INT/ ? "i" : "s");
+                    }
+                });
+}
 #    my $top = 
 #      Data::Stag->unflatten(schema=>[
 #				     @hdr,
 #				    ]);
 #    $top->set_nesting($s->data);
-    if ($dtd) {
-        print $s->dtd;
-    }
-    else {
-        print $s->generate(-fmt=>$handler);
-    }
+if ($dtd) {
+    print $s->dtd;
+} else {
+    print $s->generate(-fmt=>$handler);
 }
 
 __END__

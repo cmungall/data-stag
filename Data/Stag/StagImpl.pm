@@ -1,4 +1,4 @@
-# $Id: StagImpl.pm,v 1.61 2005/11/10 08:17:54 cmungall Exp $
+# $Id: StagImpl.pm,v 1.62 2005/12/06 17:22:02 cmungall Exp $
 #
 # Author: Chris Mungall <cjm@fruitfly.org>
 #
@@ -2573,7 +2573,7 @@ sub AUTOLOAD {
 
 sub splitpath {
     my $node = shift;
-    if (ref($node)) {
+    if (ref($node) && ref($node) eq 'ARRAY') {
         @$node;
     }
     elsif ($node =~ /\//) {

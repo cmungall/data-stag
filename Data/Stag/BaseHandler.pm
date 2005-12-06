@@ -1,4 +1,4 @@
-# $Id: BaseHandler.pm,v 1.31 2005/11/03 01:09:04 cmungall Exp $
+# $Id: BaseHandler.pm,v 1.32 2005/12/06 17:22:02 cmungall Exp $
 #
 # This  module is maintained by Chris Mungall <cjm@fruitfly.org>
 
@@ -273,6 +273,8 @@ $VERSION="0.09";
 
 sub EMITS    { () }
 sub CONSUMES { () }
+sub REPLACE { () }
+sub SKIP { () }
 
 sub tree {
     my $self = shift;
@@ -450,6 +452,13 @@ sub perlify {
 sub start_event {
     my $self = shift;
     my $ev = shift;
+    if (grep {$ev eq $_} $self->SKIP) {
+        return;
+    }
+    my %REPLACE = $self->REPLACE;
+    if (%REPLACE) {
+        $ev = $REPLACE{$ev} || $ev;
+    }
     my $m = 's_'.$ev;
     $m =~ tr/\-\:/_/;
 
@@ -520,6 +529,14 @@ sub up_to {
 sub end_event {
     my $self = shift;
     my $ev = shift || '';
+
+    if (grep {$ev eq $_} $self->SKIP) {
+        return;
+    }
+    my %REPLACE = $self->REPLACE;
+    if (%REPLACE) {
+        $ev = $REPLACE{$ev} || $ev;
+    }
 
     my $stack = $self->{_stack};
     pop(@$stack);
