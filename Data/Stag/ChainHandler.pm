@@ -113,9 +113,10 @@ sub end_event {
 
     my $sh = $self->subhandlers;
 
-    my $is_blocked = grep {$self->is_blocked($_)} @$stack;
+
+    my $inside_blocked = grep {$self->is_blocked($_)} @$stack;
     if ($self->is_blocked($ev) &&
-	!$is_blocked) {
+	!$inside_blocked) {
 
 	# condition:
 	# end of a blocked event, and we are 
@@ -141,6 +142,7 @@ sub end_event {
     }
     else {
 
+#        if (grep {$self->is_blocked($_)} @$stack) {
         if (grep {$self->is_blocked($_)} @$stack) {
             $sh->[0]->end_event($ev);
         }
