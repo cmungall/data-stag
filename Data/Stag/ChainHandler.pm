@@ -20,7 +20,7 @@ use strict;
 use base qw(Data::Stag::Base Data::Stag::Writer);
 
 use vars qw($VERSION);
-$VERSION="0.09";
+$VERSION="0.10";
 
 sub init {
     my $self = shift;
@@ -125,24 +125,16 @@ sub end_event {
 
         my @R = $h->end_event($ev);
         foreach my $handler (@rest) {
-#            my $tree = $h->tree;
-            #$handler->event(@$tree) if $tree->[0];
 	    if (@R) {
 		$handler->event(@$_) foreach @R;
 		@$_ = () foreach @R;
 	    }
         }
-#        use Data::Dumper;
-#        print Dumper $node->[-1];
-#        die;
-#        @$topnode = ();
         my $tree = $h->tree;
         $tree->free;
-#        $h->tree([]);
     }
     else {
 
-#        if (grep {$self->is_blocked($_)} @$stack) {
         if (grep {$self->is_blocked($_)} @$stack) {
             $sh->[0]->end_event($ev);
         }

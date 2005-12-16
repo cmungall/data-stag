@@ -1,4 +1,4 @@
-# $Id: StagImpl.pm,v 1.62 2005/12/06 17:22:02 cmungall Exp $
+# $Id: StagImpl.pm,v 1.63 2005/12/16 17:42:44 cmungall Exp $
 #
 # Author: Chris Mungall <cjm@fruitfly.org>
 #
@@ -30,7 +30,7 @@ use Data::Stag::Util qw(rearrange);
 use base qw(Data::Stag::StagI);
 
 use vars qw($VERSION);
-$VERSION="0.09";
+$VERSION="0.10";
 
 
 sub new {

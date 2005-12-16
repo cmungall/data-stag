@@ -1,4 +1,4 @@
-# $Id: ITextParser.pm,v 1.17 2005/10/20 18:33:26 cmungall Exp $
+# $Id: ITextParser.pm,v 1.18 2005/12/16 17:42:44 cmungall Exp $
 #
 # Copyright (C) 2002 Chris Mungall <cjm@fruitfly.org>
 #
@@ -31,7 +31,7 @@ use strict;
 use base qw(Data::Stag::BaseGenerator Exporter);
 
 use vars qw($VERSION);
-$VERSION="0.09";
+$VERSION="0.10";
 
 sub fmtstr {
     return 'itext';

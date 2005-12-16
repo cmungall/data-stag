@@ -135,6 +135,7 @@ t/qmatch.t
 t/roundtrip-attrs.t
 t/set-attrs.t
 t/set.t
+t/sxpr.t
 t/unhash.t
 t/unset.t
 t/write.t
@@ -146,4 +147,3 @@ t/data/eco.el
 t/data/eco.itext
 t/data/homol.itext
 t/data/persons.el
-META.yml                                Module meta-data (added by MakeMaker)
