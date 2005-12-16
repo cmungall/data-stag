@@ -1,4 +1,4 @@
-# $Id: Makefile.PL,v 1.8 2004/12/21 02:26:20 cmungall Exp $
+# $Id: Makefile.PL,v 1.9 2005/12/16 17:20:41 cmungall Exp $
 
 use ExtUtils::MakeMaker;
 require 5.005;
@@ -56,7 +56,7 @@ eval {
 if ($@) {
     print <<FAIL;
 
-** Missing vital module: IO::Scalar **
+** Missing vital module: IO::String **
 
 This module is required by Data::Stag. Please install this module from CPAN
 
