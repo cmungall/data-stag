@@ -1,4 +1,4 @@
-# $Id: StagImpl.pm,v 1.63 2005/12/16 17:42:44 cmungall Exp $
+# $Id: StagImpl.pm,v 1.64 2007/07/11 04:37:09 cmungall Exp $
 #
 # Author: Chris Mungall <cjm@fruitfly.org>
 #
@@ -1494,6 +1494,30 @@ sub paste {
     }
     @$tree = ($evParent, \@children);
     return;
+}
+
+# 
+sub maptree {
+    my $tree = shift;
+    my $code = shift;
+    my $parent = shift;
+    my $next = $code->($tree, $parent);
+    if ($next) {
+        my $elt = $next->element;
+        my @subnodes = subnodes($next);
+        if (!@subnodes) {
+            return $next;
+        }
+        my @new_subnodes = ();
+        foreach (@subnodes) {
+            my @nu = maptree($_, $code, $tree);
+            push(@new_subnodes,@nu);
+        }
+        return Data::Stag->new($elt=>[@new_subnodes]);
+    }
+    else {
+        return ();
+    }
 }
 
 # iterate depth first through tree executing code

@@ -147,3 +147,4 @@ t/data/eco.el
 t/data/eco.itext
 t/data/homol.itext
 t/data/persons.el
+META.yml                                Module meta-data (added by MakeMaker)

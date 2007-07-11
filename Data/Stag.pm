@@ -1,4 +1,4 @@
-# $Id: Stag.pm,v 1.39 2005/12/16 17:42:44 cmungall Exp $
+# $Id: Stag.pm,v 1.40 2007/07/11 04:37:08 cmungall Exp $
 # -------------------------------------------------------
 #
 # Copyright (C) 2004 Chris Mungall <cjm@fruitfly.org>
@@ -1699,6 +1699,23 @@ into this
    (pet_name "fluffy")
    (pet
     (name "fluffy")))
+
+=head3 maptree
+
+       Title: maptree
+
+        Args: CODE
+      Return: Node[]
+     Example: $data->maptree(sub {
+				 my $stag = shift;
+				 my $parent = shift;
+				 if ($stag->element eq 'pet') {
+				     [pet=>$stag->sget_foo]
+				 }
+                                 else {
+				     $stag
+                                 }
+			     });
 
 =head2 MISCELLANEOUS METHODS
 
