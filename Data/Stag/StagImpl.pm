@@ -1,4 +1,4 @@
-# $Id: StagImpl.pm,v 1.64 2007/07/11 04:37:09 cmungall Exp $
+# $Id: StagImpl.pm,v 1.65 2007/10/15 04:08:46 cmungall Exp $
 #
 # Author: Chris Mungall <cjm@fruitfly.org>
 #
@@ -1503,6 +1503,9 @@ sub maptree {
     my $parent = shift;
     my $next = $code->($tree, $parent);
     if ($next) {
+        if (ref($next) && ref($next) eq 'ARRAY') {
+            return @$next;
+        }
         my $elt = $next->element;
         my @subnodes = subnodes($next);
         if (!@subnodes) {
