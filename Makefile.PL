@@ -1,4 +1,4 @@
-# $Id: Makefile.PL,v 1.9 2005/12/16 17:20:41 cmungall Exp $
+# $Id: Makefile.PL,v 1.10 2008/06/03 17:25:25 cmungall Exp $
 
 use ExtUtils::MakeMaker;
 require 5.005;
@@ -94,6 +94,7 @@ WriteMakefile(
 				    scripts/stag-splitter.pl
 				    scripts/stag-view.pl
 				    scripts/stag-xml2itext.pl
+				    scripts/stag-itext2simple.pl
                                    )
 				],
 	      'dist'         => { 

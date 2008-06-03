@@ -49,7 +49,6 @@ homepage/mkscriptdoc.pl
 homepage/script-list.html
 homepage/stag-db-tutorial.html
 homepage/stag-poster.html
-homepage/images/celtic-stag.gif
 homepage/images/k-schema-diagram.png
 homepage/images/rr-schema-diagram.png
 homepage/script-docs/selectall_html.html
@@ -147,4 +146,4 @@ t/data/eco.el
 t/data/eco.itext
 t/data/homol.itext
 t/data/persons.el
-META.yml                                Module meta-data (added by MakeMaker)
+META.yml                                 Module meta-data (added by MakeMaker)

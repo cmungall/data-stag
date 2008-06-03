@@ -46,7 +46,7 @@ sub o {
 
 sub start_event {
     my $self = shift;
-    my $ev = shift;
+    my $ev = shift || '';
     my $stack = $self->stack;
     my $tag = "$ev: ";
     if ($self->use_color) {
@@ -57,7 +57,7 @@ sub start_event {
 }
 sub end_event {
     my $self = shift;
-    my $ev = shift;
+    my $ev = shift || '';
     my $stack = $self->stack;
     my $top = pop @$stack;
     use Carp;

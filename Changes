@@ -95,4 +95,6 @@ Version 0.11
 
 2007-10-11      - modified maptree; return arrays
 
+2008-04-28      - removed gif from distribution
 
+2008-06-03      - removed warnings from ITextWriter (thanks Heikki!)
