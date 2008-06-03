@@ -28,7 +28,7 @@ use strict;
 use base qw(Data::Stag::Writer Data::Stag::Writer);
 
 use vars qw($VERSION);
-$VERSION="0.10";
+$VERSION="0.11";
 
 sub fmtstr {
     return 'sxpr';

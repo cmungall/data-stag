@@ -6,7 +6,7 @@ use vars qw(@EXPORT_OK %EXPORT_TAGS);
 use base qw(Exporter);
 
 use vars qw($VERSION);
-$VERSION="0.10";
+$VERSION="0.11";
 
 @EXPORT_OK = qw(rearrange);
 %EXPORT_TAGS = (all => [@EXPORT_OK]);

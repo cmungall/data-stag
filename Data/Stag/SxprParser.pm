@@ -1,4 +1,4 @@
-# $Id: SxprParser.pm,v 1.21 2005/12/16 17:42:45 cmungall Exp $
+# $Id: SxprParser.pm,v 1.22 2008/06/03 17:31:15 cmungall Exp $
 #
 # Copyright (C) 2002 Chris Mungall <cjm@fruitfly.org>
 #
@@ -32,7 +32,7 @@ use Data::Stag qw(:all);
 use base qw(Data::Stag::BaseGenerator Exporter);
 
 use vars qw($VERSION);
-$VERSION="0.10";
+$VERSION="0.11";
 
 sub fmtstr {
     return 'sxpr';

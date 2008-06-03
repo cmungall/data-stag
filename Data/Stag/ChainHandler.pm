@@ -20,7 +20,7 @@ use strict;
 use base qw(Data::Stag::Base Data::Stag::Writer);
 
 use vars qw($VERSION);
-$VERSION="0.10";
+$VERSION="0.11";
 
 sub init {
     my $self = shift;

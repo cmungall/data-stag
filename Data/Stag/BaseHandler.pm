@@ -1,4 +1,4 @@
-# $Id: BaseHandler.pm,v 1.33 2005/12/16 17:42:44 cmungall Exp $
+# $Id: BaseHandler.pm,v 1.34 2008/06/03 17:31:15 cmungall Exp $
 #
 # This  module is maintained by Chris Mungall <cjm@fruitfly.org>
 
@@ -269,7 +269,7 @@ use Carp;
 use Data::Stag;
 
 use vars qw($VERSION);
-$VERSION="0.10";
+$VERSION="0.11";
 
 sub EMITS    { () }
 sub CONSUMES { () }

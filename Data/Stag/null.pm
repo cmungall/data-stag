@@ -19,7 +19,7 @@ use strict;
 use base qw(Data::Stag::BaseHandler);
 
 use vars qw($VERSION);
-$VERSION="0.10";
+$VERSION="0.11";
 
 sub start_event {}
 sub end_event {}
