@@ -2,11 +2,11 @@
 
 =head1 NAME 
 
-stag-merge - script wrapper for the Data::Stag modules
+stag-merge.pl - script wrapper for the Data::Stag modules
 
 =head1 SYNOPSIS
 
-  stag-merge  -xml file1.xml file2.xml
+  stag-merge.pl  -xml file1.xml file2.xml
 
 =head1 DESCRIPTION
 
