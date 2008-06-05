@@ -3,11 +3,11 @@
 
 =head1 NAME 
 
-stag-eval.pl
+stag-eval
 
 =head1 SYNOPSIS
 
-  stag-eval.pl '' file2.xml
+  stag-eval '' file2.xml
 
 =head1 DESCRIPTION
 

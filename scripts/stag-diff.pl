@@ -175,11 +175,11 @@ __END__
 
 =head1 NAME 
 
-stag-diff.pl - finds the difference between two stag files
+stag-diff - finds the difference between two stag files
 
 =head1 SYNOPSIS
 
-  stag-diff.pl -ignore foo-id -ignore bar-id file1.xml file2.xml
+  stag-diff -ignore foo-id -ignore bar-id file1.xml file2.xml
 
 =head1 DESCRIPTION
 
@@ -251,7 +251,7 @@ exactly how trees do not match. To investigate this, you may need to
 use the B<-r> and B<-v> options. For the above output, I would
 recommend using
 
-  stag-diff.pl -r feature_span -v
+  stag-diff -r feature_span -v
 
 =head2 ALGORITHM
 

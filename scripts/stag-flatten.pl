@@ -122,11 +122,11 @@ __END__
 
 =head1 NAME 
 
-stag-flatten.pl - turns stag data into a flat table
+stag-flatten - turns stag data into a flat table
 
 =head1 SYNOPSIS
 
-  stag-flatten.pl -c name -c person/name dept MyFile.xml
+  stag-flatten -c name -c person/name dept MyFile.xml
 
 =head1 DESCRIPTION
 
@@ -153,7 +153,7 @@ cartesian product will be calculated
 
 =head1 USAGE
 
-  stag-flatten.pl [-p PARSER] [-c COLS] [-c COLS] NODE <file>
+  stag-flatten [-p PARSER] [-c COLS] [-c COLS] NODE <file>
 
 =head1 ARGUMENTS
 

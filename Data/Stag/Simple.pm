@@ -2,7 +2,7 @@ package Data::Stag::Simple;
 
 =head1 NAME
 
-  Data::Stag::Simple
+  Data::Stag::Simple - Simple
 
 =head1 SYNOPSIS
 

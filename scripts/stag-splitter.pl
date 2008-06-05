@@ -134,11 +134,11 @@ __END__
 
 =head1 NAME 
 
-stag-splitter.pl - splits a stag file into multiple files
+stag-splitter - splits a stag file into multiple files
 
 =head1 SYNOPSIS
 
-  stag-splitter.pl -split person -name social_security_no file.xml
+  stag-splitter -split person -name social_security_no file.xml
 
 =head1 DESCRIPTION
 
@@ -168,7 +168,7 @@ eg; if we have
 
 if we run
 
-  stag-splitter.pl -split a -name b
+  stag-splitter -split a -name b
 
 it will generate two files, "foo.xml" and "bar.xml"
 
@@ -183,7 +183,7 @@ files go in the current directory, but this can be overridden with the
 
 =head1 USAGE
 
-   stag-splitter.pl [-split <ELEMENT-NAME>] [-name <ELEMENT-NAME>] [-dir <DIR>] [-format <INPUT-FORMAT>] [-outformat <OUTPUT-FORMAT>] <FILENAMES>
+   stag-splitter [-split <ELEMENT-NAME>] [-name <ELEMENT-NAME>] [-dir <DIR>] [-format <INPUT-FORMAT>] [-outformat <OUTPUT-FORMAT>] <FILENAMES>
 
 =over
 

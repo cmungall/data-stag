@@ -2,7 +2,7 @@ package Data::Stag::PerlWriter;
 
 =head1 NAME
 
-  Data::Stag::PerlWriter
+  Data::Stag::PerlWriter - writes stag events into perl POD documentation
 
 =head1 SYNOPSIS
 

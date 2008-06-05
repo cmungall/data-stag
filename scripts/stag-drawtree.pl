@@ -138,13 +138,13 @@ __END__
 
 =head1 NAME 
 
-stag-drawtree.pl - draws a stag file (xml, itext, sxpr) as a PNG diagram
+stag-drawtree - draws a stag file (xml, itext, sxpr) as a PNG diagram
 
 =head1 SYNOPSIS
 
-  stag-drawtree.pl -o my.png myfile.xml
+  stag-drawtree -o my.png myfile.xml
 
-  stag-drawtree.pl -p My::MyFormatParser -o my.png myfile.myfmt
+  stag-drawtree -p My::MyFormatParser -o my.png myfile.myfmt
 
 =head1 DESCRIPTION
 

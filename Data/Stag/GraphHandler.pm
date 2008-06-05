@@ -2,7 +2,7 @@ package Data::Stag::GraphHandler;
 
 =head1 NAME
 
-  Data::Stag::GraphHandler
+  Data::Stag::GraphHandler - Graph Handler
 
 =head1 SYNOPSIS
 

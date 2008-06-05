@@ -139,23 +139,23 @@ __END__
 
 =head1 NAME 
 
-stag-grep.pl - filters a stag file (xml, itext, sxpr) for nodes of interest
+stag-grep - filters a stag file (xml, itext, sxpr) for nodes of interest
 
 =head1 SYNOPSIS
 
-  stag-grep.pl person -q name=fred file1.xml
+  stag-grep person -q name=fred file1.xml
 
-  stag-grep.pl person 'sub {shift->get_name =~ /^A*/}' file1.xml
+  stag-grep person 'sub {shift->get_name =~ /^A*/}' file1.xml
 
-  stag-grep.pl -p My::Foo -w sxpr record 'sub{..}' file2
+  stag-grep -p My::Foo -w sxpr record 'sub{..}' file2
 
 =head1 USAGE
 
-  stag-grep.pl [-p|parser PARSER] [-w|writer WRITER] NODE -q tag=val FILE
+  stag-grep [-p|parser PARSER] [-w|writer WRITER] NODE -q tag=val FILE
 
-  stag-grep.pl [-p|parser PARSER] [-w|writer WRITER] NODE SUB FILE
+  stag-grep [-p|parser PARSER] [-w|writer WRITER] NODE SUB FILE
 
-  stag-grep.pl [-p|parser PARSER] [-w|writer WRITER]  NODE -f PERLFILE FILE
+  stag-grep [-p|parser PARSER] [-w|writer WRITER]  NODE -f PERLFILE FILE
 
 =head1 DESCRIPTION
 

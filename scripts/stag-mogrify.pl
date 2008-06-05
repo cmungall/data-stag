@@ -2,11 +2,11 @@
 
 =head1 NAME 
 
-stag-mogrify.pl  - mangle stag files
+stag-mogrify  - mangle stag files
 
 =head1 SYNOPSIS
 
-  stag-mogrify.pl  -w itext file1.xml file2.xml
+  stag-mogrify  -w itext file1.xml file2.xml
 
 =head1 DESCRIPTION
 

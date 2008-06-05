@@ -1,4 +1,4 @@
-# $Id: XSLHandler.pm,v 1.2 2004/10/27 22:10:44 cmungall Exp $
+# $Id: XSLHandler.pm,v 1.3 2008/06/05 06:17:51 cmungall Exp $
 #
 # This GO module is maintained by Chris Mungall <cjm@fruitfly.org>
 #
@@ -9,7 +9,7 @@
 
 =head1 NAME
 
-  Data::Stag::XSLHandler     - 
+  Data::Stag::XSLHandler - XSL Handler
 
 =head1 SYNOPSIS
 

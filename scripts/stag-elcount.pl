@@ -48,11 +48,11 @@ __END__
 
 =head1 NAME
 
-  stag-elcount.pl
+  stag-elcount
 
 =head1 SYNOPSIS
 
-  stag-elcount.pl person/name myfile.xml
+  stag-elcount person/name myfile.xml
 
 =head1 DESCRIPTION
 

@@ -2,7 +2,7 @@ package Data::Stag::ITextWriter;
 
 =head1 NAME
 
-  Data::Stag::ITextWriter
+  Data::Stag::ITextWriter - writes stag events into stag IText format
 
 =head1 SYNOPSIS
 

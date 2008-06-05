@@ -2,7 +2,7 @@ package Data::Stag::XMLWriter;
 
 =head1 NAME
 
-  Data::Stag::XMLWriter
+  Data::Stag::XMLWriter - writes stag events into XML files
 
 =head1 SYNOPSIS
 

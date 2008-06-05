@@ -96,15 +96,15 @@ __END__
 
 =head1 NAME 
 
-stag-parse.pl - parses a file and fires events (e.g. sxpr to xml)
+stag-parse - parses a file and fires events (e.g. sxpr to xml)
 
 =head1 SYNOPSIS
 
   # convert XML to IText
-  stag-parse.pl -p xml -w itext file1.xml file2.xml
+  stag-parse -p xml -w itext file1.xml file2.xml
 
   # use a custom parser/generator and a custom writer/generator
-  stag-parse.pl -p MyMod::MyParser -w MyMod::MyWriter file.txt
+  stag-parse -p MyMod::MyParser -w MyMod::MyWriter file.txt
 
 =head1 DESCRIPTION
 

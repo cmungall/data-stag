@@ -60,11 +60,11 @@ __END__
 
 =head1 NAME 
 
-stag-findsubtree.pl - finds nodes in a stag file
+stag-findsubtree - finds nodes in a stag file
 
 =head1 SYNOPSIS
 
-  stag-findsubtree.pl 'person/name' file.xml
+  stag-findsubtree 'person/name' file.xml
 
 =head1 DESCRIPTION
 
@@ -72,7 +72,7 @@ parses in an input file and writes out subnodes
 
 =head1 USAGE
 
-  stag-findsubtree.pl [-p PARSER] [-w WRITER] NODE FILE
+  stag-findsubtree [-p PARSER] [-w WRITER] NODE FILE
 
 =head1 ARGUMENTS
 

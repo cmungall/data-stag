@@ -144,23 +144,23 @@ __END__
 
 =head1 NAME 
 
-stag-filter.pl - filters a stag file (xml, itext, sxpr) for nodes of interest
+stag-filter - filters a stag file (xml, itext, sxpr) for nodes of interest
 
 =head1 SYNOPSIS
 
-  stag-filter.pl person -q name=fred file1.xml
+  stag-filter person -q name=fred file1.xml
 
-  stag-filter.pl person 'sub {shift->get_name =~ /^A*/}' file1.xml
+  stag-filter person 'sub {shift->get_name =~ /^A*/}' file1.xml
 
-  stag-filter.pl -p My::Foo -w sxpr record 'sub{..}' file2
+  stag-filter -p My::Foo -w sxpr record 'sub{..}' file2
 
 =head1 USAGE
 
-  stag-filter.pl [-p|parser PARSER] [-w|writer WRITER] NODE -q tag=val FILE
+  stag-filter [-p|parser PARSER] [-w|writer WRITER] NODE -q tag=val FILE
 
-  stag-filter.pl [-p|parser PARSER] [-w|writer WRITER] NODE SUB FILE
+  stag-filter [-p|parser PARSER] [-w|writer WRITER] NODE SUB FILE
 
-  stag-filter.pl [-p|parser PARSER] [-w|writer WRITER]  NODE -f PERLFILE FILE
+  stag-filter [-p|parser PARSER] [-w|writer WRITER]  NODE -f PERLFILE FILE
 
 =head1 DESCRIPTION
 

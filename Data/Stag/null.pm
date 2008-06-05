@@ -2,7 +2,7 @@ package Data::Stag::null;
 
 =head1 NAME
 
-  Data::Stag::Arr2HTML
+  Data::Stag::Arr2HTML - null
 
 =head1 SYNOPSIS
 

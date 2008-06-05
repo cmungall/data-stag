@@ -2,7 +2,7 @@ package Data::Stag::HashDB;
 
 =head1 NAME
 
-  Data::Stag::HashDB
+  Data::Stag::HashDB - build indexes over Stag files or objects
 
 =head1 SYNOPSIS
 

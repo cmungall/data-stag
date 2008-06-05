@@ -2,7 +2,7 @@ package Data::Stag::DTDWriter;
 
 =head1 NAME
 
-  Data::Stag::DTDWriter
+  Data::Stag::DTDWriter - DTD Writer
 
 =head1 SYNOPSIS
 

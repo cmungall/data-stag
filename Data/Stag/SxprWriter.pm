@@ -2,7 +2,7 @@ package Data::Stag::SxprWriter;
 
 =head1 NAME
 
-  Data::Stag::SxprWriter
+  Data::Stag::SxprWriter - writes Stag S-expression format
 
 =head1 SYNOPSIS
 

@@ -2,7 +2,7 @@ package Data::Stag::SAX2Stag;
 
 =head1 NAME
 
-  Data::Stag::SAX2Stag
+  Data::Stag::SAX2Stag - converts SAX events into Stag events
 
 =head1 SYNOPSIS
 

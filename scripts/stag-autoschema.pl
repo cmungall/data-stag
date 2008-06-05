@@ -92,13 +92,13 @@ __END__
 
 =head1 NAME 
 
-stag-autoschema.pl - writes the implicit stag-schema for a stag file
+stag-autoschema - writes the implicit stag-schema for a stag file
 
 =head1 SYNOPSIS
 
-  stag-autoschema.pl -w sxpr sample-data.xml
+  stag-autoschema -w sxpr sample-data.xml
 
-  stag-autoschema.pl -dtd sample-data.xml
+  stag-autoschema -dtd sample-data.xml
 
 =head1 DESCRIPTION
 

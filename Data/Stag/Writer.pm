@@ -2,7 +2,7 @@ package Data::Stag::Writer;
 
 =head1 NAME
 
-  Data::Stag::Writer
+  Data::Stag::Writer - base class for all Writers
 
 =head1 SYNOPSIS
 

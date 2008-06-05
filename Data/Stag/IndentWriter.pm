@@ -2,7 +2,7 @@ package Data::Stag::IndentWriter;
 
 =head1 NAME
 
-  Data::Stag::IndentWriter
+  Data::Stag::IndentWriter - writes stag events into stag indent format
 
 =head1 SYNOPSIS
 

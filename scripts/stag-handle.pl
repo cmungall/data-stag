@@ -123,12 +123,12 @@ __END__
 
 =head1 NAME
 
-stag-handle.pl - streams a stag file through a handler into a writer
+stag-handle - streams a stag file through a handler into a writer
 
 =head1 SYNOPSIS
 
-  stag-handle.pl -w itext -c my-handler.pl myfile.xml > processed.itext
-  stag-handle.pl -w itext -p My::Parser -m My::Handler myfile.xml > processed.itext
+  stag-handle -w itext -c my-handler.pl myfile.xml > processed.itext
+  stag-handle -w itext -p My::Parser -m My::Handler myfile.xml > processed.itext
 
 =head1 DESCRIPTION
 

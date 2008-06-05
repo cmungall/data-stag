@@ -95,15 +95,15 @@ __END__
 
 =head1 NAME 
 
-stag-query.pl - aggregare queries
+stag-query - aggregare queries
 
 =head1 SYNOPSIS
 
-  stag-query.pl avg person/age file.xml
+  stag-query avg person/age file.xml
 
-  stag-query.pl sum person/salary file.xml
+  stag-query sum person/salary file.xml
 
-  stag-query.pl 'sub { $agg .= ", ".shift }' person/name file.xml
+  stag-query 'sub { $agg .= ", ".shift }' person/name file.xml
 
 =head1 DESCRIPTION
 

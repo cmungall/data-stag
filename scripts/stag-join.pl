@@ -89,13 +89,13 @@ __END__
 
 =head1 NAME 
 
-stag-join.pl - joins two stag files together based around common key
+stag-join - joins two stag files together based around common key
 
 =head1 SYNOPSIS
 
-  stag-join.pl  -w xml country/city_id=capital/capital_id countries.xml capitals.xml
+  stag-join  -w xml country/city_id=capital/capital_id countries.xml capitals.xml
 
-  stag-join.pl  -w itext gene/tax_id=species/tax_id genedb.itext speciesdb.itext
+  stag-join  -w itext gene/tax_id=species/tax_id genedb.itext speciesdb.itext
 
 =head1 DESCRIPTION
 

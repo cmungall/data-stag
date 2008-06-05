@@ -2,7 +2,7 @@ package Data::Stag::Arr2HTML;
 
 =head1 NAME
 
-  Data::Stag::Arr2HTML
+  Data::Stag::Arr2HTML - Array to HTML handler
 
 =head1 SYNOPSIS
 

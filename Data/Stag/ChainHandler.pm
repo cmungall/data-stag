@@ -2,7 +2,7 @@ package Data::Stag::ChainHandler;
 
 =head1 NAME
 
-  Data::Stag::ChainHandler
+  Data::Stag::ChainHandler - Chain Handler
 
 =head1 SYNOPSIS
 

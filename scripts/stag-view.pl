@@ -90,11 +90,11 @@ __END__
 
 =head1 NAME 
 
-stag-view.pl - draws an expandable Tk tree diagram showing stag data
+stag-view - draws an expandable Tk tree diagram showing stag data
 
 =head1 SYNOPSIS
 
-  stag-view.pl  file1.xml
+  stag-view  file1.xml
 
 =head1 DESCRIPTION
 
