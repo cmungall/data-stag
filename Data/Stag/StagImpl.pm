@@ -363,6 +363,9 @@ sub _gethandlerobj {
     elsif ($fmt =~ /perl/i) {
         $writer = "Data::Stag::PerlWriter";
     }
+    elsif ($fmt =~ /json/i) {
+        $writer = "Data::Stag::JSONWriter";
+    }
     elsif ($fmt =~ /dtd/i) {
         $writer = "Data::Stag::DTDWriter";
     }
