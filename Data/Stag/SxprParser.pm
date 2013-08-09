@@ -32,7 +32,7 @@ use Data::Stag qw(:all);
 use base qw(Data::Stag::BaseGenerator Exporter);
 
 use vars qw($VERSION);
-$VERSION="0.11";
+$VERSION="0.13";
 
 sub fmtstr {
     return 'sxpr';

@@ -20,7 +20,7 @@ use base qw(Data::Stag::Writer);
 use Carp;
 
 use vars qw($VERSION);
-$VERSION="0.11";
+$VERSION="0.13";
 
 sub fmtstr {
     return 'indent';

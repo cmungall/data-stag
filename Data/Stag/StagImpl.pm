@@ -30,7 +30,7 @@ use Data::Stag::Util qw(rearrange);
 use base qw(Data::Stag::StagI);
 
 use vars qw($VERSION);
-$VERSION="0.11";
+$VERSION="0.13";
 
 
 sub new {

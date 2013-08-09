@@ -269,7 +269,7 @@ use Carp;
 use Data::Stag;
 
 use vars qw($VERSION);
-$VERSION="0.11";
+$VERSION="0.13";
 
 sub EMITS    { () }
 sub CONSUMES { () }
