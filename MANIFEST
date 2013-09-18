@@ -16,6 +16,7 @@ Data/Stag/ITextParser.pm
 Data/Stag/ITextWriter.pm
 Data/Stag/IndentParser.pm
 Data/Stag/IndentWriter.pm
+Data/Stag/JSONWriter.pm
 Data/Stag/PerlWriter.pm
 Data/Stag/PodParser.pm
 Data/Stag/SAX2Stag.pm

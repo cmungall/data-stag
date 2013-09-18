@@ -12,3 +12,18 @@ foreach my $f (@ARGV) {
     $p->parse($f);
 }
 
+__END__
+
+=head1 NAME
+
+stag-itext2simple - converts between stag formats
+
+=head1 DESCRIPTION
+
+Converts from itext to simple format.
+
+=head1 SEE ALSO
+
+L<Data::Stag>
+
+=cut

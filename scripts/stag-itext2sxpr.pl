@@ -11,4 +11,18 @@ foreach my $f (@ARGV) {
 }
 
 
+__END__
 
+=head1 NAME
+
+stag-itext2sxpr - converts between stag formats
+
+=head1 DESCRIPTION
+
+Converts from itext to sxpr format.
+
+=head1 SEE ALSO
+
+L<Data::Stag>
+
+=cut
