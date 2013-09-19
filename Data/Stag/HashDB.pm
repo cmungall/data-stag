@@ -37,7 +37,7 @@ Used for building indexes over Stag files or objects
 You need to provide a B<record_type> - this is the type of element
 that will be indexed
 
-You need to provide a N<unique_key> - this is a single value used to
+You need to provide a B<unique_key> - this is a single value used to
 index the B<record_type>s
 
 For example, if we have data in the stag structure below, and if ss_no

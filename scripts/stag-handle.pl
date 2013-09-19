@@ -135,7 +135,9 @@ stag-handle - streams a stag file through a handler into a writer
 will take a Stag compatible format (xml, sxpr or itext), turn the data
 into an event stream passing it through my-handler.pl
 
-=over ARGUMENTS
+=head1 ARGUMENTS
+
+=over
 
 =item -help|h
 

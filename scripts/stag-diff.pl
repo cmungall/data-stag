@@ -186,7 +186,9 @@ stag-diff - finds the difference between two stag files
 Compares two data trees and reports whether they match. If they do not
 match, the mismatch is reported.
 
-=over ARGUMENTS
+=head2 ARGUMENTS
+
+=over
 
 =item -help|h
 

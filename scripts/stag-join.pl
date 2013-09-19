@@ -105,6 +105,8 @@ file
 
 =head1 ARGUMENTS
 
+=over
+
 =item -p|parser FORMAT
 
 FORMAT is one of xml, sxpr or itext, or the name of a perl module
@@ -114,6 +116,8 @@ xml assumed as default
 =item -w|writer FORMAT
 
 FORMAT is one of xml, sxpr or itext, or the name of a perl module
+
+=back
 
 =head1 LIMITATIONS
 
