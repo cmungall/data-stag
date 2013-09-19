@@ -149,8 +149,6 @@ FORMAT is one of xml, sxpr or itext, or the name of a perl module
 
 all parse error events go to this module
 
-=item 
-
 =item -r|root NODE_NAME
 
 if this is specified, NODE_NAME becomes the root of the stag tree, and
