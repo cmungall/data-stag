@@ -75,27 +75,27 @@ WriteMakefile(
 				},
 	      'EXE_FILES'    => [
                                  qw(
-				    scripts/stag-autoschema.pl
-				    scripts/stag-db.pl
-				    scripts/stag-diff.pl
-				    scripts/stag-drawtree.pl
-				    scripts/stag-filter.pl
-				    scripts/stag-findsubtree.pl
-				    scripts/stag-flatten.pl
-				    scripts/stag-grep.pl
-				    scripts/stag-handle.pl
-				    scripts/stag-itext2simple.pl
-				    scripts/stag-itext2sxpr.pl
-				    scripts/stag-itext2xml.pl
-				    scripts/stag-join.pl
-				    scripts/stag-merge.pl
-				    scripts/stag-mogrify.pl
-				    scripts/stag-parse.pl
-				    scripts/stag-query.pl
-				    scripts/stag-splitter.pl
-				    scripts/stag-view.pl
-				    scripts/stag-xml2itext.pl
-				    scripts/stag-itext2simple.pl
+				    scripts/stag-autoschema
+				    scripts/stag-db
+				    scripts/stag-diff
+				    scripts/stag-drawtree
+				    scripts/stag-filter
+				    scripts/stag-findsubtree
+				    scripts/stag-flatten
+				    scripts/stag-grep
+				    scripts/stag-handle
+				    scripts/stag-itext2simple
+				    scripts/stag-itext2sxpr
+				    scripts/stag-itext2xml
+				    scripts/stag-join
+				    scripts/stag-merge
+				    scripts/stag-mogrify
+				    scripts/stag-parse
+				    scripts/stag-query
+				    scripts/stag-splitter
+				    scripts/stag-view
+				    scripts/stag-xml2itext
+				    scripts/stag-itext2simple
                                    )
 				],
 	      'dist'         => { 

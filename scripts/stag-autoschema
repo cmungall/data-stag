@@ -134,7 +134,7 @@ The cardinality mnemonics are as follows:
 
 0 or one
 
-=item *
+=item *Z<>
 
 0 or more
 

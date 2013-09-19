@@ -958,7 +958,7 @@ we can create a handler that writes person/name like this:
   $h = Data::Stag->makehandler(
                                person => sub { my ($self,$stag) = @_;
                                                print $stag->name;
-                                               return $stag; # dont change tree
+                                               return $stag; # don't change tree
                                              });
   $stag = Data::Stag->parse(-str=>"(...)", -handler=>$h)
 
