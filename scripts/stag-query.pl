@@ -95,7 +95,7 @@ __END__
 
 =head1 NAME 
 
-stag-query - aggregare queries
+stag-query - aggregate queries
 
 =head1 SYNOPSIS
 

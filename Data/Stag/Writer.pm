@@ -93,7 +93,7 @@ to be used by classes that subclass this one
 
        Title: writef
 
-As write, analagous to printf
+As write, analogous to printf
 
 
 =cut

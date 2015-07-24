@@ -220,7 +220,7 @@ __END__
 =head1 DESCRIPTION
 
 This module is for manipulating data as hierarchical tag/value
-pairs (Structured TAGs or Simple Tree AGgreggates). These
+pairs (Structured TAGs or Simple Tree AGgregates). These
 datastructures can be represented as nested arrays, which have the
 advantage of being native to perl. A simple example is shown below:
 
@@ -259,7 +259,7 @@ Advanced querying is performed by passing functions, for example:
                      sub {shift->sget('family_name') =~ /^A/});
 
 One of the things that marks this module out against other XML modules
-is this emphasis on a B<functional> approach as an obect-oriented or
+is this emphasis on a B<functional> approach as an object-oriented or
 procedural approach.
 
 For full information on the stag project, see
@@ -1559,9 +1559,9 @@ returns all terminal children of current node
 
 does a relational style inner join - see previous example in this doc
 
-key can either be a single node name that must be shared (analagous to
+key can either be a single node name that must be shared (analogous to
 SQL INNER JOIN .. USING), or a key1=key2 equivalence relation
-(analagous to SQL INNER JOIN ... ON)
+(analogous to SQL INNER JOIN ... ON)
 
 =head3 qmatch (qm)
 
@@ -1908,7 +1908,7 @@ parses a file and fires events (e.g. sxpr to xml)
 
 =item stag-query.pl
 
-aggregare queries
+aggregate queries
 
 =item stag-split.pl
 
